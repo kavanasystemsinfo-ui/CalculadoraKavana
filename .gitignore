@@ -1,0 +1,19 @@
+# AI/TDD Portable Kit local runtime files
+tools-ai/notebooklm/chrome_profile/
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.log

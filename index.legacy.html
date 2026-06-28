@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProdCalc | Eficiencia de Producción</title>
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        /* ===== CSS Variables ===== */
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-primary: #6366f1;
+            --accent-secondary: #f59e0b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border-subtle: rgba(255, 255, 255, 0.05);
+            --input-bg: #0f172a;
+            --input-border: #334155;
+        }
+
+        /* ===== Reset & Base ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 560px;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-subtle);
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--accent-secondary);
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ===== Tabs Navigation ===== */
+        .tab-nav {
+            display: flex;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 4px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 10px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== Common Components ===== */
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        input,
+        select,
+        textarea {
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            font-size: 16px;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-size: 13px;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
+            color: white;
+            box-shadow: 0 8px 16px -4px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--accent-secondary);
+            color: #000;
+            box-shadow: 0 8px 16px -4px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px dashed var(--input-border);
+            color: var(--accent-primary);
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 11px;
+            border-radius: 10px;
+            width: auto;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 10px;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .row .flex-1 {
+            flex: 1;
+            min-width: 0;
+        }
+        .row .flex-2 {
+            flex: 2;
+            min-width: 0;
+        }
+        .row .flex-3 {
+            flex: 3;
+            min-width: 0;
+        }
+
+        .row label {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-bottom: 3px;
+            display: block;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== Cards ===== */
+        .card {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .card:active {
+            transform: scale(0.99);
+        }
+
+        .card-title {
+            font-weight: 900;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .card-meta {
+            font-size: 12px;
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        .card-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-top: 6px;
+        }
+
+        .badge-pieces {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--accent-primary);
+        }
+
+        .badge-meters {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-secondary);
+        }
+
+        /* ===== Results ===== */
+        .results-box {
+            margin-top: 20px;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 16px;
+            border-radius: 20px;
+            display: none;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--text-dim);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .efficiency-card {
+            background: var(--accent-secondary);
+            color: #000;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 12px;
+            transition: background 0.5s ease;
+        }
+
+        .efficiency-label {
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .efficiency-value {
+            font-size: 48px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        /* ===== Empty State ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state .emoji {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-subtle);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* ===== Scrollbar ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-dim);
+            border-radius: 4px;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 480px) {
+            .container {
+                padding: 16px;
+                border-radius: 20px;
+            }
+            .tab-btn {
+                font-size: 10px;
+                padding: 8px 4px;
+            }
+            .efficiency-value {
+                font-size: 36px;
+            }
+            .row {
+                flex-wrap: wrap;
+            }
+            .row .flex-1,
+            .row .flex-2,
+            .row .flex-3 {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <div class="subtitle">HERRAMIENTAS DE PRODUCCIÓN</div>
+            <h1>CONTROL DE PLANTA</h1>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('templates')">📋 Plantillas</button>
+            <button class="tab-btn" onclick="switchTab('production')">📝 Producción</button>
+            <button class="tab-btn" onclick="switchTab('history')">📊 Historial</button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 1: TEMPLATES (Plantillas)                                 -->
+        <!-- ============================================================ -->
+        <div id="tab-templates" class="tab-content active">
+            <div id="templates-list"></div>
+            <button class="btn btn-outline" onclick="openTemplateModal()" style="margin-top:10px;">
+                + Crear Nueva Plantilla
+            </button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 2: PRODUCTION (Producción)                                -->
+        <!-- ============================================================ -->
+        <div id="tab-production" class="tab-content">
+            <div id="production-content">
+                <div class="empty-state">
+                    <div class="emoji">📋</div>
+                    <p>Selecciona una plantilla en la pestaña <strong>Plantillas</strong> para empezar a registrar producción.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 3: HISTORY (Historial)                                    -->
+        <!-- ============================================================ -->
+        <div id="tab-history" class="tab-content">
+            <div id="history-list"></div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: Template Editor                                         -->
+    <!-- ============================================================ -->
+    <div class="modal-overlay" id="template-modal">
+        <div class="modal">
+            <h2 id="modal-title">Nueva Plantilla</h2>
+
+            <div class="section">
+                <span class="section-title">Información General</span>
+                <input type="text" id="tpl-name" placeholder="Nombre de la plantilla (ej: Línea Ensamblaje A)" style="margin-bottom:8px;">
+                <input type="text" id="tpl-factory" placeholder="Nombre de la fábrica / área (opcional)" style="margin-bottom:8px;">
+                <textarea id="tpl-desc" rows="2" placeholder="Descripción (opcional)"></textarea>
+            </div>
+
+            <div class="section">
+                <span class="section-title">Rendimiento Esperado</span>
+                <div class="row">
+                    <div class="flex-1">
+                        <label>Tipo</label>
+                        <select id="tpl-eff-type">
+                            <option value="meters_per_hour">Metros / Hora</option>
+                            <option value="pieces_per_hour">Piezas / Hora</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label>Valor Esperado</label>
+                        <input type="number" id="tpl-eff-value" step="0.01" placeholder="Ej: 15000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <span class="section-title">Modelos de Fabricación</span>
+                <div id="modal-models-list"></div>
+                <button class="btn btn-outline btn-sm" onclick="addModelRow()" style="margin-top:6px;">+ Añadir Modelo</button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="saveTemplate()" style="flex:2;">Guardar Plantilla</button>
+                <button class="btn btn-danger btn-sm btn-icon" onclick="closeTemplateModal()" style="flex:0; width:50px;">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // DATA MODELS
+        // ================================================================
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        }
+
+        // ================================================================
+        // STORAGE
+        // ================================================================
+
+        const Storage = {
+            _key(name) {
+                return 'procalc_' + name;
+            },
+
+            getTemplates() {
+                try {
+                    return JSON.parse(localStorage.getItem(this._key('templates'))) || [];
+                } catch { return []; }
+            },
+
+            saveTemplate(tpl) {
+                const list = this.getTemplates();
+                const idx = list.findIndex(t => t.id === tpl.id);
+                if (idx >= 0) list[idx] = tpl;
+                else list.push(tpl);
+                localStorage.setItem(this._key('templates'), JSON.stringify(list));
+            },
+
+            deleteTemplate(id) {
+                const list = this.getTemplates().filter(t => t.id !== id);
+                localStorage.setItem(this._key('templates'), JSON.stringify(list));
+            },
+
+            getSessions() {
+                try {
+                    return JSON.parse(localStorage.getItem(this._key('sessions'))) || [];
+                } catch { return []; }
+            },
+
+            saveSession(session) {
+                const list = this.getSessions();
+                list.push(session);
+                localStorage.setItem(this._key('sessions'), JSON.stringify(list));
+            },
+
+            deleteSession(id) {
+                const list = this.getSessions().filter(s => s.id !== id);
+                localStorage.setItem(this._key('sessions'), JSON.stringify(list));
+            },
+
+            exportJSON(data, filename) {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+
+            importJSON(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        try {
+                            resolve(JSON.parse(e.target.result));
+                        } catch (err) {
+                            reject(new Error('Archivo JSON inválido'));
+                        }
+                    };
+                    reader.onerror = () => reject(new Error('Error al leer archivo'));
+                    reader.readAsText(file);
+                });
+            }
+        };
+
+        // ================================================================
+        // ENGINE (Cálculos)
+        // ================================================================
+
+        const Engine = {
+            /**
+             * Calcula metros lineales a partir de medida (mm) y cantidad de piezas.
+             */
+            calcMeters(lengthMm, pieces) {
+                return (lengthMm / 1000) * pieces;
+            },
+
+            /**
+             * Calcula la eficiencia.
+             * @param {number} totalProduced - Total producido (metros o piezas)
+             * @param {number} expectedPerHour - Valor esperado por hora
+             * @param {number} hoursWorked - Horas trabajadas
+             * @returns {{ theoreticalTime: number, efficiency: number }}
+             */
+            calcEfficiency(totalProduced, expectedPerHour, hoursWorked) {
+                if (!totalProduced || !expectedPerHour || !hoursWorked) return null;
+                if (totalProduced <= 0 || expectedPerHour <= 0 || hoursWorked <= 0) return null;
+                const theoreticalTime = +(totalProduced / expectedPerHour).toFixed(2);
+                const ratio = +(theoreticalTime / hoursWorked).toFixed(2);
+                const efficiency = Math.round(ratio * 100);
+                return { theoreticalTime, efficiency };
+            },
+
+            /**
+             * Ejecuta el cálculo completo para una sesión de producción.
+             */
+            runSession(template, entries, shiftHours, coilMinutes) {
+                // Calcular totales desde las entradas
+                let totalPieces = 0;
+                let totalMeters = 0;
+
+                entries.forEach(e => {
+                    totalPieces += e.pieces || 0;
+                    totalMeters += this.calcMeters(e.lengthMm, e.pieces || 0);
+                });
+
+                // Determinar qué se usa para eficiencia según el tipo
+                const isMeters = template.efficiencyType === 'meters_per_hour';
+                const totalProduced = isMeters ? totalMeters : totalPieces;
+                const expected = template.expectedEfficiency;
+
+                const calc = this.calcEfficiency(totalProduced, expected, shiftHours);
+
+                // Cálculo de cambio de bobina
+                let coilEfficiency = null;
+                if (coilMinutes && coilMinutes.length > 0) {
+                    const B = coilMinutes.reduce((a, b) => a + b, 0);
+                    const N = coilMinutes.length;
+                    if (B > 0) {
+                        coilEfficiency = {
+                            totalMinutes: B,
+                            count: N,
+                            efficiency: +((N * 5 * 100) / B).toFixed(2)
+                        };
+                    }
+                }
+
+                return {
+                    totalPieces,
+                    totalMeters,
+                    theoreticalTime: calc?.theoreticalTime || 0,
+                    efficiency: calc?.efficiency || 0,
+                    coilEfficiency
+                };
+            }
+        };
+
+        // ================================================================
+        // UI HELPERS
+        // ================================================================
+
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            const buttons = document.querySelectorAll('.tab-btn');
+            const map = { templates: 0, production: 1, history: 2 };
+            if (map[name] !== undefined) buttons[map[name]].classList.add('active');
+
+            // Refresh content on tab switch
+            if (name === 'templates') renderTemplates();
+            if (name === 'history') renderHistory();
+        }
+
+        function effTypeLabel(type) {
+            return type === 'meters_per_hour' ? '📏 metros/hora' : '📦 piezas/hora';
+        }
+
+        function effTypeBadge(type) {
+            return type === 'meters_per_hour' ? 'badge-meters' : 'badge-pieces';
+        }
+
+        function shortId(id) {
+            return id.slice(-6);
+        }
+
+        function formatNum(n, decimals) {
+            if (decimals !== undefined) {
+                return Number(n).toLocaleString('es-ES', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+            }
+            return Number(n).toLocaleString('es-ES');
+        }
+
+        function formatDate(iso) {
+            const d = new Date(iso);
+            return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function effColor(pct) {
+            if (pct >= 100) return '#22c55e';
+            if (pct >= 80) return '#f59e0b';
+            return '#ef4444';
+        }
+
+        // ================================================================
+        // TAB 1: TEMPLATES
+        // ================================================================
+
+        function renderTemplates() {
+            const list = Storage.getTemplates();
+            const container = document.getElementById('templates-list');
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">🏭</div>
+                        <p>Aún no tienes plantillas.<br>Crea tu primera plantilla de producción.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map(tpl => `
+                <div class="card" onclick="selectTemplateForProduction('${tpl.id}')" style="cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <div class="card-title">${escapeHtml(tpl.name)}</div>
+                            <div class="card-meta">${tpl.factoryName ? escapeHtml(tpl.factoryName) + ' · ' : ''}${tpl.models.length} modelo(s)</div>
+                            <span class="card-badge ${effTypeBadge(tpl.efficiencyType)}">${effTypeLabel(tpl.efficiencyType)} · ${formatNum(tpl.expectedEfficiency)}</span>
+                        </div>
+                        <div class="btn-group" style="flex-shrink:0;">
+                            <button class="btn btn-sm btn-icon" style="background:rgba(99,102,241,0.15);color:var(--accent-primary);" onclick="event.stopPropagation();editTemplate('${tpl.id}')" title="Editar">✏️</button>
+                            <button class="btn btn-sm btn-icon" style="background:rgba(239,68,68,0.15);color:var(--danger);" onclick="event.stopPropagation();confirmDeleteTemplate('${tpl.id}')" title="Eliminar">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ---- Template Selection ----
+
+        let activeTemplateId = null;
+        let activeSessionEntries = [];
+        let activeCoilMinutes = [];
+
+        function selectTemplateForProduction(id) {
+            activeTemplateId = id;
+            switchTab('production');
+            renderProduction();
+        }
+
+        // ---- Template CRUD ----
+
+        let editingTemplateId = null;
+
+        function openTemplateModal(tplId) {
+            editingTemplateId = tplId || null;
+            const modal = document.getElementById('template-modal');
+            document.getElementById('modal-title').textContent = tplId ? 'Editar Plantilla' : 'Nueva Plantilla';
+
+            if (tplId) {
+                const tpl = Storage.getTemplates().find(t => t.id === tplId);
+                if (tpl) {
+                    document.getElementById('tpl-name').value = tpl.name || '';
+                    document.getElementById('tpl-factory').value = tpl.factoryName || '';
+                    document.getElementById('tpl-desc').value = tpl.description || '';
+                    document.getElementById('tpl-eff-type').value = tpl.efficiencyType || 'meters_per_hour';
+                    document.getElementById('tpl-eff-value').value = tpl.expectedEfficiency || '';
+                    renderModalModels(tpl.models || []);
+                    modal.classList.add('visible');
+                    return;
+                }
+            }
+
+            // New template
+            document.getElementById('tpl-name').value = '';
+            document.getElementById('tpl-factory').value = '';
+            document.getElementById('tpl-desc').value = '';
+            document.getElementById('tpl-eff-type').value = 'meters_per_hour';
+            document.getElementById('tpl-eff-value').value = '';
+            renderModalModels([]);
+            modal.classList.add('visible');
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('template-modal').classList.remove('visible');
+            editingTemplateId = null;
+        }
+
+        function renderModalModels(models) {
+            const container = document.getElementById('modal-models-list');
+            if (models.length === 0) {
+                container.innerHTML = `<div class="card-meta" style="padding:8px 0;">Sin modelos aún. Añade al menos uno.</div>`;
+                return;
+            }
+            container.innerHTML = models.map((m, i) => `
+                <div class="row">
+                    <div class="flex-1">
+                        <label>Nombre</label>
+                        <input type="text" class="mdl-name" value="${escapeHtml(m.name)}" placeholder="Modelo">
+                    </div>
+                    <div class="flex-1">
+                        <label>Medida (mm)</label>
+                        <input type="number" class="mdl-length" value="${m.lengthMm || ''}" step="0.01" placeholder="mm">
+                    </div>
+                    <button class="btn btn-sm btn-icon" style="background:rgba(239,68,68,0.15);color:var(--danger);margin-top:16px;" onclick="removeModelRow(this)">×</button>
+                </div>
+            `).join('');
+        }
+
+        function addModelRow() {
+            const container = document.getElementById('modal-models-list');
+            // Remove empty state if present
+            const empty = container.querySelector('.card-meta');
+            if (empty) container.innerHTML = '';
+
+            const div = document.createElement('div');
+            div.className = 'row';
+            div.innerHTML = `
+                <div class="flex-1">
+                    <label>Nombre</label>
+                    <input type="text" class="mdl-name" placeholder="Modelo">
+                </div>
+                <div class="flex-1">
+                    <label>Medida (mm)</label>
+                    <input type="number" class="mdl-length" step="0.01" placeholder="mm">
+                </div>
+                <button class="btn btn-sm btn-icon" style="background:rgba(239,68,68,0.15);color:var(--danger);margin-top:16px;" onclick="removeModelRow(this)">×</button>
+            `;
+            container.appendChild(div);
+            div.querySelector('.mdl-name').focus();
+        }
+
+        function removeModelRow(btn) {
+            const row = btn.closest('.row');
+            row.remove();
+            // If no rows left, show empty state
+            const container = document.getElementById('modal-models-list');
+            if (container.children.length === 0) {
+                container.innerHTML = `<div class="card-meta" style="padding:8px 0;">Sin modelos aún. Añade al menos uno.</div>`;
+            }
+        }
+
+        function collectModalModels() {
+            const rows = document.querySelectorAll('#modal-models-list .row');
+            const models = [];
+            rows.forEach(row => {
+                const name = row.querySelector('.mdl-name')?.value.trim();
+                const lengthMm = parseFloat(row.querySelector('.mdl-length')?.value);
+                if (name && lengthMm > 0) {
+                    models.push({
+                        id: generateId(),
+                        name,
+                        lengthMm,
+                        piecesPerPallet: 480
+                    });
+                }
+            });
+            return models;
+        }
+
+        function saveTemplate() {
+            const name = document.getElementById('tpl-name').value.trim();
+            if (!name) {
+                alert('El nombre de la plantilla es obligatorio.');
+                return;
+            }
+
+            const factoryName = document.getElementById('tpl-factory').value.trim();
+            const description = document.getElementById('tpl-desc').value.trim();
+            const efficiencyType = document.getElementById('tpl-eff-type').value;
+            const expectedEfficiency = parseFloat(document.getElementById('tpl-eff-value').value);
+            if (!expectedEfficiency || expectedEfficiency <= 0) {
+                alert('Introduce un valor de rendimiento esperado válido.');
+                return;
+            }
+
+            const models = collectModalModels();
+            if (models.length === 0) {
+                alert('Añade al menos un modelo de fabricación.');
+                return;
+            }
+
+            const now = new Date().toISOString();
+
+            if (editingTemplateId) {
+                // Update existing
+                const list = Storage.getTemplates();
+                const idx = list.findIndex(t => t.id === editingTemplateId);
+                if (idx >= 0) {
+                    list[idx] = {
+                        ...list[idx],
+                        name,
+                        factoryName,
+                        description,
+                        efficiencyType,
+                        expectedEfficiency,
+                        models,
+                        updatedAt: now
+                    };
+                    localStorage.setItem(Storage._key('templates'), JSON.stringify(list));
+                }
+            } else {
+                // Create new
+                const tpl = {
+                    id: generateId(),
+                    name,
+                    factoryName,
+                    description,
+                    efficiencyType,
+                    expectedEfficiency,
+                    models,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                Storage.saveTemplate(tpl);
+            }
+
+            closeTemplateModal();
+            renderTemplates();
+        }
+
+        function editTemplate(id) {
+            openTemplateModal(id);
+        }
+
+        function confirmDeleteTemplate(id) {
+            const tpl = Storage.getTemplates().find(t => t.id === id);
+            if (!tpl) return;
+            if (confirm(`¿Eliminar la plantilla "${tpl.name}"? Esta acción no se puede deshacer.`)) {
+                Storage.deleteTemplate(id);
+                renderTemplates();
+                if (activeTemplateId === id) {
+                    activeTemplateId = null;
+                    renderProduction();
+                }
+            }
+        }
+
+        // ================================================================
+        // TAB 2: PRODUCTION
+        // ================================================================
+
+        function renderProduction() {
+            const container = document.getElementById('production-content');
+
+            if (!activeTemplateId) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">📋</div>
+                        <p>Selecciona una plantilla en la pestaña <strong>Plantillas</strong> para empezar a registrar producción.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tpl = Storage.getTemplates().find(t => t.id === activeTemplateId);
+            if (!tpl) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">⚠️</div>
+                        <p>La plantilla seleccionada ya no existe. Selecciona otra.</p>
+                    </div>
+                `;
+                activeTemplateId = null;
+                return;
+            }
+
+            // Generate rows from template models
+            const entriesHtml = tpl.models.map(m => `
+                <div class="row">
+                    <div class="flex-2">
+                        <label>${escapeHtml(m.name)}</label>
+                        <div style="font-size:11px;color:var(--text-dim);">${m.lengthMm} mm</div>
+                    </div>
+                    <div class="flex-1">
+                        <label>Palets</label>
+                        <input type="number" class="prod-pallets" data-model-id="${m.id}" data-length="${m.lengthMm}" data-name="${escapeHtml(m.name)}" step="1" min="0" placeholder="0" inputmode="numeric">
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="section">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <div>
+                            <span class="section-title" style="margin-bottom:0;">${escapeHtml(tpl.name)}</span>
+                            <div style="font-size:11px;color:var(--text-dim);">
+                                ${effTypeLabel(tpl.efficiencyType)} · Esperado: ${formatNum(tpl.expectedEfficiency)}
+                                ${tpl.factoryName ? ' · ' + escapeHtml(tpl.factoryName) : ''}
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-icon" style="background:rgba(99,102,241,0.15);color:var(--accent-primary);" onclick="activeTemplateId=null;renderProduction();switchTab('templates');" title="Cambiar plantilla">🔄</button>
+                    </div>
+
+                    <span class="section-title">Producción por Modelo</span>
+                    <div id="prod-entries">${entriesHtml}</div>
+
+                    <div class="section" style="margin-top:16px;">
+                        <span class="section-title">Horas del Turno</span>
+                        <select id="prod-shift" onchange="autoCalcProduction()">
+                            <option value="7.75">7.75 h (Estándar)</option>
+                            <option value="7.5">7.50 h</option>
+                            <option value="7.0">7.00 h</option>
+                            <option value="6.5">6.50 h</option>
+                            <option value="6.0">6.00 h</option>
+                            <option value="5.5">5.50 h</option>
+                            <option value="5.0">5.00 h</option>
+                            <option value="4.5">4.50 h</option>
+                            <option value="4.0">4.00 h</option>
+                            <option value="3.5">3.50 h</option>
+                            <option value="3.0">3.00 h</option>
+                            <option value="2.5">2.50 h</option>
+                            <option value="2.0">2.00 h</option>
+                            <option value="1.5">1.50 h</option>
+                            <option value="1.0">1.00 h</option>
+                            <option value="0.5">0.50 h</option>
+                        </select>
+                    </div>
+
+                    <div class="section" style="margin-top:16px;border-top:1px solid var(--border-subtle);padding-top:16px;">
+                        <span class="section-title">Cambios de Bobina / Preparación (opcional)</span>
+                        <div style="display:flex;gap:8px;margin-bottom:10px;">
+                            <button class="btn btn-sm btn-primary" style="flex:1;padding:10px;" onclick="document.getElementById('camera-input-prod').click()">
+                                📷 Escanear
+                            </button>
+                            <input type="file" id="camera-input-prod" accept="image/*" capture="environment" style="display:none;" onchange="handleProdImageUpload(this)">
+                        </div>
+                        <textarea id="prod-coil-times" rows="2" placeholder="Ej: 8 6 9 7 8 (minutos)" oninput="autoCalcProduction()"></textarea>
+                        <div id="ocr-status-prod" style="font-size:12px;color:var(--accent-secondary);margin-top:4px;min-height:18px;font-weight:bold;"></div>
+                    </div>
+
+                    <div class="btn-group" style="margin-top:16px;">
+                        <button class="btn btn-primary" onclick="autoCalcProduction();scrollToResults();">📐 Calcular Eficiencia</button>
+                        <button class="btn btn-secondary" onclick="saveAndExportSession()">📥 Guardar y Exportar</button>
+                    </div>
+
+                    <div class="results-box" id="prod-results">
+                        <div class="result-item">
+                            <span class="result-label">Total Piezas</span>
+                            <span class="result-value" id="res-pieces">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Total Metros</span>
+                            <span class="result-value" id="res-meters">0.00</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Tiempo Teórico</span>
+                            <span class="result-value" id="res-theo">0.00 h</span>
+                        </div>
+                        <div id="coil-result-item" class="result-item" style="display:none;">
+                            <span class="result-label">Eficiencia Cambio</span>
+                            <span class="result-value" id="res-coil-eff">0%</span>
+                        </div>
+                        <div class="efficiency-card" id="eff-card-prod">
+                            <div class="efficiency-label">Eficiencia Final</div>
+                            <div class="efficiency-value"><span id="res-eff-prod">0</span>%</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function autoCalcProduction() {
+            const tpl = Storage.getTemplates().find(t => t.id === activeTemplateId);
+            if (!tpl) return;
+
+            const entries = [];
+            document.querySelectorAll('.prod-pallets').forEach(input => {
+                const pallets = parseFloat(input.value) || 0;
+                if (pallets > 0) {
+                    entries.push({
+                        modelId: input.dataset.modelId,
+                        modelName: input.dataset.name,
+                        lengthMm: parseFloat(input.dataset.length),
+                        pallets,
+                        pieces: pallets * 480
+                    });
+                }
+            });
+
+            const shiftHours = parseFloat(document.getElementById('prod-shift').value) || 7.75;
+
+            const raw = document.getElementById('prod-coil-times').value;
+            const coilMinutes = raw.split(/[\s,]+/).map(n => parseFloat(n)).filter(n => !isNaN(n));
+
+            const result = Engine.runSession(tpl, entries, shiftHours, coilMinutes);
+
+            // Update UI
+            const resultsBox = document.getElementById('prod-results');
+            resultsBox.style.display = 'block';
+
+            if (entries.length === 0) {
+                resultsBox.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('res-pieces').textContent = formatNum(result.totalPieces);
+            document.getElementById('res-meters').textContent = formatNum(result.totalMeters, 2);
+            document.getElementById('res-theo').textContent = result.theoreticalTime.toFixed(2) + ' h';
+
+            const eff = result.efficiency;
+            document.getElementById('res-eff-prod').textContent = eff;
+
+            const card = document.getElementById('eff-card-prod');
+            card.style.background = effColor(eff);
+
+            // Coil efficiency
+            const coilItem = document.getElementById('coil-result-item');
+            if (result.coilEfficiency) {
+                coilItem.style.display = 'flex';
+                document.getElementById('res-coil-eff').textContent = result.coilEfficiency.efficiency + '%';
+            } else {
+                coilItem.style.display = 'none';
+            }
+
+            // Store for session save
+            window._lastResult = result;
+            window._lastEntries = entries;
+            window._lastShift = shiftHours;
+            window._lastCoil = coilMinutes;
+        }
+
+        function scrollToResults() {
+            setTimeout(() => {
+                document.getElementById('prod-results').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        // ---- Production OCR ----
+
+        async function handleProdImageUpload(input) {
+            if (!input.files || !input.files[0]) return;
+            const img = input.files[0];
+            const statusDiv = document.getElementById('ocr-status-prod');
+
+            statusDiv.textContent = 'Iniciando OCR...';
+            statusDiv.style.color = 'var(--accent-secondary)';
+
+            try {
+                if (typeof Tesseract === 'undefined') {
+                    throw new Error('Tesseract.js no está cargado.');
+                }
+
+                const worker = await Tesseract.createWorker('eng', 1, {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            statusDiv.textContent = `Leyendo: ${Math.round(m.progress * 100)}%`;
+                        } else {
+                            statusDiv.textContent = `Estado: ${m.status}`;
+                        }
+                    }
+                });
+
+                await worker.setParameters({ tessedit_char_whitelist: '0123456789 ' });
+                const ret = await worker.recognize(img);
+                await worker.terminate();
+
+                const cleanText = ret.data.text.replace(/\n/g, ' ').replace(/[^0-9 ]/g, '');
+                if (!cleanText.trim()) {
+                    statusDiv.textContent = 'No se encontraron números.';
+                    statusDiv.style.color = 'var(--danger)';
+                    return;
+                }
+
+                const existing = document.getElementById('prod-coil-times').value;
+                const sep = existing.length > 0 ? ' ' : '';
+                document.getElementById('prod-coil-times').value = existing + sep + cleanText;
+
+                statusDiv.textContent = '✓ Lectura completada';
+                statusDiv.style.color = 'var(--success)';
+                autoCalcProduction();
+            } catch (err) {
+                statusDiv.textContent = 'Error: ' + (err.message || 'Fallo');
+                statusDiv.style.color = 'var(--danger)';
+            }
+        }
+
+        // ---- Save & Export ----
+
+        function saveAndExportSession() {
+            autoCalcProduction();
+
+            const tpl = Storage.getTemplates().find(t => t.id === activeTemplateId);
+            if (!tpl) return;
+
+            const result = window._lastResult;
+            const entries = window._lastEntries;
+            const shiftHours = window._lastShift;
+            const coilMinutes = window._lastCoil;
+
+            if (!result || !entries || entries.length === 0) {
+                alert('Primero calcula la eficiencia con datos válidos.');
+                return;
+            }
+
+            const session = {
+                id: generateId(),
+                templateId: tpl.id,
+                templateName: tpl.name,
+                factoryName: tpl.factoryName,
+                efficiencyType: tpl.efficiencyType,
+                expectedEfficiency: tpl.expectedEfficiency,
+                date: new Date().toISOString(),
+                shiftHours,
+                entries,
+                coilMinutes: coilMinutes || [],
+                ...result,
+                createdAt: new Date().toISOString()
+            };
+
+            Storage.saveSession(session);
+            exportSessionToExcel(session);
+
+            // Visual feedback
+            const btn = document.querySelector('.btn-secondary');
+            const orig = btn.textContent;
+            btn.textContent = '✓ Guardado!';
+            btn.style.background = '#22c55e';
+            setTimeout(() => {
+                btn.textContent = orig;
+                btn.style.background = '';
+            }, 1500);
+        }
+
+        function exportSessionToExcel(session) {
+            try {
+                const wsData = [
+                    ['Fecha', 'Plantilla', 'Fábrica', 'Turno (h)', 'Eficiencia (%)', 'Tiempo Teórico (h)',
+                        'Total Piezas', 'Total Metros', 'Tipo', 'Esperado/h'
+                    ],
+                    [
+                        formatDate(session.date),
+                        session.templateName,
+                        session.factoryName || '-',
+                        session.shiftHours,
+                        session.efficiency + '%',
+                        session.theoreticalTime,
+                        session.totalPieces,
+                        session.totalMeters,
+                        effTypeLabel(session.efficiencyType),
+                        session.expectedEfficiency
+                    ],
+                    [],
+                    ['Modelo', 'Medida (mm)', 'Palets', 'Piezas', 'Metros Lineales']
+                ];
+
+                session.entries.forEach(e => {
+                    wsData.push([
+                        e.modelName,
+                        e.lengthMm,
+                        e.pallets,
+                        e.pieces,
+                        Engine.calcMeters(e.lengthMm, e.pieces).toFixed(2)
+                    ]);
+                });
+
+                if (session.coilMinutes && session.coilMinutes.length > 0) {
+                    wsData.push([], ['Cambios Bobina (min)', ...session.coilMinutes]);
+                }
+
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(wsData);
+                XLSX.utils.book_append_sheet(wb, ws, 'Producción');
+
+                // Column widths
+                ws['!cols'] = [
+                    { wch: 14 }, { wch: 22 }, { wch: 18 }, { wch: 10 },
+                    { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 14 },
+                    { wch: 16 }, { wch: 12 }
+                ];
+
+                const filename = `produccion_${session.templateName.replace(/\s+/g, '_')}_${formatDate(session.date).replace(/\//g, '-')}.xlsx`;
+                XLSX.writeFile(wb, filename);
+            } catch (err) {
+                console.error('Excel export error:', err);
+                alert('Error al exportar a Excel. Asegúrate de que SheetJS está cargado.');
+            }
+        }
+
+        // ================================================================
+        // TAB 3: HISTORY
+        // ================================================================
+
+        function renderHistory() {
+            const list = Storage.getSessions();
+            const container = document.getElementById('history-list');
+
+            // Import button at top
+            const importBtn = `
+                <div style="margin-bottom:12px;">
+                    <button class="btn btn-outline btn-sm" onclick="importSessions()" style="width:auto;">📥 Importar Plantillas (JSON)</button>
+                </div>
+            `;
+
+            if (list.length === 0) {
+                container.innerHTML = importBtn + `
+                    <div class="empty-state">
+                        <div class="emoji">📊</div>
+                        <p>No hay sesiones guardadas todavía.<br>Registra producción y guárdala para verla aquí.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group by date (reverse chronological)
+            const sorted = [...list].reverse();
+
+            container.innerHTML = importBtn + sorted.map(s => {
+                const dateStr = formatDate(s.date);
+                return `
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:start;">
+                            <div>
+                                <div class="card-title">${escapeHtml(s.templateName)}</div>
+                                <div class="card-meta">${dateStr} · ${s.shiftHours}h · ${s.entries.length} modelo(s) ${s.factoryName ? '· ' + escapeHtml(s.factoryName) : ''}</div>
+                                <div style="margin-top:4px;">
+                                    <span style="font-weight:900;font-size:18px;color:${effColor(s.efficiency)};">${s.efficiency}%</span>
+                                    <span style="color:var(--text-dim);font-size:12px;">eficiencia</span>
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-icon" style="background:rgba(99,102,241,0.15);color:var(--accent-primary);" onclick="reExportSession('${s.id}')" title="Exportar Excel">📥</button>
+                                <button class="btn btn-sm btn-icon" style="background:rgba(239,68,68,0.15);color:var(--danger);" onclick="confirmDeleteSession('${s.id}')" title="Eliminar">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function reExportSession(id) {
+            const session = Storage.getSessions().find(s => s.id === id);
+            if (session) {
+                exportSessionToExcel(session);
+            }
+        }
+
+        function confirmDeleteSession(id) {
+            const session = Storage.getSessions().find(s => s.id === id);
+            if (!session) return;
+            if (confirm(`¿Eliminar la sesión del ${formatDate(session.date)} (${session.templateName})?`)) {
+                Storage.deleteSession(id);
+                renderHistory();
+            }
+        }
+
+        function importSessions() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                if (!e.target.files[0]) return;
+                try {
+                    const data = await Storage.importJSON(e.target.files[0]);
+                    if (Array.isArray(data)) {
+                        // Import templates
+                        const existing = Storage.getTemplates();
+                        const merged = [...existing];
+                        let added = 0;
+                        data.forEach(tpl => {
+                            if (tpl.name && tpl.models && tpl.efficiencyType) {
+                                const exists = merged.find(t => t.id === tpl.id);
+                                if (!exists) {
+                                    merged.push(tpl);
+                                    added++;
+                                }
+                            }
+                        });
+                        localStorage.setItem(Storage._key('templates'), JSON.stringify(merged));
+                        alert(`${added} plantilla(s) importadas correctamente.`);
+                        renderTemplates();
+                    } else if (data.name && data.models) {
+                        // Single template
+                        Storage.saveTemplate(data);
+                        alert('Plantilla importada correctamente.');
+                        renderTemplates();
+                    } else {
+                        alert('El archivo no contiene plantillas válidas.');
+                    }
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                }
+            };
+            input.click();
+        }
+
+        // ================================================================
+        // INIT
+        // ================================================================
+
+        function init() {
+            // PWA Registration
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(reg => console.log('SW Registered', reg))
+                        .catch(err => console.log('SW Error', err));
+                });
+            }
+
+            // Render templates on load
+            renderTemplates();
+            renderHistory();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+</body>
+</html>

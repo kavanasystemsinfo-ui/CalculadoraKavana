@@ -1,0 +1,10 @@
+{
+    "name": "procalc-engine-tests",
+    "version": "1.0.0",
+    "description": "Tests for the Production Calculator engine",
+    "type": "module",
+    "scripts": {
+        "test": "node --test tests/"
+    },
+    "private": true
+}

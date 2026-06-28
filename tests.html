@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ProdCalc - Tests Unitarios</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; background: #0f172a; color: #e2e8f0; padding: 24px; }
+        h1 { margin-bottom: 16px; font-size: 18px; }
+        .suite { margin-bottom: 24px; }
+        .suite-title { font-weight: bold; font-size: 14px; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
+        .test { padding: 6px 12px; font-size: 13px; border-left: 3px solid; margin-bottom: 4px; }
+        .pass { border-color: #22c55e; color: #22c55e; }
+        .fail { border-color: #ef4444; color: #ef4444; }
+        .summary { margin-top: 24px; padding: 16px; border-radius: 8px; font-size: 14px; font-weight: bold; }
+        .summary.all-pass { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .summary.has-fails { background: rgba(239,68,68,0.15); color: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>🧪 ProdCalc — Tests Unitarios (calculator.js)</h1>
+    <div id="results"></div>
+    <div id="summary"></div>
+
+    <script type="module">
+        import { Calculator } from './js/calculator.js';
+
+        // ---- Mini Test Runner ----
+        const results = [];
+        
+        function assert(condition, testName) {
+            results.push({ name: testName, passed: !!condition });
+        }
+
+        function assertEqual(actual, expected, testName) {
+            const pass = actual === expected;
+            results.push({
+                name: testName,
+                passed: pass,
+                detail: pass ? '' : `  Esperado: ${expected}, Obtenido: ${actual}`
+            });
+        }
+
+        function assertClose(actual, expected, tolerance, testName) {
+            const pass = Math.abs(actual - expected) <= tolerance;
+            results.push({
+                name: testName,
+                passed: pass,
+                detail: pass ? '' : `  Esperado: ~${expected} (±${tolerance}), Obtenido: ${actual}`
+            });
+        }
+
+        function renderResults() {
+            const container = document.getElementById('results');
+            const summaryEl = document.getElementById('summary');
+            
+            let currentSuite = '';
+            let html = '';
+
+            results.forEach(r => {
+                const suite = r.name.split(':')[0].trim();
+                if (suite !== currentSuite) {
+                    currentSuite = suite;
+                    html += `<div class="suite"><div class="suite-title">${suite}</div>`;
+                }
+                const cls = r.passed ? 'pass' : 'fail';
+                const icon = r.passed ? '✓' : '✗';
+                html += `<div class="test ${cls}">${icon} ${r.name}${r.detail ? ' — ' + r.detail : ''}</div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+
+            const passed = results.filter(r => r.passed).length;
+            const failed = results.filter(r => !r.passed).length;
+            const total = results.length;
+            const allPass = failed === 0;
+
+            summaryEl.className = `summary ${allPass ? 'all-pass' : 'has-fails'}`;
+            summaryEl.textContent = `${allPass ? '✓ ALL PASS' : '✗ FAILURES'} — ${passed}/${total} tests passed, ${failed} failed`;
+        }
+
+        // =========================================================
+        // SUITE: calcMeters
+        // =========================================================
+
+        assertEqual(Calculator.calcMeters(1000, 10), 10, 'calcMeters: 1000mm × 10 piezas = 10m');
+        assertEqual(Calculator.calcMeters(2700, 1), 2.7, 'calcMeters: 2700mm × 1 pieza = 2.7m');
+        assertEqual(Calculator.calcMeters(500, 0), 0, 'calcMeters: 0 piezas devuelve 0');
+        assertEqual(Calculator.calcMeters(0, 100), 0, 'calcMeters: 0 longitud devuelve 0');
+        assertEqual(Calculator.calcMeters(null, 100), 0, 'calcMeters: null longitud devuelve 0');
+        assertEqual(Calculator.calcMeters(-500, 10), 0, 'calcMeters: longitud negativa devuelve 0');
+        assertClose(Calculator.calcMeters(1289, 480), 618.72, 0.001, 'calcMeters: 1289mm × 480 pz = 618.72m');
+
+        // =========================================================
+        // SUITE: calcEfficiency
+        // =========================================================
+
+        {
+            const r = Calculator.calcEfficiency(2000, 2500, 7.75);
+            assertClose(r.theoreticalTime, 0.8, 0.01, 'calcEfficiency: tiempo teórico correcto');
+            assertClose(r.efficiency, 10.32, 0.1, 'calcEfficiency: eficiencia % correcta');
+        }
+
+        {
+            const r = Calculator.calcEfficiency(0, 2500, 7.75);
+            assertEqual(r.theoreticalTime, 0, 'calcEfficiency: 0 producido → 0 tiempo');
+            assertEqual(r.efficiency, 0, 'calcEfficiency: 0 producido → 0 eficiencia');
+        }
+
+        {
+            const r = Calculator.calcEfficiency(100, 0, 7.75);
+            assertEqual(r.efficiency, 0, 'calcEfficiency: 0 esperado → 0 eficiencia');
+        }
+
+        {
+            const r = Calculator.calcEfficiency(100, 200, 0);
+            assertEqual(r.efficiency, 0, 'calcEfficiency: 0 horas → 0 eficiencia');
+        }
+
+        // =========================================================
+        // SUITE: runSession (piezas)
+        // =========================================================
+
+        {
+            const tpl = { efficiencyType: 'pieces_per_hour', expectedEfficiency: 2500 };
+            const entries = [
+                { lengthMm: 1289, pieces: 1920 },  // 4 palets × 480
+                { lengthMm: 1038, pieces: 960 }     // 2 palets × 480
+            ];
+            const r = Calculator.runSession(tpl, entries, 7.75);
+
+            assertEqual(r.totalPieces, 2880, 'runSession piezas: total piezas correcto');
+            assertClose(r.totalMeters, 2474.88 + 996.48, 0.1, 'runSession piezas: total metros correcto');
+            assert(r.efficiency > 0, 'runSession piezas: eficiencia > 0');
+            assertClose(r.theoreticalTime, 2880 / 2500, 0.01, 'runSession piezas: tiempo teórico');
+        }
+
+        // =========================================================
+        // SUITE: runSession (metros)
+        // =========================================================
+
+        {
+            const tpl = { efficiencyType: 'meters_per_hour', expectedEfficiency: 200 };
+            const entries = [
+                { lengthMm: 2700, pieces: 480 }  // 1 palet
+            ];
+            const r = Calculator.runSession(tpl, entries, 7.75);
+            const expectedMeters = (2700 / 1000) * 480; // 1296m
+            
+            assertEqual(r.totalPieces, 480, 'runSession metros: total piezas');
+            assertClose(r.totalMeters, expectedMeters, 0.1, 'runSession metros: total metros');
+            assertClose(r.theoreticalTime, expectedMeters / 200, 0.01, 'runSession metros: tiempo teórico usa metros');
+        }
+
+        // =========================================================
+        // SUITE: runSession (edge cases)
+        // =========================================================
+
+        {
+            const tpl = { efficiencyType: 'pieces_per_hour', expectedEfficiency: 100 };
+            const r = Calculator.runSession(tpl, [], 8);
+            assertEqual(r.totalPieces, 0, 'runSession vacío: 0 piezas');
+            assertEqual(r.totalMeters, 0, 'runSession vacío: 0 metros');
+            assertEqual(r.efficiency, 0, 'runSession vacío: 0 eficiencia');
+        }
+
+        {
+            const tpl = { efficiencyType: 'pieces_per_hour', expectedEfficiency: 1000 };
+            const entries = [{ lengthMm: 500, pieces: 0 }];
+            const r = Calculator.runSession(tpl, entries, 8);
+            assertEqual(r.totalPieces, 0, 'runSession 0 piezas: eficiencia 0');
+        }
+
+        // =========================================================
+        // RENDER
+        // =========================================================
+
+        renderResults();
+    </script>
+</body>
+</html>
