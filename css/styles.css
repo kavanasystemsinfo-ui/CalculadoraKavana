@@ -51,54 +51,78 @@
     --shadow-base: 0 0 10px rgba(255, 204, 0, 0.2);
 }
 
-/* ===== Temas de Producción (seleccionados desde configuración) ===== */
+/* ===== Temas de Producción con Paletas Completas ===== */
 
-/* Azul - Profesional */
+/* Azul - Profesional (Azul índigo con variantes) */
 [data-production-theme="blue"] {
-    --accent-primary: #2563eb;
-    --accent-secondary: #3b82f6;
-    --card-bg: #1e3a8a;
-    --input-bg: #1e40af;
+    --accent-primary: #4f46e5;      /* Indigo 600 */
+    --accent-secondary: #818cf8;     /* Indigo 400 */
+    --accent-tertiary: #e0e7ff;      /* Indigo 100 */
+    --card-bg: #1e293b;
+    --input-bg: #334155;
+    --input-border: #6366f1;
+    --success: #22c55e;
+    --danger: #ef4444;
 }
 
-/* Verde - Natural */
+/* Verde - Natural (Verde con variantes) */
 [data-production-theme="green"] {
-    --accent-primary: #16a34a;
-    --accent-secondary: #22c55e;
-    --card-bg: #14532d;
-    --input-bg: #166534;
+    --accent-primary: #16a34a;      /* Green 600 */
+    --accent-secondary: #4ade80;     /* Green 400 */
+    --accent-tertiary: #dcfce7;      /* Green 100 */
+    --card-bg: #162e14;
+    --input-bg: #14532d;
+    --input-border: #22c55e;
+    --success: #4ade80;
+    --danger: #f87171;
 }
 
-/* Naranja - Cálido */
+/* Naranja - Cálido (Naranja con variantes) */
 [data-production-theme="orange"] {
-    --accent-primary: #ea580c;
-    --accent-secondary: #f97316;
+    --accent-primary: #ea580c;      /* Amber 600 */
+    --accent-secondary: #fbbf24;    /* Amber 400 */
+    --accent-tertiary: #ffedd5;     /* Amber 100 */
     --card-bg: #7c2513;
     --input-bg: #92400e;
+    --input-border: #fb923c;
+    --success: #4ade80;
+    --danger: #f87171;
 }
 
-/* Púrpura - Creativo */
+/* Púrpura - Creativo (Violeta con variantes) */
 [data-production-theme="purple"] {
-    --accent-primary: #7c3aed;
-    --accent-secondary: #8b5cf6;
-    --card-bg: #581c87;
-    --input-bg: #6b2c8f;
+    --accent-primary: #7c3aed;      /* Violet 600 */
+    --accent-secondary: #a78bfa;     /* Violet 400 */
+    --accent-tertiary: #ede9fe;      /* Violet 100 */
+    --card-bg: #4c1d95;
+    --input-bg: #581c87;
+    --input-border: #8b5cf6;
+    --success: #4ade80;
+    --danger: #f87171;
 }
 
-/* Rojo - Energético */
+/* Rojo - Energético (Rojo con variantes) */
 [data-production-theme="red"] {
-    --accent-primary: #dc2626;
-    --accent-secondary: #ef4444;
+    --accent-primary: #dc2626;      /* Red 600 */
+    --accent-secondary: #f87171;    /* Red 400 */
+    --accent-tertiary: #fee2e2;     /* Red 100 */
     --card-bg: #7f1d1d;
     --input-bg: #991b1b;
+    --input-border: #ef4444;
+    --success: #4ade80;
+    --danger: #f87171;
 }
 
-/* Turquesa - Fresco */
+/* Turquesa - Fresco (Teal con variantes) */
 [data-production-theme="teal"] {
-    --accent-primary: #0d9488;
-    --accent-secondary: #14b8a6;
+    --accent-primary: #0d9488;      /* Teal 600 */
+    --accent-secondary: #34d399;    /* Teal 400 */
+    --accent-tertiary: #ccfbf1;     /* Teal 100 */
     --card-bg: #042f2d;
     --input-bg: #0c4a4a;
+    --input-border: #14b8a6;
+    --success: #34d399;
+    --danger: #f87171;
 }
 
 /* ===== Formatos (Layouts) ===== */
@@ -143,7 +167,7 @@ body {
 
 .container {
     width: 100%;
-    max-width: 600px; /* Un poco más ancho para albergar los layouts */
+    max-width: 600px;
     background: var(--card-bg);
     padding: var(--ui-padding);
     border-radius: var(--border-radius);
@@ -193,7 +217,7 @@ h1 {
     border: none;
     color: var(--text-dim);
     padding: 0;
-    min-height: var(--btn-height); /* Industrial touch target */
+    min-height: var(--btn-height);
     border-radius: calc(var(--border-radius) / 3);
     font-weight: 700;
     cursor: pointer;
@@ -404,7 +428,7 @@ input:focus, select:focus {
 }
 
 .btn-add-measure:hover {
-    background: rgba(99, 102, 241, 0.1);
+    background: var(--accent-tertiary);
 }
 
 /* ===== Picklist con búsqueda (Producción) ===== */
@@ -457,7 +481,7 @@ input:focus, select:focus {
 }
 
 .picklist-option:hover {
-    background: rgba(99, 102, 241, 0.15);
+    background: var(--accent-tertiary);
 }
 
 .picklist-option .opt-name {
