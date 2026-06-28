@@ -162,7 +162,9 @@ export class TemplatesUI {
                     document.getElementById('tpl-enable-eff').checked = tpl.enableEfficiency !== false;
                     document.getElementById('tpl-eff-type').value = tpl.efficiencyType || 'pieces_per_hour';
                     document.getElementById('tpl-eff-val').value = tpl.expectedEfficiency || '';
+                if (document.getElementById('tpl-theme')) {
                     document.getElementById('tpl-theme').value = tpl.theme || 'blue';
+                }
                     
                     tpl.models.forEach(m => this.addModelBlock(m));
                 }
@@ -217,7 +219,7 @@ export class TemplatesUI {
             enableEfficiency: enableEff,
             efficiencyType: enableEff ? document.getElementById('tpl-eff-type').value : null,
             expectedEfficiency: enableEff ? parseFloat(document.getElementById('tpl-eff-val').value) : null,
-            theme: document.getElementById('tpl-theme').value,
+            theme: document.getElementById('tpl-theme') ? document.getElementById('tpl-theme').value : 'dark',
             models: models
         };
 

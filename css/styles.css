@@ -59,7 +59,7 @@
     --accent-secondary: #818cf8;     /* Indigo 400 */
     --accent-tertiary: #e0e7ff;      /* Indigo 100 */
     --card-bg: #1e293b;
-    --input-bg: #334155;
+    --input-bg: #0f172a;
     --input-border: #6366f1;
     --success: #22c55e;
     --danger: #ef4444;
@@ -70,8 +70,8 @@
     --accent-primary: #16a34a;      /* Green 600 */
     --accent-secondary: #4ade80;     /* Green 400 */
     --accent-tertiary: #dcfce7;      /* Green 100 */
-    --card-bg: #162e14;
-    --input-bg: #14532d;
+    --card-bg: #1e293b;
+    --input-bg: #0f172a;
     --input-border: #22c55e;
     --success: #4ade80;
     --danger: #f87171;
@@ -82,8 +82,8 @@
     --accent-primary: #ea580c;      /* Amber 600 */
     --accent-secondary: #fbbf24;    /* Amber 400 */
     --accent-tertiary: #ffedd5;     /* Amber 100 */
-    --card-bg: #7c2513;
-    --input-bg: #92400e;
+    --card-bg: #1e293b;
+    --input-bg: #0f172a;
     --input-border: #fb923c;
     --success: #4ade80;
     --danger: #f87171;
@@ -94,8 +94,8 @@
     --accent-primary: #7c3aed;      /* Violet 600 */
     --accent-secondary: #a78bfa;     /* Violet 400 */
     --accent-tertiary: #ede9fe;      /* Violet 100 */
-    --card-bg: #4c1d95;
-    --input-bg: #581c87;
+    --card-bg: #1e293b;
+    --input-bg: #0f172a;
     --input-border: #8b5cf6;
     --success: #4ade80;
     --danger: #f87171;
@@ -106,8 +106,8 @@
     --accent-primary: #dc2626;      /* Red 600 */
     --accent-secondary: #f87171;    /* Red 400 */
     --accent-tertiary: #fee2e2;     /* Red 100 */
-    --card-bg: #7f1d1d;
-    --input-bg: #991b1b;
+    --card-bg: #1e293b;
+    --input-bg: #0f172a;
     --input-border: #ef4444;
     --success: #4ade80;
     --danger: #f87171;
@@ -118,8 +118,8 @@
     --accent-primary: #0d9488;      /* Teal 600 */
     --accent-secondary: #34d399;    /* Teal 400 */
     --accent-tertiary: #ccfbf1;     /* Teal 100 */
-    --card-bg: #042f2d;
-    --input-bg: #0c4a4a;
+    --card-bg: #1e293b;
+    --input-bg: #0f172a;
     --input-border: #14b8a6;
     --success: #34d399;
     --danger: #f87171;

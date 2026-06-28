@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-calc-v3';
+const CACHE_NAME = 'prod-calc-v7';
 const ASSETS = [
     './',
     './index.html',
