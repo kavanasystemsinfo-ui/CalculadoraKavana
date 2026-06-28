@@ -23,7 +23,7 @@ class App {
 
         // Registrar Service Worker (PWA)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js?v=7')
+            navigator.serviceWorker.register('./sw.js?v=8')
                 .then(reg => console.log('[App] SW Registered', reg.scope))
                 .catch(err => console.warn('[App] SW Error', err));
         }

@@ -81,9 +81,23 @@ export class ThemeManager {
     }
 
     /**
-     * Limpia el tema de producción
+     * Limpia el tema de producción global
      */
     clearProductionTheme() {
         document.documentElement.removeAttribute('data-production-theme');
+    }
+
+    /**
+     * Aplica un tema temporal de una plantilla
+     */
+    applyTemplateTheme(theme) {
+        document.documentElement.setAttribute('data-production-theme', theme);
+    }
+
+    /**
+     * Limpia el tema de plantilla y vuelve al preferido global
+     */
+    clearTemplateTheme() {
+        this.applyProductionTheme();
     }
 }
