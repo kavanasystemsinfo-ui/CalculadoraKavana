@@ -3,6 +3,40 @@
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [2.3.0] - 2026-06-28
+
+### Added
+- **Template Themes**: Sistema de temas visuales para plantillas con 6 paletas de colores
+- **Theme Selector**: Selector de tema en el modal de creación/edición de plantillas
+- **Template Theme CSS**: Nuevas variables CSS con `[data-template-theme="..."]`
+- **ThemeManager Methods**: `applyTemplateTheme()` y `clearTemplateTheme()` para gestión de temas
+
+### Changed
+- **Template Model**: Agregado campo `theme` a la estructura de plantilla (default: 'blue')
+- **Production UI**: Aplicación automática del tema al seleccionar una plantilla
+- **UI Templates**: Carga del tema al editar una plantilla existente
+
+### Technical Details
+- **Theme Colors**: blue, green, orange, purple, red, teal
+- **CSS Variables**: `--accent-primary`, `--accent-secondary`, `--card-bg`, `--input-bg`
+- **Backward Compatibility**: Plantillas existentes usan 'blue' por defecto
+
+---
+
+## [2.2.0] - 2026-06-26
+
+### Added
+- **Optional Efficiency Tracking**: Checkbox en creación de plantilla para habilitar/desabilitar seguimiento de eficiencia
+- **Simple Production Mode**: Cuando eficiencia deshabilitada, solo muestra piezas y metros producidos
+- **Conditional UI**: Campos de horas, tiempo teórico y eficiencia solo aparecen cuando están habilitados
+
+### Changed
+- **Template Modal**: Nuevo campo checkbox "Habilitar seguimiento de eficiencia" (por defecto activado)
+- **Production UI**: Campos de eficiencia condicionales basados en configuración de plantilla
+- **Backward Compatibility**: Plantillas existentes mantienen comportamiento completo
+
+---
+
 ## [2.1.0] - 2026-06-26
 
 ### Added
@@ -17,18 +51,6 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - **Simplified UX**: Eliminado el sistema de botones para evitar problemas de eventos
 - **Header Image**: Reemplazado texto "ProdCalc" por imagen HEADER.png
 - **Project Name**: Renombrado a "Calculadora Kavana"
-
-## [2.2.0] - 2026-06-26
-
-### Added
-- **Optional Efficiency Tracking**: Checkbox en creación de plantilla para habilitar/desabilitar seguimiento de eficiencia
-- **Simple Production Mode**: Cuando eficiencia deshabilitada, solo muestra piezas y metros producidos
-- **Conditional UI**: Campos de horas, tiempo teórico y eficiencia solo aparecen cuando están habilitados
-
-### Changed
-- **Template Modal**: Nuevo campo checkbox "Habilitar seguimiento de eficiencia" (por defecto activado)
-- **Production UI**: Campos de eficiencia condicionales basados en configuración de plantilla
-- **Backward Compatibility**: Plantillas existentes mantienen comportamiento completo
 
 ---
 

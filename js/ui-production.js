@@ -1,5 +1,6 @@
 import { store } from './store.js';
 import { Calculator } from './calculator.js';
+import { ThemeManager } from './theme.js';
 
 export class ProductionUI {
     constructor() {
@@ -8,6 +9,7 @@ export class ProductionUI {
         this.addedEntries = [];
         this.lastSessionState = null;
         this.allOptions = [];
+        this.themeManager = new ThemeManager();
         
         this.init();
     }
@@ -18,12 +20,17 @@ export class ProductionUI {
         window.addEventListener('template-selected', (e) => {
             this.activeTemplateId = e.detail.id;
             this.addedEntries = [];
+            const tpl = store.getTemplate(this.activeTemplateId);
+            if (tpl && tpl.theme) {
+                this.themeManager.applyTemplateTheme(tpl.theme);
+            }
             this.render();
         });
     }
 
     render() {
         if (!this.activeTemplateId) {
+            this.themeManager.clearTemplateTheme();
             this.container.innerHTML = `
                 <h2 class="subtitle" style="margin-bottom: 16px;">Registro Diario</h2>
                 <div class="card" style="text-align: center; padding: 40px; color: var(--text-dim);">
@@ -36,8 +43,14 @@ export class ProductionUI {
         const tpl = store.getTemplate(this.activeTemplateId);
         if (!tpl) {
             this.activeTemplateId = null;
+            this.themeManager.clearTemplateTheme();
             this.render();
             return;
+        }
+        
+        // Aplicar tema de la plantilla
+        if (tpl.theme) {
+            this.themeManager.applyTemplateTheme(tpl.theme);
         }
 
         this.allOptions = [];

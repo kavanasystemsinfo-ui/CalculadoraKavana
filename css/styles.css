@@ -51,6 +51,56 @@
     --shadow-base: 0 0 10px rgba(255, 204, 0, 0.2);
 }
 
+/* ===== Temas de Plantilla (para identificar líneas de producción) ===== */
+
+/* Azul - Profesional */
+[data-template-theme="blue"] {
+    --accent-primary: #2563eb;
+    --accent-secondary: #3b82f6;
+    --card-bg: #1e3a8a;
+    --input-bg: #1e40af;
+}
+
+/* Verde - Natural */
+[data-template-theme="green"] {
+    --accent-primary: #16a34a;
+    --accent-secondary: #22c55e;
+    --card-bg: #14532d;
+    --input-bg: #166534;
+}
+
+/* Naranja - Cálido */
+[data-template-theme="orange"] {
+    --accent-primary: #ea580c;
+    --accent-secondary: #f97316;
+    --card-bg: #7c2513;
+    --input-bg: #92400e;
+}
+
+/* Púrpura - Creativo */
+[data-template-theme="purple"] {
+    --accent-primary: #7c3aed;
+    --accent-secondary: #8b5cf6;
+    --card-bg: #581c87;
+    --input-bg: #6b2c8f;
+}
+
+/* Rojo - Energético */
+[data-template-theme="red"] {
+    --accent-primary: #dc2626;
+    --accent-secondary: #ef4444;
+    --card-bg: #7f1d1d;
+    --input-bg: #991b1b;
+}
+
+/* Turquesa - Fresco */
+[data-template-theme="teal"] {
+    --accent-primary: #0d9488;
+    --accent-secondary: #14b8a6;
+    --card-bg: #042f2d;
+    --input-bg: #0c4a4a;
+}
+
 /* ===== Formatos (Layouts) ===== */
 /* Por defecto: Compacto */
 :root, [data-layout="compact"] {

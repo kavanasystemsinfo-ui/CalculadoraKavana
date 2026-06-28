@@ -45,6 +45,7 @@ export const store = {
             factoryName: template.factoryName || '',
             efficiencyType: template.efficiencyType || 'meters_per_hour',
             expectedEfficiency: Number(template.expectedEfficiency) || 0,
+            theme: template.theme || 'blue',
             models: template.models || [],
             createdAt: template.createdAt || toISODate(),
             updatedAt: toISODate()

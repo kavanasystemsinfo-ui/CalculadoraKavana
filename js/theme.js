@@ -1,3 +1,6 @@
+/**
+ * ThemeManager - Gestión de temas globales y de plantillas
+ */
 export class ThemeManager {
     constructor() {
         this.colorSelect = document.getElementById('theme-color-select');
@@ -7,7 +10,7 @@ export class ThemeManager {
     }
 
     init() {
-        // Los valores por defecto se aplican en el <head> de index.html para evitar FOUC.
+        // Los valores por defecto se aplican en el <head> de index.html para evitar FOOC.
         // Aquí solo sincronizamos los <select> con el estado actual.
         const currentColor = localStorage.getItem('themeColor') || 'dark';
         const currentLayout = localStorage.getItem('themeLayout') || 'compact';
@@ -23,11 +26,14 @@ export class ThemeManager {
         }
     }
 
+    /**
+     * Cambia el tema global (dark, light, industrial)
+     */
     setThemeColor(color) {
         document.documentElement.setAttribute('data-theme', color);
         localStorage.setItem('themeColor', color);
         
-        // Opcional: Actualizar color de la barra de estado de PWA
+        // Actualizar color de la barra de estado de PWA
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
         if (metaThemeColor) {
             let colorHex = '#0f172a'; // dark
@@ -37,8 +43,32 @@ export class ThemeManager {
         }
     }
 
+    /**
+     * Cambia el layout (compact, expanded)
+     */
     setLayout(layout) {
         document.documentElement.setAttribute('data-layout', layout);
         localStorage.setItem('themeLayout', layout);
+    }
+
+    /**
+     * Aplica el tema de una plantilla específica
+     * @param {string} themeName - Nombre del tema (blue, green, orange, purple, red, teal)
+     */
+    applyTemplateTheme(themeName) {
+        // Eliminar cualquier tema de plantilla anterior
+        document.documentElement.removeAttribute('data-template-theme');
+        
+        // Aplicar nuevo tema
+        if (themeName && ['blue', 'green', 'orange', 'purple', 'red', 'teal'].includes(themeName)) {
+            document.documentElement.setAttribute('data-template-theme', themeName);
+        }
+    }
+
+    /**
+     * Limpia el tema de plantilla y vuelve al tema global
+     */
+    clearTemplateTheme() {
+        document.documentElement.removeAttribute('data-template-theme');
     }
 }

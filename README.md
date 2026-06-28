@@ -16,6 +16,7 @@ A Progressive Web Application for industrial production efficiency calculation, 
 - **Offline-First**: 100% functional without internet connection
 - **PWA Ready**: Installable on devices, works like native app
 - **Data Portability**: Import/export capabilities for backup and migration
+- **Template Themes**: Visual themes for easy line identification
 
 ---
 
@@ -77,6 +78,19 @@ A Progressive Web Application for industrial production efficiency calculation, 
 | **PWA Ready** | Installable on devices, works like native app |
 | **Zero Infrastructure** | No servers, databases, or API keys required |
 | **Data Portability** | Import/export capabilities for backup and migration |
+
+### 3.3 Template Themes
+
+Each production template can have a unique visual theme for easy identification:
+
+| Theme | Color | Use Case |
+|-------|-------|----------|
+| `blue` | Azul profesional | Líneas estándar |
+| `green` | Verde natural | Ensamblaje |
+| `orange` | Naranja cálido | Empaque/corte |
+| `purple` | Púrpura creativo | Logística |
+| `red` | Rojo energético | Mantenimiento |
+| `teal` | Turquesa fresco | QA/Calidad |
 
 ---
 
@@ -150,6 +164,7 @@ interface Template {
   enableEfficiency: boolean;
   efficiencyType: 'pieces_per_hour' | 'meters_per_hour' | null;
   expectedEfficiency: number | null;
+  theme: 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'teal';
   models: Model[];
 }
 
@@ -222,6 +237,7 @@ This project demonstrates:
 - **TDD Workflow**: Tests written before implementation
 - **Data Architecture**: localStorage abstraction layer
 - **UI/UX Design**: Responsive, accessible, mobile-first
+- **Theme System**: Dynamic CSS variables for template themes
 
 ---
 

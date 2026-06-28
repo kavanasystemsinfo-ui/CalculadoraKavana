@@ -1,7 +1,7 @@
 # Calculadora Kavana - Technical Architecture Roadmap
 
 > Enterprise-grade roadmap for Production Calculator PWA.  
-> **Document Version:** 2.2.0 | **Last Updated:** 2026-06-26
+> **Document Version:** 2.3.0 | **Last Updated:** 2026-06-28
 
 ---
 
@@ -17,6 +17,7 @@
 | **Offline-First** | 100% functional without internet connection |
 | **Portable** | Export/import capabilities for data migration |
 | **Scalable** | Ready for future backend integration |
+| **Visual Themes** | Easy line identification with color coding |
 
 ---
 
@@ -79,6 +80,7 @@
 | Production UI (`ui-production.js`) | ✅ Complete | Manual | Efficiency calculation |
 | History UI (`ui-history.js`) | ✅ Complete | Manual | Session management |
 | Exporter Module (`export.js`) | ✅ Complete | Manual | Excel/JSON export |
+| Theme Manager (`theme.js`) | ✅ Complete | Manual | Template themes |
 
 ### 3.3 Exit Criteria
 
@@ -105,6 +107,7 @@
 | Export functionality | 2026-06-26 | Manual test | ✅ |
 | Documentation complete | 2026-06-26 | All docs updated | ✅ |
 | Optional efficiency | 2026-06-26 | Template modal | ✅ |
+| Template Themes | 2026-06-28 | Color selector | ✅ |
 
 ---
 
@@ -116,7 +119,7 @@
 | Phase 2: Sistema de Plantillas | ✅ COMPLETED | 2026-06-26 |
 | Phase 3: Production Engine | ⏭️ SKIPPED | - |
 | Phase 4: Export & Backup | ✅ COMPLETED | 2026-06-26 |
-| Phase 5: Portfolio Polish | ✅ COMPLETED | 2026-06-26 |
+| Phase 5: Portfolio Polish | ✅ COMPLETED | 2026-06-28 |
 
 ---
 
@@ -129,6 +132,7 @@
 | Shift Time Dropdowns | High | 1 day | ✅ Done |
 | Optional Efficiency Tracking | High | 1 day | ✅ Done |
 | Documentation polish | High | 1 day | ✅ Done |
+| Template Themes | Medium | 1 day | ✅ Done |
 | GitHub Pages deployment | High | 1 day | ⏳ Pending |
 
 ---
@@ -217,4 +221,4 @@ jobs:
 
 ---
 
-*Document maintained by System Architecture Team. Last review: 2026-06-26.*
+*Document maintained by System Architecture Team. Last review: 2026-06-28.*

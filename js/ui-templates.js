@@ -162,6 +162,7 @@ export class TemplatesUI {
                     document.getElementById('tpl-enable-eff').checked = tpl.enableEfficiency !== false;
                     document.getElementById('tpl-eff-type').value = tpl.efficiencyType || 'pieces_per_hour';
                     document.getElementById('tpl-eff-val').value = tpl.expectedEfficiency || '';
+                    document.getElementById('tpl-theme').value = tpl.theme || 'blue';
                     
                     tpl.models.forEach(m => this.addModelBlock(m));
                 }
@@ -210,14 +211,15 @@ export class TemplatesUI {
         }
 
         const enableEff = document.getElementById('tpl-enable-eff').checked;
-                const template = {
-                    id: document.getElementById('tpl-id').value || undefined,
-                    name: document.getElementById('tpl-name').value,
-                    enableEfficiency: enableEff,
-                    efficiencyType: enableEff ? document.getElementById('tpl-eff-type').value : null,
-                    expectedEfficiency: enableEff ? parseFloat(document.getElementById('tpl-eff-val').value) : null,
-                    models: models
-                };
+        const template = {
+            id: document.getElementById('tpl-id').value || undefined,
+            name: document.getElementById('tpl-name').value,
+            enableEfficiency: enableEff,
+            efficiencyType: enableEff ? document.getElementById('tpl-eff-type').value : null,
+            expectedEfficiency: enableEff ? parseFloat(document.getElementById('tpl-eff-val').value) : null,
+            theme: document.getElementById('tpl-theme').value,
+            models: models
+        };
 
         store.saveTemplate(template);
         this.closeModal();
