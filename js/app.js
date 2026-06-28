@@ -1,8 +1,8 @@
-import { ThemeManager } from './theme.js';
-import { store } from './store.js';
-import { TemplatesUI } from './ui-templates.js';
-import { ProductionUI } from './ui-production.js';
-import { HistoryUI } from './ui-history.js';
+import { ThemeManager } from './theme.js?v=9';
+import { store } from './store.js?v=9';
+import { TemplatesUI } from './ui-templates.js?v=9';
+import { ProductionUI } from './ui-production.js?v=9';
+import { HistoryUI } from './ui-history.js?v=9';
 
 class App {
     constructor() {
