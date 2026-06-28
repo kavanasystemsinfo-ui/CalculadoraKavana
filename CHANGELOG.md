@@ -6,20 +6,19 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 ## [2.4.0] - 2026-06-28
 
 ### Added
-- **Integrated Template Themes**: Temas de plantilla combinados con temas globales
-- **Theme Combinations**: 18 combinaciones únicas (3 globales × 6 de plantilla)
-- **Template Theme Selector**: Selector actualizado con nuevas opciones
+- **Production Themes from Settings**: Temas de producción seleccionables desde el icono de engrane
+- **6 Production Themes**: blue, green, orange, purple, red, teal
+- **Independent Theme Selection**: El tema de producción es independiente del tema global de la app
 
 ### Changed
-- **Theme Application**: `applyTemplateTheme()` ahora combina tema global + plantilla
-- **CSS Variables**: Nuevas reglas combinadas para cada combinación
-- **ThemeManager**: Método actualizado para soportar combinaciones
+- **Theme Location**: Los temas ahora se seleccionan desde "Ajustes Visuales" (engrane)
+- **Theme Application**: El tema se aplica automáticamente al seleccionar una plantilla
+- **Removed Theme Selector**: Eliminado selector del modal de plantillas
 
 ### Technical Details
-- **Combinations**: dark-blue, dark-green, dark-orange, dark-purple, dark-red, dark-teal
-- **Combinations**: light-blue, light-green, light-orange, light-purple, light-red, light-teal
-- **Combinations**: industrial-blue, industrial-green, industrial-orange, industrial-purple, industrial-red, industrial-teal
-- **Backward Compatibility**: Plantillas existentes usan 'blue' por defecto
+- **Setting**: `themeProduction` en localStorage
+- **Attribute**: `data-production-theme` en el HTML
+- **Independence**: El tema de producción no afecta al resto de la app
 
 ---
 
@@ -71,20 +70,6 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - **Simplified UX**: Eliminado el sistema de botones para evitar problemas de eventos
 - **Header Image**: Reemplazado texto "ProdCalc" por imagen HEADER.png
 - **Project Name**: Renombrado a "Calculadora Kavana"
-
----
-
-## [2.2.0] - 2026-06-26
-
-### Added
-- **Optional Efficiency Tracking**: Checkbox en creación de plantilla para habilitar/desabilitar seguimiento de eficiencia
-- **Simple Production Mode**: Cuando eficiencia deshabilitada, solo muestra piezas y metros producidos
-- **Conditional UI**: Campos de horas, tiempo teórico y eficiencia solo aparecen cuando están habilitados
-
-### Changed
-- **Template Modal**: Nuevo campo checkbox "Habilitar seguimiento de eficiencia" (por defecto activado)
-- **Production UI**: Campos de eficiencia condicionales basados en configuración de plantilla
-- **Backward Compatibility**: Plantillas existentes mantienen comportamiento completo
 
 ---
 
