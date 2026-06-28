@@ -52,16 +52,20 @@ export class ThemeManager {
     }
 
     /**
-     * Aplica el tema de una plantilla específica
-     * @param {string} themeName - Nombre del tema (blue, green, orange, purple, red, teal)
+     * Aplica el tema de una plantilla combinado con el tema global
+     * @param {string} templateTheme - Nombre del tema de plantilla (blue, green, etc.)
      */
-    applyTemplateTheme(themeName) {
+    applyTemplateTheme(templateTheme) {
+        // Obtener tema global actual
+        const globalTheme = localStorage.getItem('themeColor') || 'dark';
+        
         // Eliminar cualquier tema de plantilla anterior
         document.documentElement.removeAttribute('data-template-theme');
         
-        // Aplicar nuevo tema
-        if (themeName && ['blue', 'green', 'orange', 'purple', 'red', 'teal'].includes(themeName)) {
-            document.documentElement.setAttribute('data-template-theme', themeName);
+        // Aplicar nuevo tema combinado
+        if (templateTheme && ['blue', 'green', 'orange', 'purple', 'red', 'teal'].includes(templateTheme)) {
+            document.documentElement.setAttribute('data-theme', globalTheme);
+            document.documentElement.setAttribute('data-template-theme', templateTheme);
         }
     }
 
@@ -69,6 +73,8 @@ export class ThemeManager {
      * Limpia el tema de plantilla y vuelve al tema global
      */
     clearTemplateTheme() {
+        const globalTheme = localStorage.getItem('themeColor') || 'dark';
+        document.documentElement.setAttribute('data-theme', globalTheme);
         document.documentElement.removeAttribute('data-template-theme');
     }
 }

@@ -51,54 +51,174 @@
     --shadow-base: 0 0 10px rgba(255, 204, 0, 0.2);
 }
 
-/* ===== Temas de Plantilla (para identificar líneas de producción) ===== */
+/* ===== Temas de Plantilla Combinados con Tema Global ===== */
 
-/* Azul - Profesional */
-[data-template-theme="blue"] {
+/* Dark + Blue */
+[data-theme="dark"] [data-template-theme="blue"],
+[data-theme="dark"][data-template-theme="blue"] {
     --accent-primary: #2563eb;
     --accent-secondary: #3b82f6;
     --card-bg: #1e3a8a;
     --input-bg: #1e40af;
 }
 
-/* Verde - Natural */
-[data-template-theme="green"] {
+/* Dark + Green */
+[data-theme="dark"] [data-template-theme="green"],
+[data-theme="dark"][data-template-theme="green"] {
     --accent-primary: #16a34a;
     --accent-secondary: #22c55e;
     --card-bg: #14532d;
     --input-bg: #166534;
 }
 
-/* Naranja - Cálido */
-[data-template-theme="orange"] {
+/* Dark + Orange */
+[data-theme="dark"] [data-template-theme="orange"],
+[data-theme="dark"][data-template-theme="orange"] {
     --accent-primary: #ea580c;
     --accent-secondary: #f97316;
     --card-bg: #7c2513;
     --input-bg: #92400e;
 }
 
-/* Púrpura - Creativo */
-[data-template-theme="purple"] {
+/* Dark + Purple */
+[data-theme="dark"] [data-template-theme="purple"],
+[data-theme="dark"][data-template-theme="purple"] {
     --accent-primary: #7c3aed;
     --accent-secondary: #8b5cf6;
     --card-bg: #581c87;
     --input-bg: #6b2c8f;
 }
 
-/* Rojo - Energético */
-[data-template-theme="red"] {
+/* Dark + Red */
+[data-theme="dark"] [data-template-theme="red"],
+[data-theme="dark"][data-template-theme="red"] {
     --accent-primary: #dc2626;
     --accent-secondary: #ef4444;
     --card-bg: #7f1d1d;
     --input-bg: #991b1b;
 }
 
-/* Turquesa - Fresco */
-[data-template-theme="teal"] {
+/* Dark + Teal */
+[data-theme="dark"] [data-template-theme="teal"],
+[data-theme="dark"][data-template-theme="teal"] {
     --accent-primary: #0d9488;
     --accent-secondary: #14b8a6;
     --card-bg: #042f2d;
     --input-bg: #0c4a4a;
+}
+
+/* Light + Blue */
+[data-theme="light"] [data-template-theme="blue"],
+[data-theme="light"][data-template-theme="blue"] {
+    --accent-primary: #1d4ed8;
+    --accent-secondary: #3b82f6;
+    --card-bg: #dbeafe;
+    --input-bg: #eff6ff;
+}
+
+/* Light + Green */
+[data-theme="light"] [data-template-theme="green"],
+[data-theme="light"][data-template-theme="green"] {
+    --accent-primary: #15803d;
+    --accent-secondary: #22c55e;
+    --card-bg: #dcfce7;
+    --input-bg: #f0fdf4;
+}
+
+/* Light + Orange */
+[data-theme="light"] [data-template-theme="orange"],
+[data-theme="light"][data-template-theme="orange"] {
+    --accent-primary: #c2410c;
+    --accent-secondary: #f97316;
+    --card-bg: #ffedd5;
+    --input-bg: #fff7ed;
+}
+
+/* Light + Purple */
+[data-theme="light"] [data-template-theme="purple"],
+[data-theme="light"][data-template-theme="purple"] {
+    --accent-primary: #7c3aed;
+    --accent-secondary: #8b5cf6;
+    --card-bg: #ede9fe;
+    --input-bg: #f5f3ff;
+}
+
+/* Light + Red */
+[data-theme="light"] [data-template-theme="red"],
+[data-theme="light"][data-template-theme="red"] {
+    --accent-primary: #dc2626;
+    --accent-secondary: #ef4444;
+    --card-bg: #fee2e2;
+    --input-bg: #fff1f2;
+}
+
+/* Light + Teal */
+[data-theme="light"] [data-template-theme="teal"],
+[data-theme="light"][data-template-theme="teal"] {
+    --accent-primary: #0d9488;
+    --accent-secondary: #14b8a6;
+    --card-bg: #ccfbf1;
+    --input-bg: #f0fdfa;
+}
+
+/* Industrial + Blue */
+[data-theme="industrial"] [data-template-theme="blue"],
+[data-theme="industrial"][data-template-theme="blue"] {
+    --accent-primary: #60a5fa;
+    --accent-secondary: #93c5fd;
+    --card-bg: #1e40af;
+    --input-bg: #2563eb;
+    --input-border: #60a5fa;
+}
+
+/* Industrial + Green */
+[data-theme="industrial"] [data-template-theme="green"],
+[data-theme="industrial"][data-template-theme="green"] {
+    --accent-primary: #4ade80;
+    --accent-secondary: #86efac;
+    --card-bg: #14532d;
+    --input-bg: #166534;
+    --input-border: #4ade80;
+}
+
+/* Industrial + Orange */
+[data-theme="industrial"] [data-template-theme="orange"],
+[data-theme="industrial"][data-template-theme="orange"] {
+    --accent-primary: #fb923c;
+    --accent-secondary: #fdba74;
+    --card-bg: #7c2513;
+    --input-bg: #92400e;
+    --input-border: #fb923c;
+}
+
+/* Industrial + Purple */
+[data-theme="industrial"] [data-template-theme="purple"],
+[data-theme="industrial"][data-template-theme="purple"] {
+    --accent-primary: #a78bfa;
+    --accent-secondary: #c084fc;
+    --card-bg: #581c87;
+    --input-bg: #6b2c8f;
+    --input-border: #a78bfa;
+}
+
+/* Industrial + Red */
+[data-theme="industrial"] [data-template-theme="red"],
+[data-theme="industrial"][data-template-theme="red"] {
+    --accent-primary: #f87171;
+    --accent-secondary: #f87171;
+    --card-bg: #7f1d1d;
+    --input-bg: #991b1b;
+    --input-border: #f87171;
+}
+
+/* Industrial + Teal */
+[data-theme="industrial"] [data-template-theme="teal"],
+[data-theme="industrial"][data-template-theme="teal"] {
+    --accent-primary: #5ee7b7;
+    --accent-secondary: #5ee7b7;
+    --card-bg: #042f2d;
+    --input-bg: #0c4a4a;
+    --input-border: #5ee7b7;
 }
 
 /* ===== Formatos (Layouts) ===== */
