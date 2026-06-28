@@ -67,7 +67,7 @@
 | Criteria | Status | Evidence |
 |----------|--------|----------|
 | Entry criteria reviewed | ✅ | Architecture docs analyzed |
-| Tests identified | ✅ | 19 unit tests passing |
+| Tests identified | ✅ | 38 unit tests passing |
 | Technical debt reviewed | ✅ | localStorage migration complete |
 | Smallest behavior defined | ✅ | Documentation polish |
 
@@ -75,12 +75,13 @@
 
 | Component | Status | Tests | Notes |
 |-----------|--------|-------|-------|
-| Storage Helper (`store.js`) | ✅ Complete | 19/19 | localStorage abstraction |
+| Storage Helper (`store.js`) | ✅ Complete | 6/6 | localStorage abstraction |
 | Templates UI (`ui-templates.js`) | ✅ Complete | Manual | CRUD operations |
 | Production UI (`ui-production.js`) | ✅ Complete | Manual | Efficiency calculation |
 | History UI (`ui-history.js`) | ✅ Complete | Manual | Session management |
 | Exporter Module (`export.js`) | ✅ Complete | Manual | Excel/JSON export |
-| Theme Manager (`theme.js`) | ✅ Complete | Manual | Template themes |
+| Theme Manager (`theme.js`) | ✅ Complete | 11/11 | Template themes |
+| Calculator Engine | ✅ Complete | 10/10 | Pure calculation logic |
 
 ### 3.3 Exit Criteria
 
@@ -103,7 +104,7 @@
 | Manifest updated | 2026-06-26 | Manual review | ✅ |
 | App migrated to localStorage | 2026-06-26 | No Dexie imports | ✅ |
 | UI modules updated | 2026-06-26 | No import errors | ✅ |
-| Unit tests (19) | 2026-06-26 | `node --test` | ✅ |
+| Unit tests (38) | 2026-06-28 | `node --test` | ✅ |
 | Export functionality | 2026-06-26 | Manual test | ✅ |
 | Documentation complete | 2026-06-26 | All docs updated | ✅ |
 | Optional efficiency | 2026-06-26 | Template modal | ✅ |
@@ -152,8 +153,13 @@
 ### 8.1 Test Commands
 
 ```bash
-# Unit tests
+# Unit tests (all)
+cd tests && npm test
+
+# Unit tests (specific file)
 node --test tests/engine.test.js
+node --test tests/storage.test.js
+node --test tests/theme.test.js
 
 # Development server
 npx serve .
@@ -168,7 +174,9 @@ npx serve .
 |--------|-------|-----------|----------|
 | Calculator Engine | 100% | 100% | 100% |
 | Storage Helper | 100% | 100% | 100% |
+| Theme Manager | 100% | 100% | 100% |
 | UI Modules | Manual | Manual | Manual |
+| **Total** | **38 tests** | **100%** | **100%** |
 
 ---
 
