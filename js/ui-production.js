@@ -20,10 +20,7 @@ export class ProductionUI {
         window.addEventListener('template-selected', (e) => {
             this.activeTemplateId = e.detail.id;
             this.addedEntries = [];
-            const tpl = store.getTemplate(this.activeTemplateId);
-            if (tpl && tpl.theme) {
-                this.themeManager.applyTemplateTheme(tpl.theme);
-            }
+            this.themeManager.applyProductionTheme();
             this.render();
         });
     }

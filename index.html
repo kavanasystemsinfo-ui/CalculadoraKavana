@@ -86,7 +86,7 @@
             <h2 class="subtitle" style="margin-bottom: 16px;">Ajustes Visuales</h2>
             
             <div class="form-group">
-                <label for="theme-color-select">Paleta de Colores</label>
+                <label for="theme-color-select">Paleta de Colores (App)</label>
                 <select id="theme-color-select">
                     <option value="dark">Dark (Clásico)</option>
                     <option value="light">Light (Día)</option>
@@ -100,6 +100,21 @@
                     <option value="compact">Compacto (Móvil)</option>
                     <option value="expanded">Expandido (Tablet / Panel)</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label for="theme-production-select">Tema de Producción</label>
+                <select id="theme-production-select">
+                    <option value="blue">Azul (Profesional)</option>
+                    <option value="green">Verde (Natural)</option>
+                    <option value="orange">Naranja (Cálido)</option>
+                    <option value="purple">Púrpura (Creativo)</option>
+                    <option value="red">Rojo (Energético)</option>
+                    <option value="teal">Turquesa (Fresco)</option>
+                </select>
+                <p style="font-size:11px; color:var(--text-dim); margin-top:4px;">
+                    Este tema solo afecta a la pestaña de Producción
+                </p>
             </div>
             
             <div style="margin-top: 32px;">
@@ -146,18 +161,6 @@
                                         <input type="number" id="tpl-eff-val" placeholder="Ej: 2500" min="1" step="any">
                                     </div>
                                 </div>
-                
-                <div class="form-group">
-                    <label>Tema Visual</label>
-                    <select id="tpl-theme">
-                        <option value="blue">Azul (Profesional)</option>
-                        <option value="green">Verde (Natural)</option>
-                        <option value="orange">Naranja (Cálido)</option>
-                        <option value="purple">Púrpura (Creativo)</option>
-                        <option value="red">Rojo (Energético)</option>
-                        <option value="teal">Turquesa (Fresco)</option>
-                    </select>
-                </div>
 
                 <div class="section" style="margin-top: 24px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
                     <span class="section-title">Modelos Fabricados</span>

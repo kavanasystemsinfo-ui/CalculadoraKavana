@@ -1,10 +1,11 @@
 /**
- * ThemeManager - Gestión de temas globales y de plantillas
+ * ThemeManager - Gestión de temas globales y de producción
  */
 export class ThemeManager {
     constructor() {
         this.colorSelect = document.getElementById('theme-color-select');
         this.layoutSelect = document.getElementById('theme-layout-select');
+        this.productionSelect = document.getElementById('theme-production-select');
         
         this.init();
     }
@@ -14,6 +15,7 @@ export class ThemeManager {
         // Aquí solo sincronizamos los <select> con el estado actual.
         const currentColor = localStorage.getItem('themeColor') || 'dark';
         const currentLayout = localStorage.getItem('themeLayout') || 'compact';
+        const currentProduction = localStorage.getItem('themeProduction') || 'blue';
 
         if(this.colorSelect) {
             this.colorSelect.value = currentColor;
@@ -23,6 +25,11 @@ export class ThemeManager {
         if(this.layoutSelect) {
             this.layoutSelect.value = currentLayout;
             this.layoutSelect.addEventListener('change', (e) => this.setLayout(e.target.value));
+        }
+
+        if(this.productionSelect) {
+            this.productionSelect.value = currentProduction;
+            this.productionSelect.addEventListener('change', (e) => this.setProductionTheme(e.target.value));
         }
     }
 
@@ -52,23 +59,31 @@ export class ThemeManager {
     }
 
     /**
-     * Aplica el tema de una plantilla específica
-     * @param {string} themeName - Nombre del tema (blue, green, orange, purple, red, teal)
+     * Cambia el tema de producción (blue, green, orange, purple, red, teal)
      */
-    applyTemplateTheme(themeName) {
-        // Eliminar cualquier tema de plantilla anterior
-        document.documentElement.removeAttribute('data-template-theme');
-        
-        // Aplicar nuevo tema
-        if (themeName && ['blue', 'green', 'orange', 'purple', 'red', 'teal'].includes(themeName)) {
-            document.documentElement.setAttribute('data-template-theme', themeName);
-        }
+    setProductionTheme(theme) {
+        localStorage.setItem('themeProduction', theme);
+        this.applyProductionTheme();
     }
 
     /**
-     * Limpia el tema de plantilla y vuelve al tema global
+     * Aplica el tema de producción combinado con el tema global
      */
-    clearTemplateTheme() {
-        document.documentElement.removeAttribute('data-template-theme');
+    applyProductionTheme() {
+        const globalTheme = localStorage.getItem('themeColor') || 'dark';
+        const productionTheme = localStorage.getItem('themeProduction') || 'blue';
+        
+        // Aplicar tema global
+        document.documentElement.setAttribute('data-theme', globalTheme);
+        
+        // Aplicar tema de producción como atributo combinado
+        document.documentElement.setAttribute('data-production-theme', productionTheme);
+    }
+
+    /**
+     * Limpia el tema de producción
+     */
+    clearProductionTheme() {
+        document.documentElement.removeAttribute('data-production-theme');
     }
 }
