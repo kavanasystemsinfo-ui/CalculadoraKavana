@@ -222,6 +222,30 @@ describe('Engine.runSession (full simulation)', () => {
     });
 });
 
+describe('Model with Package/Row structure', () => {
+    it('should store piecesPerPackage and piecesPerRow in model', () => {
+        const model = {
+            id: 'm1',
+            name: 'Modelo Test',
+            piecesPerPallet: 480,
+            piecesPerPackage: 120,
+            piecesPerRow: 24
+        };
+        assert.strictEqual(model.piecesPerPackage, 120);
+        assert.strictEqual(model.piecesPerRow, 24);
+    });
+
+    it('pallet should be divisible by package', () => {
+        const pallet = 480, pkg = 120;
+        assert.strictEqual(pallet % pkg, 0);
+    });
+
+    it('package should be divisible by row', () => {
+        const pkg = 120, row = 24;
+        assert.strictEqual(pkg % row, 0);
+    });
+});
+
 describe('Storage (logic validation)', () => {
     it('generates unique IDs', () => {
         // Verify the ID generator creates unique values

@@ -389,6 +389,23 @@ input:focus, select:focus {
     font-size: 13px;
 }
 
+.model-subgrid {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.subfield {
+    flex: 1;
+}
+
+.subfield input {
+    width: 100%;
+    min-height: 36px;
+    font-size: 12px;
+    padding: 8px;
+}
+
 .measures-list {
     padding-left: 8px;
     border-left: 2px solid var(--accent-primary);

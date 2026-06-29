@@ -59,7 +59,9 @@ export class ProductionUI {
                     measureId: ms.id,
                     modelName: m.name,
                     lengthMm: ms.lengthMm,
-                    piecesPerPallet: m.piecesPerPallet || 480
+                    piecesPerPallet: m.piecesPerPallet || 480,
+                    piecesPerPackage: m.piecesPerPackage || 120,
+                    piecesPerRow: m.piecesPerRow || 24
                 });
             });
         });
@@ -215,7 +217,11 @@ export class ProductionUI {
             modelName: opt.modelName,
             lengthMm: opt.lengthMm,
             piecesPerPallet: opt.piecesPerPallet,
-            pallets: 0
+            piecesPerPackage: opt.piecesPerPackage || 120,
+            piecesPerRow: opt.piecesPerRow || 24,
+            pallets: 0,
+            packages: 0,
+            rows: 0
         });
         this.renderEntries();
     }
@@ -237,11 +243,19 @@ export class ProductionUI {
             <div class="prod-entry-card" data-uid="${entry.uid}">
                 <div class="entry-info">
                     <div style="font-weight:700; font-size:14px;">${this.escapeHtml(entry.modelName)}</div>
-                    <div style="font-size:11px; color:var(--text-dim);">${entry.lengthMm} mm · ${entry.piecesPerPallet} pz/palet</div>
+                    <div style="font-size:11px; color:var(--text-dim);">${entry.lengthMm} mm · ${entry.piecesPerPallet} pz/palet · ${entry.piecesPerPackage} pz/paq · ${entry.piecesPerRow} pz/fila</div>
                 </div>
                 <div>
                     <label style="font-size:10px; display:block; text-align:center; margin-bottom:2px;">Palets</label>
                     <input type="number" class="entry-pallets" data-index="${i}" value="${entry.pallets}" min="0" step="1" inputmode="numeric">
+                </div>
+                <div>
+                    <label style="font-size:10px; display:block; text-align:center; margin-bottom:2px;">Paquetes</label>
+                    <input type="number" class="entry-packages" data-index="${i}" value="${entry.packages || 0}" min="0" step="1" inputmode="numeric">
+                </div>
+                <div>
+                    <label style="font-size:10px; display:block; text-align:center; margin-bottom:2px;">Filas</label>
+                    <input type="number" class="entry-rows" data-index="${i}" value="${entry.rows || 0}" min="0" step="1" inputmode="numeric">
                 </div>
                 <button class="btn-icon remove-entry" data-index="${i}" style="font-size:16px;">✕</button>
             </div>
@@ -251,6 +265,18 @@ export class ProductionUI {
             input.addEventListener('input', (e) => {
                 const idx = parseInt(e.target.dataset.index);
                 this.addedEntries[idx].pallets = parseFloat(e.target.value) || 0;
+            });
+        });
+        list.querySelectorAll('.entry-packages').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                this.addedEntries[idx].packages = parseFloat(e.target.value) || 0;
+            });
+        });
+        list.querySelectorAll('.entry-rows').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                this.addedEntries[idx].rows = parseFloat(e.target.value) || 0;
             });
         });
 
@@ -268,13 +294,13 @@ export class ProductionUI {
         const tpl = store.getTemplate(this.activeTemplateId);
 
         const entries = this.addedEntries
-            .filter(e => e.pallets > 0)
+            .filter(e => e.pallets > 0 || e.packages > 0 || e.rows > 0)
             .map(e => ({
                 modelId: e.modelId,
                 modelName: e.modelName,
                 lengthMm: e.lengthMm,
                 pallets: e.pallets,
-                pieces: e.pallets * e.piecesPerPallet
+                pieces: (e.pallets * e.piecesPerPallet) + (e.packages * e.piecesPerPackage) + (e.rows * e.piecesPerRow)
             }));
 
         if (entries.length === 0) {

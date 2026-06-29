@@ -80,6 +80,8 @@ export class TemplatesUI {
                 id: crypto.randomUUID(),
                 name: '',
                 piecesPerPallet: 480,
+                piecesPerPackage: 120,
+                piecesPerRow: 24,
                 measures: [{ id: crypto.randomUUID(), lengthMm: '' }]
             };
         }
@@ -101,6 +103,16 @@ export class TemplatesUI {
                     <input type="number" class="model-pallet" placeholder="Pz/Palet" value="${model.piecesPerPallet}" required min="1">
                 </div>
                 <button type="button" class="btn-icon remove-model" title="Eliminar modelo">✖</button>
+            </div>
+            <div class="model-subgrid">
+                <div class="subfield">
+                    <label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:2px;">Pz/Paquete</label>
+                    <input type="number" class="model-package" placeholder="Pz/Paq" value="${model.piecesPerPackage || 120}" min="1">
+                </div>
+                <div class="subfield">
+                    <label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:2px;">Pz/Fila</label>
+                    <input type="number" class="model-row" placeholder="Pz/Fila" value="${model.piecesPerRow || 24}" min="1">
+                </div>
             </div>
             <div class="measures-list">
                 <!-- Medidas dinámicas -->
@@ -203,6 +215,8 @@ export class TemplatesUI {
                 id: block.dataset.id,
                 name: block.querySelector('.model-name').value,
                 piecesPerPallet: parseInt(block.querySelector('.model-pallet').value, 10) || 480,
+                piecesPerPackage: parseInt(block.querySelector('.model-package').value, 10) || 120,
+                piecesPerRow: parseInt(block.querySelector('.model-row').value, 10) || 24,
                 measures: measures
             };
         }).filter(m => m.name && m.measures.length > 0);
