@@ -34,6 +34,21 @@ global.document = {
 };
 
 // ThemeManager logic (replicated for testing)
+const APP_THEME_META_COLORS = {
+    blue: '#172554',
+    green: '#052e16',
+    orange: '#431407',
+    purple: '#3b0764',
+    red: '#450a0a',
+    teal: '#042f2e'
+};
+
+const APP_THEME_ALIASES = {
+    dark: 'blue',
+    light: 'blue',
+    industrial: 'blue'
+};
+
 class ThemeManager {
     constructor() {
         this.colorSelect = null;
@@ -41,17 +56,25 @@ class ThemeManager {
         this.productionSelect = null;
     }
     
-    setThemeColor(color) {
-        document.documentElement.setAttribute('data-theme', color);
-        localStorage.setItem('themeColor', color);
-        
+    normalizeThemeColor(color) {
+        if (!color) return 'blue';
+        if (APP_THEME_ALIASES[color]) return APP_THEME_ALIASES[color];
+        if (APP_THEME_META_COLORS[color]) return color;
+        return 'blue';
+    }
+
+    updateMetaThemeColor(color) {
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
         if (metaThemeColor) {
-            let colorHex = '#0f172a';
-            if (color === 'light') colorHex = '#f8fafc';
-            if (color === 'industrial') colorHex = '#000000';
-            metaThemeColor.setAttribute('content', colorHex);
+            metaThemeColor.setAttribute('content', APP_THEME_META_COLORS[color] || APP_THEME_META_COLORS.blue);
         }
+    }
+
+    setThemeColor(color) {
+        const normalizedColor = this.normalizeThemeColor(color);
+        document.documentElement.setAttribute('data-theme', normalizedColor);
+        localStorage.setItem('themeColor', normalizedColor);
+        this.updateMetaThemeColor(normalizedColor);
     }
     
     setLayout(layout) {
@@ -65,7 +88,7 @@ class ThemeManager {
     }
     
     applyProductionTheme() {
-        const globalTheme = localStorage.getItem('themeColor') || 'dark';
+        const globalTheme = this.normalizeThemeColor(localStorage.getItem('themeColor'));
         const productionTheme = localStorage.getItem('themeProduction') || 'blue';
         
         document.documentElement.setAttribute('data-theme', globalTheme);
@@ -86,25 +109,32 @@ describe('ThemeManager - Theme Colors', () => {
         themeManager = new ThemeManager();
     });
     
-    it('sets dark theme and saves to localStorage', () => {
+    it('sets blue theme and saves to localStorage', () => {
+        themeManager.setThemeColor('blue');
+        
+        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'blue');
+        assert.strictEqual(localStorage.getItem('themeColor'), 'blue');
+    });
+    
+    it('sets green theme and saves to localStorage', () => {
+        themeManager.setThemeColor('green');
+        
+        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'green');
+        assert.strictEqual(localStorage.getItem('themeColor'), 'green');
+    });
+    
+    it('normalizes legacy dark theme to blue', () => {
         themeManager.setThemeColor('dark');
         
-        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'dark');
-        assert.strictEqual(localStorage.getItem('themeColor'), 'dark');
+        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'blue');
+        assert.strictEqual(localStorage.getItem('themeColor'), 'blue');
     });
-    
-    it('sets light theme and saves to localStorage', () => {
-        themeManager.setThemeColor('light');
-        
-        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'light');
-        assert.strictEqual(localStorage.getItem('themeColor'), 'light');
-    });
-    
-    it('sets industrial theme and saves to localStorage', () => {
-        themeManager.setThemeColor('industrial');
-        
-        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'industrial');
-        assert.strictEqual(localStorage.getItem('themeColor'), 'industrial');
+
+    it('sets red theme and saves to localStorage', () => {
+        themeManager.setThemeColor('red');
+
+        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'red');
+        assert.strictEqual(localStorage.getItem('themeColor'), 'red');
     });
 });
 
@@ -184,11 +214,11 @@ describe('ThemeManager - Production Themes', () => {
     });
     
     it('applies production theme with current global theme', () => {
-        localStorage.setItem('themeColor', 'light');
+        localStorage.setItem('themeColor', 'green');
         themeManager.setProductionTheme('green');
         
         // Global theme should remain
-        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'light');
+        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'green');
         // Production theme should be set
         assert.strictEqual(document.documentElement.getAttribute('data-production-theme'), 'green');
     });

@@ -1,4 +1,4 @@
-import { ThemeManager } from './theme.js?v=9';
+import { ThemeManager } from './theme.js?v=12';
 import { store } from './store.js?v=9';
 import { TemplatesUI } from './ui-templates.js?v=9';
 import { ProductionUI } from './ui-production.js?v=9';
@@ -23,7 +23,7 @@ class App {
 
         // Registrar Service Worker (PWA)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js?v=8')
+            navigator.serviceWorker.register('./sw.js?v=12')
                 .then(reg => console.log('[App] SW Registered', reg.scope))
                 .catch(err => console.warn('[App] SW Error', err));
         }
@@ -49,22 +49,36 @@ class App {
     }
 
     setupTabs() {
+        const tabNav = document.querySelector('.tab-nav');
         const tabs = document.querySelectorAll('.tab-btn');
-        const contents = document.querySelectorAll('.tab-content');
 
         tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
+            tab.type = 'button';
+        });
+
+        if (tabNav) {
+            tabNav.addEventListener('click', (e) => {
+                const tab = e.target.closest('.tab-btn');
+                if (!tab || !tabNav.contains(tab)) return;
+                e.preventDefault();
                 this.activateTab(tab.getAttribute('data-target'));
             });
-        });
+        }
 
         // Permitir cambiar pestañas desde otros módulos
         window.addEventListener('switch-tab', (e) => {
-            this.activateTab(e.detail.tab);
+            if (e.detail && e.detail.tab) {
+                this.activateTab(e.detail.tab);
+            }
         });
+
+        const initialTab = document.querySelector('.tab-btn.active')?.getAttribute('data-target') || 'tab-produccion';
+        this.activateTab(initialTab);
     }
 
     activateTab(targetId) {
+        if (!targetId) return;
+
         const tabs = document.querySelectorAll('.tab-btn');
         const contents = document.querySelectorAll('.tab-content');
 

@@ -233,7 +233,7 @@ export class TemplatesUI {
             enableEfficiency: enableEff,
             efficiencyType: enableEff ? document.getElementById('tpl-eff-type').value : null,
             expectedEfficiency: enableEff ? parseFloat(document.getElementById('tpl-eff-val').value) : null,
-            theme: document.getElementById('tpl-theme') ? document.getElementById('tpl-theme').value : 'dark',
+            theme: document.getElementById('tpl-theme') ? document.getElementById('tpl-theme').value : 'blue',
             models: models
         };
 

@@ -1,6 +1,21 @@
 /**
  * ThemeManager - Gestión de temas globales y de producción
  */
+const APP_THEME_META_COLORS = {
+    blue: '#172554',
+    green: '#052e16',
+    orange: '#431407',
+    purple: '#3b0764',
+    red: '#450a0a',
+    teal: '#042f2e'
+};
+
+const APP_THEME_ALIASES = {
+    dark: 'blue',
+    light: 'blue',
+    industrial: 'blue'
+};
+
 export class ThemeManager {
     constructor() {
         this.colorSelect = document.getElementById('theme-color-select');
@@ -13,9 +28,13 @@ export class ThemeManager {
     init() {
         // Los valores por defecto se aplican en el <head> de index.html para evitar FOOC.
         // Aquí solo sincronizamos los <select> con el estado actual.
-        const currentColor = localStorage.getItem('themeColor') || 'dark';
+        const currentColor = this.normalizeThemeColor(localStorage.getItem('themeColor'));
         const currentLayout = localStorage.getItem('themeLayout') || 'compact';
         const currentProduction = localStorage.getItem('themeProduction') || 'blue';
+
+        localStorage.setItem('themeColor', currentColor);
+        document.documentElement.setAttribute('data-theme', currentColor);
+        this.updateMetaThemeColor(currentColor);
 
         if(this.colorSelect) {
             this.colorSelect.value = currentColor;
@@ -34,20 +53,13 @@ export class ThemeManager {
     }
 
     /**
-     * Cambia el tema global (dark, light, industrial)
+     * Cambia el tema global (blue, green, orange, purple, red, teal)
      */
     setThemeColor(color) {
-        document.documentElement.setAttribute('data-theme', color);
-        localStorage.setItem('themeColor', color);
-        
-        // Actualizar color de la barra de estado de PWA
-        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-        if (metaThemeColor) {
-            let colorHex = '#0f172a'; // dark
-            if (color === 'light') colorHex = '#f8fafc';
-            if (color === 'industrial') colorHex = '#000000';
-            metaThemeColor.setAttribute('content', colorHex);
-        }
+        const normalizedColor = this.normalizeThemeColor(color);
+        document.documentElement.setAttribute('data-theme', normalizedColor);
+        localStorage.setItem('themeColor', normalizedColor);
+        this.updateMetaThemeColor(normalizedColor);
     }
 
     /**
@@ -70,8 +82,10 @@ export class ThemeManager {
      * Aplica el tema de producción combinado con el tema global
      */
     applyProductionTheme() {
-        const globalTheme = localStorage.getItem('themeColor') || 'dark';
+        const globalTheme = this.normalizeThemeColor(localStorage.getItem('themeColor'));
         const productionTheme = localStorage.getItem('themeProduction') || 'blue';
+
+        localStorage.setItem('themeColor', globalTheme);
         
         // Aplicar tema global
         document.documentElement.setAttribute('data-theme', globalTheme);
@@ -99,5 +113,19 @@ export class ThemeManager {
      */
     clearTemplateTheme() {
         this.applyProductionTheme();
+    }
+
+    normalizeThemeColor(color) {
+        if (!color) return 'blue';
+        if (APP_THEME_ALIASES[color]) return APP_THEME_ALIASES[color];
+        if (APP_THEME_META_COLORS[color]) return color;
+        return 'blue';
+    }
+
+    updateMetaThemeColor(color) {
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', APP_THEME_META_COLORS[color] || APP_THEME_META_COLORS.blue);
+        }
     }
 }

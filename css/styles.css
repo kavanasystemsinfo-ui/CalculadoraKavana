@@ -1,54 +1,111 @@
 /* ===== Variables CSS y Temas ===== */
 
-/* Tema por defecto: Dark (Basado en el diseño original PYL 23) */
-:root, [data-theme="dark"] {
-    --bg-main: #0f172a;
-    --card-bg: #1e293b;
-    --accent-primary: #6366f1;
-    --accent-secondary: #f59e0b;
+/* Azul - Profesional */
+:root, [data-theme="blue"] {
+    --bg-main: #0b1020;
+    --card-bg: #121c2f;
+    --accent-primary: #4f46e5;
+    --accent-secondary: #93c5fd;
+    --accent-tertiary: rgba(99, 102, 241, 0.16);
     --text-main: #f8fafc;
-    --text-dim: #94a3b8;
+    --text-dim: #9aa7c0;
     --danger: #ef4444;
     --success: #22c55e;
-    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-subtle: rgba(99, 102, 241, 0.08);
     --input-bg: #0f172a;
     --input-border: #334155;
-    
-    --shadow-base: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+    --shadow-base: 0 25px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(79, 70, 229, 0.05);
 }
 
-/* Tema Clásico (Light) */
-[data-theme="light"] {
-    --bg-main: #f8fafc;
-    --card-bg: #ffffff;
-    --accent-primary: #4f46e5;
-    --accent-secondary: #ea580c;
-    --text-main: #0f172a;
-    --text-dim: #64748b;
-    --danger: #dc2626;
-    --success: #16a34a;
-    --border-subtle: rgba(0, 0, 0, 0.1);
-    --input-bg: #f1f5f9;
-    --input-border: #cbd5e1;
-    
-    --shadow-base: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+/* Verde - Natural */
+[data-theme="green"] {
+    --bg-main: #07170d;
+    --card-bg: #102218;
+    --accent-primary: #22c55e;
+    --accent-secondary: #86efac;
+    --accent-tertiary: rgba(74, 222, 128, 0.16);
+    --text-main: #f0fff4;
+    --text-dim: #8fb39d;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --border-subtle: rgba(74, 222, 128, 0.08);
+    --input-bg: #0a1b10;
+    --input-border: #2f5d43;
+
+    --shadow-base: 0 25px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(74, 222, 128, 0.04);
 }
 
-/* Tema Industrial (Alto Contraste) */
-[data-theme="industrial"] {
-    --bg-main: #000000;
-    --card-bg: #111111;
-    --accent-primary: #ffcc00; /* Amarillo precaución */
-    --accent-secondary: #ff0000; /* Rojo alerta */
-    --text-main: #ffffff;
-    --text-dim: #aaaaaa;
-    --danger: #ff3333;
-    --success: #00ff00;
-    --border-subtle: #444444;
-    --input-bg: #000000;
-    --input-border: #ffcc00;
-    
-    --shadow-base: 0 0 10px rgba(255, 204, 0, 0.2);
+/* Naranja - Cálido */
+[data-theme="orange"] {
+    --bg-main: #1b1108;
+    --card-bg: #28170d;
+    --accent-primary: #ea580c;
+    --accent-secondary: #fdba74;
+    --accent-tertiary: rgba(251, 146, 60, 0.16);
+    --text-main: #fff7ed;
+    --text-dim: #ccb39e;
+    --danger: #fb7185;
+    --success: #22c55e;
+    --border-subtle: rgba(251, 146, 60, 0.08);
+    --input-bg: #1a1209;
+    --input-border: #7c3f16;
+
+    --shadow-base: 0 25px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(251, 146, 60, 0.05);
+}
+
+/* Púrpura - Creativo */
+[data-theme="purple"] {
+    --bg-main: #140c1f;
+    --card-bg: #201531;
+    --accent-primary: #7c3aed;
+    --accent-secondary: #c4b5fd;
+    --accent-tertiary: rgba(124, 58, 237, 0.16);
+    --text-main: #faf5ff;
+    --text-dim: #b8a9da;
+    --danger: #f87171;
+    --success: #22c55e;
+    --border-subtle: rgba(124, 58, 237, 0.08);
+    --input-bg: #171024;
+    --input-border: #5b3ca7;
+
+    --shadow-base: 0 25px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(124, 58, 237, 0.05);
+}
+
+/* Rojo - Energético */
+[data-theme="red"] {
+    --bg-main: #1a0d0d;
+    --card-bg: #281414;
+    --accent-primary: #dc2626;
+    --accent-secondary: #fca5a5;
+    --accent-tertiary: rgba(220, 38, 38, 0.16);
+    --text-main: #fff5f5;
+    --text-dim: #d7a9a9;
+    --danger: #f87171;
+    --success: #22c55e;
+    --border-subtle: rgba(220, 38, 38, 0.08);
+    --input-bg: #210d0d;
+    --input-border: #7f1d1d;
+
+    --shadow-base: 0 25px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(220, 38, 38, 0.05);
+}
+
+/* Turquesa - Fresco */
+[data-theme="teal"] {
+    --bg-main: #071718;
+    --card-bg: #102627;
+    --accent-primary: #0d9488;
+    --accent-secondary: #5eead4;
+    --accent-tertiary: rgba(20, 184, 166, 0.16);
+    --text-main: #f0fffe;
+    --text-dim: #9ac5bf;
+    --danger: #f87171;
+    --success: #34d399;
+    --border-subtle: rgba(20, 184, 166, 0.08);
+    --input-bg: #0a1f1f;
+    --input-border: #245e5b;
+
+    --shadow-base: 0 25px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(20, 184, 166, 0.05);
 }
 
 /* ===== Temas de Producción con Paletas Completas ===== */
@@ -56,35 +113,35 @@
 /* Azul - Profesional (Azul índigo con variantes) */
 [data-production-theme="blue"] {
     --accent-primary: #4f46e5;      /* Indigo 600 */
-    --accent-secondary: #818cf8;     /* Indigo 400 */
-    --accent-tertiary: #e0e7ff;      /* Indigo 100 */
-    --card-bg: #1e293b;
+    --accent-secondary: #93c5fd;     /* Blue 300 */
+    --accent-tertiary: rgba(99, 102, 241, 0.16);
+    --card-bg: #121c2f;
     --input-bg: #0f172a;
-    --input-border: #6366f1;
+    --input-border: #334155;
     --success: #22c55e;
     --danger: #ef4444;
 }
 
 /* Verde - Natural (Verde con variantes) */
 [data-production-theme="green"] {
-    --accent-primary: #16a34a;      /* Green 600 */
-    --accent-secondary: #4ade80;     /* Green 400 */
-    --accent-tertiary: #dcfce7;      /* Green 100 */
-    --card-bg: #1e293b;
-    --input-bg: #0f172a;
-    --input-border: #22c55e;
-    --success: #4ade80;
+    --accent-primary: #22c55e;      /* Green 500 */
+    --accent-secondary: #86efac;     /* Green 300 */
+    --accent-tertiary: rgba(74, 222, 128, 0.16);
+    --card-bg: #102218;
+    --input-bg: #0a1b10;
+    --input-border: #2f5d43;
+    --success: #86efac;
     --danger: #f87171;
 }
 
 /* Naranja - Cálido (Naranja con variantes) */
 [data-production-theme="orange"] {
     --accent-primary: #ea580c;      /* Amber 600 */
-    --accent-secondary: #fbbf24;    /* Amber 400 */
-    --accent-tertiary: #ffedd5;     /* Amber 100 */
-    --card-bg: #1e293b;
-    --input-bg: #0f172a;
-    --input-border: #fb923c;
+    --accent-secondary: #fdba74;    /* Orange 300 */
+    --accent-tertiary: rgba(251, 146, 60, 0.16);
+    --card-bg: #28170d;
+    --input-bg: #1a1209;
+    --input-border: #7c3f16;
     --success: #4ade80;
     --danger: #f87171;
 }
@@ -92,11 +149,11 @@
 /* Púrpura - Creativo (Violeta con variantes) */
 [data-production-theme="purple"] {
     --accent-primary: #7c3aed;      /* Violet 600 */
-    --accent-secondary: #a78bfa;     /* Violet 400 */
-    --accent-tertiary: #ede9fe;      /* Violet 100 */
-    --card-bg: #1e293b;
-    --input-bg: #0f172a;
-    --input-border: #8b5cf6;
+    --accent-secondary: #c4b5fd;     /* Violet 300 */
+    --accent-tertiary: rgba(124, 58, 237, 0.16);
+    --card-bg: #201531;
+    --input-bg: #171024;
+    --input-border: #5b3ca7;
     --success: #4ade80;
     --danger: #f87171;
 }
@@ -104,11 +161,11 @@
 /* Rojo - Energético (Rojo con variantes) */
 [data-production-theme="red"] {
     --accent-primary: #dc2626;      /* Red 600 */
-    --accent-secondary: #f87171;    /* Red 400 */
-    --accent-tertiary: #fee2e2;     /* Red 100 */
-    --card-bg: #1e293b;
-    --input-bg: #0f172a;
-    --input-border: #ef4444;
+    --accent-secondary: #fca5a5;    /* Red 300 */
+    --accent-tertiary: rgba(220, 38, 38, 0.16);
+    --card-bg: #281414;
+    --input-bg: #210d0d;
+    --input-border: #7f1d1d;
     --success: #4ade80;
     --danger: #f87171;
 }
@@ -116,11 +173,11 @@
 /* Turquesa - Fresco (Teal con variantes) */
 [data-production-theme="teal"] {
     --accent-primary: #0d9488;      /* Teal 600 */
-    --accent-secondary: #34d399;    /* Teal 400 */
-    --accent-tertiary: #ccfbf1;     /* Teal 100 */
-    --card-bg: #1e293b;
-    --input-bg: #0f172a;
-    --input-border: #14b8a6;
+    --accent-secondary: #5eead4;    /* Teal 300 */
+    --accent-tertiary: rgba(20, 184, 166, 0.16);
+    --card-bg: #102627;
+    --input-bg: #0a1f1f;
+    --input-border: #245e5b;
     --success: #34d399;
     --danger: #f87171;
 }
@@ -458,7 +515,7 @@ input:focus, select:focus {
     width: 100%;
     min-height: var(--btn-height);
     padding-left: 40px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238fb39d' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: 14px center;
 }

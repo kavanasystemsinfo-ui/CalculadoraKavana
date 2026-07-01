@@ -6,7 +6,7 @@
     <title>Calculadora Kavana | Herramientas de Producción</title>
 
     <!-- PWA & Metas -->
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#172554">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon.svg">
@@ -18,19 +18,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
     <!-- Estilos Core -->
-    <link rel="stylesheet" href="./css/styles.css?v=8">
+    <link rel="stylesheet" href="./css/styles.css?v=10">
 
     <!-- Script Anti-FOUC (Flash of Unstyled Content) -->
     <script>
         (function() {
-            var theme = localStorage.getItem('themeColor') || 'dark';
+            var theme = localStorage.getItem('themeColor') || 'blue';
             var layout = localStorage.getItem('themeLayout') || 'compact';
+            var paletteColors = {
+                blue: '#172554',
+                green: '#052e16',
+                orange: '#431407',
+                purple: '#3b0764',
+                red: '#450a0a',
+                teal: '#042f2e'
+            };
+            var legacyThemes = ['dark', 'light', 'industrial'];
+            if (legacyThemes.indexOf(theme) !== -1) theme = 'blue';
             document.documentElement.setAttribute('data-theme', theme);
             document.documentElement.setAttribute('data-layout', layout);
             
             // Actualizar meta theme-color pre-carga
-            if(theme === 'light') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f8fafc');
-            if(theme === 'industrial') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', paletteColors[theme] || paletteColors.blue);
         })();
     </script>
 
@@ -39,7 +48,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js" defer></script>
 
     <!-- Módulo Principal de la App -->
-    <script type="module" src="./js/app.js?v=9"></script>
+    <script type="module" src="./js/app.js?v=12"></script>
 </head>
 <body>
     <div class="container">
@@ -88,9 +97,12 @@
             <div class="form-group">
                 <label for="theme-color-select">Paleta de Colores (App)</label>
                 <select id="theme-color-select">
-                    <option value="dark">Dark (Clásico)</option>
-                    <option value="light">Light (Día)</option>
-                    <option value="industrial">Industrial (Alto Contraste)</option>
+                    <option value="blue">Azul (Profesional)</option>
+                    <option value="green">Verde (Natural)</option>
+                    <option value="orange">Naranja (Cálido)</option>
+                    <option value="purple">Púrpura (Creativo)</option>
+                    <option value="red">Rojo (Energético)</option>
+                    <option value="teal">Turquesa (Fresco)</option>
                 </select>
             </div>
 
