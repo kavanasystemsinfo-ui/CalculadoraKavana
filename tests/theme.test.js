@@ -51,9 +51,19 @@ const APP_THEME_ALIASES = {
 
 class ThemeManager {
     constructor() {
-        this.colorSelect = null;
         this.layoutSelect = null;
         this.productionSelect = null;
+        this.init();
+    }
+
+    init() {
+        const currentColor = this.normalizeThemeColor(localStorage.getItem('themeColor'));
+        const currentLayout = localStorage.getItem('themeLayout') || 'compact';
+        const currentProduction = localStorage.getItem('themeProduction') || 'blue';
+
+        localStorage.setItem('themeColor', currentColor);
+        document.documentElement.setAttribute('data-theme', currentColor);
+        this.updateMetaThemeColor(currentColor);
     }
     
     normalizeThemeColor(color) {
@@ -70,13 +80,6 @@ class ThemeManager {
         }
     }
 
-    setThemeColor(color) {
-        const normalizedColor = this.normalizeThemeColor(color);
-        document.documentElement.setAttribute('data-theme', normalizedColor);
-        localStorage.setItem('themeColor', normalizedColor);
-        this.updateMetaThemeColor(normalizedColor);
-    }
-    
     setLayout(layout) {
         document.documentElement.setAttribute('data-layout', layout);
         localStorage.setItem('themeLayout', layout);
@@ -100,7 +103,7 @@ class ThemeManager {
     }
 }
 
-describe('ThemeManager - Theme Colors', () => {
+describe('ThemeManager - Theme Normalization', () => {
     let themeManager;
     
     beforeEach(() => {
@@ -109,32 +112,40 @@ describe('ThemeManager - Theme Colors', () => {
         themeManager = new ThemeManager();
     });
     
-    it('sets blue theme and saves to localStorage', () => {
-        themeManager.setThemeColor('blue');
-        
-        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'blue');
-        assert.strictEqual(localStorage.getItem('themeColor'), 'blue');
+    it('keeps supported themes', () => {
+        assert.strictEqual(themeManager.normalizeThemeColor('blue'), 'blue');
+        assert.strictEqual(themeManager.normalizeThemeColor('green'), 'green');
+        assert.strictEqual(themeManager.normalizeThemeColor('red'), 'red');
     });
     
-    it('sets green theme and saves to localStorage', () => {
-        themeManager.setThemeColor('green');
-        
-        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'green');
-        assert.strictEqual(localStorage.getItem('themeColor'), 'green');
+    it('normalizes legacy themes to blue', () => {
+        assert.strictEqual(themeManager.normalizeThemeColor('dark'), 'blue');
+        assert.strictEqual(themeManager.normalizeThemeColor('light'), 'blue');
+        assert.strictEqual(themeManager.normalizeThemeColor('industrial'), 'blue');
     });
+});
+
+describe('ThemeManager - Initialization', () => {
+    let themeManager;
     
-    it('normalizes legacy dark theme to blue', () => {
-        themeManager.setThemeColor('dark');
-        
+    beforeEach(() => {
+        localStorage.clear();
+        mockDocumentElement.attributes = {};
+    });
+
+    it('defaults to blue when there is no saved theme', () => {
+        themeManager = new ThemeManager();
+
         assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'blue');
         assert.strictEqual(localStorage.getItem('themeColor'), 'blue');
     });
 
-    it('sets red theme and saves to localStorage', () => {
-        themeManager.setThemeColor('red');
+    it('migrates legacy saved theme to blue on init', () => {
+        localStorage.setItem('themeColor', 'dark');
+        themeManager = new ThemeManager();
 
-        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'red');
-        assert.strictEqual(localStorage.getItem('themeColor'), 'red');
+        assert.strictEqual(document.documentElement.getAttribute('data-theme'), 'blue');
+        assert.strictEqual(localStorage.getItem('themeColor'), 'blue');
     });
 });
 

@@ -9,8 +9,10 @@
     <meta name="theme-color" content="#172554">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icon.svg">
-    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="1000x1000" href="ICON.png?v=2">
+    <link rel="shortcut icon" type="image/png" href="ICON.png?v=2">
+    <link rel="apple-touch-icon" href="ICON.png?v=2">
+    <link rel="manifest" href="manifest.json?v=2">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +50,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js" defer></script>
 
     <!-- Módulo Principal de la App -->
-    <script type="module" src="./js/app.js?v=12"></script>
+    <script type="module" src="./js/app.js?v=13"></script>
 </head>
 <body>
     <div class="container">
@@ -94,18 +96,6 @@
         <div id="tab-config" class="tab-content">
             <h2 class="subtitle" style="margin-bottom: 16px;">Ajustes Visuales</h2>
             
-            <div class="form-group">
-                <label for="theme-color-select">Paleta de Colores (App)</label>
-                <select id="theme-color-select">
-                    <option value="blue">Azul (Profesional)</option>
-                    <option value="green">Verde (Natural)</option>
-                    <option value="orange">Naranja (Cálido)</option>
-                    <option value="purple">Púrpura (Creativo)</option>
-                    <option value="red">Rojo (Energético)</option>
-                    <option value="teal">Turquesa (Fresco)</option>
-                </select>
-            </div>
-
             <div class="form-group">
                 <label for="theme-layout-select">Formato de Interfaz</label>
                 <select id="theme-layout-select">

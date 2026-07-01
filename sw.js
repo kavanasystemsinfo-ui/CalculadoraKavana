@@ -1,18 +1,18 @@
-const CACHE_NAME = 'prod-calc-v12';
+const CACHE_NAME = 'prod-calc-v13';
 const ASSETS = [
     './',
     './index.html',
-    './manifest.json',
-    './icon.svg',
-    './css/styles.css',
-    './js/app.js',
-    './js/store.js',
-    './js/theme.js',
+    './manifest.json?v=2',
+    './ICON.png?v=2',
+    './css/styles.css?v=10',
+    './js/app.js?v=13',
+    './js/store.js?v=9',
+    './js/theme.js?v=12',
     './js/calculator.js',
     './js/export.js',
-    './js/ui-templates.js',
-    './js/ui-production.js',
-    './js/ui-history.js'
+    './js/ui-templates.js?v=9',
+    './js/ui-production.js?v=9',
+    './js/ui-history.js?v=9'
 ];
 
 self.addEventListener('install', event => {

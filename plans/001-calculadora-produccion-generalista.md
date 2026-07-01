@@ -60,7 +60,7 @@ calculadora_pyl23-main/
 ├── index.html          # App principal (refactorizada)
 ├── manifest.json       # PWA manifest (actualizado)
 ├── sw.js               # Service Worker (limpiado)
-├── icon.svg            # Icono
+├── ICON.png            # Icono
 ├── README.md           # Documentación actualizada
 ├── .clinerules         # Reglas TDD
 ├── docs/

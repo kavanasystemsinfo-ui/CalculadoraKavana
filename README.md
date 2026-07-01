@@ -1,6 +1,6 @@
 # Calculadora Kavana - Industrial Production Calculator
 
-![Calculadora Kavana](icon.svg)
+![Calculadora Kavana](ICON.png)
 
 A Progressive Web Application for industrial production efficiency calculation, designed for factory floor operators with offline-first capabilities.
 
@@ -116,7 +116,7 @@ calculadora-kavana/
 ├── index.html              # SPA root
 ├── manifest.json           # PWA configuration
 ├── sw.js                   # Service Worker
-└── icon.svg                # Application icon
+└── ICON.png                # Application icon
 ```
 
 ---

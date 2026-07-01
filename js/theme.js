@@ -18,7 +18,6 @@ const APP_THEME_ALIASES = {
 
 export class ThemeManager {
     constructor() {
-        this.colorSelect = document.getElementById('theme-color-select');
         this.layoutSelect = document.getElementById('theme-layout-select');
         this.productionSelect = document.getElementById('theme-production-select');
         
@@ -36,11 +35,6 @@ export class ThemeManager {
         document.documentElement.setAttribute('data-theme', currentColor);
         this.updateMetaThemeColor(currentColor);
 
-        if(this.colorSelect) {
-            this.colorSelect.value = currentColor;
-            this.colorSelect.addEventListener('change', (e) => this.setThemeColor(e.target.value));
-        }
-
         if(this.layoutSelect) {
             this.layoutSelect.value = currentLayout;
             this.layoutSelect.addEventListener('change', (e) => this.setLayout(e.target.value));
@@ -50,16 +44,6 @@ export class ThemeManager {
             this.productionSelect.value = currentProduction;
             this.productionSelect.addEventListener('change', (e) => this.setProductionTheme(e.target.value));
         }
-    }
-
-    /**
-     * Cambia el tema global (blue, green, orange, purple, red, teal)
-     */
-    setThemeColor(color) {
-        const normalizedColor = this.normalizeThemeColor(color);
-        document.documentElement.setAttribute('data-theme', normalizedColor);
-        localStorage.setItem('themeColor', normalizedColor);
-        this.updateMetaThemeColor(normalizedColor);
     }
 
     /**
