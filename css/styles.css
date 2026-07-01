@@ -571,7 +571,7 @@ input:focus, select:focus {
 /* Entradas de producción del día */
 .prod-entry-card {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 12px;
     background: var(--input-bg);
     border: 1px solid var(--border-subtle);
@@ -582,11 +582,64 @@ input:focus, select:focus {
 }
 
 .prod-entry-card .entry-info {
-    flex: 1;
+    width: 100%;
+}
+
+.prod-entry-card .entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.prod-entry-card .entry-name {
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.15;
+}
+
+.prod-entry-card .entry-measure {
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.prod-entry-card .entry-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--text-dim);
+}
+
+.prod-entry-card .entry-meta span {
+    white-space: nowrap;
+}
+
+.prod-entry-card .entry-controls {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    gap: 8px;
+    align-items: end;
+}
+
+.prod-entry-card .entry-field {
+    min-width: 0;
+}
+
+.prod-entry-card .entry-field label {
+    display: block;
+    text-align: center;
+    margin-bottom: 4px;
+    font-size: 10px;
+    line-height: 1;
 }
 
 .prod-entry-card input[type="number"] {
-    width: 80px;
+    width: 100%;
     min-height: 40px;
     text-align: center;
     font-size: 16px;
@@ -604,4 +657,41 @@ input:focus, select:focus {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+@media (max-width: 520px) {
+    .prod-entry-card {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .prod-entry-card .entry-head {
+        align-items: center;
+    }
+
+    .prod-entry-card .entry-name {
+        font-size: 13px;
+    }
+
+    .prod-entry-card .entry-meta {
+        display: none;
+    }
+
+    .prod-entry-card .entry-controls {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) 34px;
+        gap: 6px;
+    }
+
+    .prod-entry-card input[type="number"] {
+        min-height: 36px;
+        font-size: 14px;
+    }
+
+    .prod-entry-card .btn-icon.remove-entry {
+        min-width: 34px;
+        min-height: 34px;
+        padding: 0;
+        font-size: 15px;
+        align-self: center;
+    }
 }

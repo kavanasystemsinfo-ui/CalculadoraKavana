@@ -220,7 +220,7 @@ export class ProductionUI {
             piecesPerPackage: opt.piecesPerPackage || 120,
             piecesPerRow: opt.piecesPerRow || 24,
             pallets: 0,
-            packages: 0,
+            pieces: 0,
             rows: 0
         });
         this.renderEntries();
@@ -242,22 +242,31 @@ export class ProductionUI {
         list.innerHTML = this.addedEntries.map((entry, i) => `
             <div class="prod-entry-card" data-uid="${entry.uid}">
                 <div class="entry-info">
-                    <div style="font-weight:700; font-size:14px;">${this.escapeHtml(entry.modelName)}</div>
-                    <div style="font-size:11px; color:var(--text-dim);">${entry.lengthMm} mm · ${entry.piecesPerPallet} pz/palet · ${entry.piecesPerPackage} pz/paq · ${entry.piecesPerRow} pz/fila</div>
+                    <div class="entry-head">
+                        <div class="entry-name">${this.escapeHtml(entry.modelName)}</div>
+                        <div class="entry-measure">${entry.lengthMm} mm</div>
+                    </div>
+                    <div class="entry-meta">
+                        <span>${entry.piecesPerPallet} pz/palet</span>
+                        <span>${entry.piecesPerRow} pz/fila</span>
+                        <span>${entry.piecesPerPackage} pz/paq</span>
+                    </div>
                 </div>
-                <div>
-                    <label style="font-size:10px; display:block; text-align:center; margin-bottom:2px;">Palets</label>
-                    <input type="number" class="entry-pallets" data-index="${i}" value="${entry.pallets}" min="0" step="1" inputmode="numeric">
+                <div class="entry-controls">
+                    <div class="entry-field">
+                        <label>Palets</label>
+                        <input type="number" class="entry-pallets" data-index="${i}" value="${entry.pallets}" min="0" step="1" inputmode="numeric">
+                    </div>
+                    <div class="entry-field">
+                        <label>Filas</label>
+                        <input type="number" class="entry-rows" data-index="${i}" value="${entry.rows || 0}" min="0" step="1" inputmode="numeric">
+                    </div>
+                    <div class="entry-field">
+                        <label>Piezas</label>
+                        <input type="number" class="entry-pieces" data-index="${i}" value="${entry.pieces || 0}" min="0" step="1" inputmode="numeric">
+                    </div>
+                    <button class="btn-icon remove-entry" data-index="${i}" style="font-size:16px;">✕</button>
                 </div>
-                <div>
-                    <label style="font-size:10px; display:block; text-align:center; margin-bottom:2px;">Paquetes</label>
-                    <input type="number" class="entry-packages" data-index="${i}" value="${entry.packages || 0}" min="0" step="1" inputmode="numeric">
-                </div>
-                <div>
-                    <label style="font-size:10px; display:block; text-align:center; margin-bottom:2px;">Filas</label>
-                    <input type="number" class="entry-rows" data-index="${i}" value="${entry.rows || 0}" min="0" step="1" inputmode="numeric">
-                </div>
-                <button class="btn-icon remove-entry" data-index="${i}" style="font-size:16px;">✕</button>
             </div>
         `).join('');
 
@@ -267,10 +276,10 @@ export class ProductionUI {
                 this.addedEntries[idx].pallets = parseFloat(e.target.value) || 0;
             });
         });
-        list.querySelectorAll('.entry-packages').forEach(input => {
+        list.querySelectorAll('.entry-pieces').forEach(input => {
             input.addEventListener('input', (e) => {
                 const idx = parseInt(e.target.dataset.index);
-                this.addedEntries[idx].packages = parseFloat(e.target.value) || 0;
+                this.addedEntries[idx].pieces = parseFloat(e.target.value) || 0;
             });
         });
         list.querySelectorAll('.entry-rows').forEach(input => {
@@ -294,13 +303,13 @@ export class ProductionUI {
         const tpl = store.getTemplate(this.activeTemplateId);
 
         const entries = this.addedEntries
-            .filter(e => e.pallets > 0 || e.packages > 0 || e.rows > 0)
+            .filter(e => e.pallets > 0 || e.pieces > 0 || e.rows > 0)
             .map(e => ({
                 modelId: e.modelId,
                 modelName: e.modelName,
                 lengthMm: e.lengthMm,
                 pallets: e.pallets,
-                pieces: (e.pallets * e.piecesPerPallet) + (e.packages * e.piecesPerPackage) + (e.rows * e.piecesPerRow)
+                pieces: (e.pallets * e.piecesPerPallet) + (e.pieces * e.piecesPerPackage) + (e.rows * e.piecesPerRow)
             }));
 
         if (entries.length === 0) {
