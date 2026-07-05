@@ -1,0 +1,17 @@
+{
+    "name": "Calculadora Kavana - Herramientas de Producción",
+    "short_name": "KavanaCalc",
+    "description": "Calculadora de eficiencia de producción para Kavana. Offline-first PWA.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#0b1020",
+    "theme_color": "#172554",
+    "icons": [
+        {
+            "src": "./ICON.png?v=2",
+            "sizes": "1000x1000",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
