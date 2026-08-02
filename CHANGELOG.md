@@ -12,7 +12,7 @@ El versionado sigue [Semantic Versioning](https://semver.org/).
 - **Meta 100% Button**: Nuevo botón "🎯 Meta 100%" que muestra la cantidad de piezas necesarias para alcanzar el 100% de eficiencia
 - **Production Target Breakdown**: Desglose del objetivo en PALETS + FILAS + PAQUETES por cada modelo activo
 - **Label Standardization**: Labels de entrada de producción estandarizados en mayúsculas (PALETS, FILAS, PAQUETES)
-- **Professional Documentation**: Documentación técnica completa de nivel consultora IT:
+- **Professional Documentation**: Documentación técnica completa:
   - `docs/technical-architecture.md` — Documentación técnica del sistema
   - `docs/deployment-guide.md` — Guía de despliegue multi-plataforma
   - `docs/user-manual.md` — Manual de usuario para operarios
@@ -21,7 +21,7 @@ El versionado sigue [Semantic Versioning](https://semver.org/).
 ### Changed
 - **Input Labels**: Campos de entrada de producción renombrados de "Palets/Filas/Paquetes" a "PALETS/FILAS/PAQUETES" (consistencia visual)
 - **Service Worker**: Versión de caché actualizada a `v15` para bustear caché
-- **README.md**: Reescrito completamente con estructura profesional de consultora IT
+- **README.md**: Reescrito completamente con estructura profesional
 
 ### Technical Details
 - **Target Calculation**: `piezasNecesarias = eficienciaEsperada × horasTurno`

@@ -1,8 +1,8 @@
-const CACHE_NAME = 'prod-calc-v15';
+const CACHE_NAME = 'prod-calc-v16';
 const ASSETS = [
     './',
     './index.html',
-    './manifest.json?v=2',
+    './manifest.json?v=3',
     './ICON.png?v=2',
     './css/styles.css?v=10',
     './js/app.js?v=13',
