@@ -2,7 +2,7 @@ import { ThemeManager } from './theme.js?v=12';
 import { store } from './store.js?v=9';
 import { TemplatesUI } from './ui-templates.js?v=10';
 import { ProductionUI } from './ui-production.js?v=10';
-import { HistoryUI } from './ui-history.js?v=9';
+import { HistoryUI } from './ui-history.js?v=10';
 
 class App {
     constructor() {

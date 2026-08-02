@@ -67,6 +67,69 @@ export class Exporter {
     }
 
     /**
+     * Exporta todas las sesiones a un solo archivo .xlsx acumulativo.
+     * Cada sesión es una hoja dentro del mismo libro.
+     * @param {Array} sessions Array de todas las sesiones a exportar.
+     */
+    static exportAllSessionsToExcel(sessions) {
+        if (typeof XLSX === 'undefined') {
+            alert('Error: La librería SheetJS no está cargada. Verifica tu conexión.');
+            return;
+        }
+
+        const wb = XLSX.utils.book_new();
+
+        sessions.forEach((session, idx) => {
+            const effLabel = session.efficiencyType === 'meters_per_hour' ? 'Metros/hora' : 'Piezas/hora';
+            const dateStr = new Date(session.date).toLocaleDateString('es-ES', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+
+            const wsData = [
+                ['Fecha', 'Plantilla', 'Turno (h)', 'Eficiencia (%)', 'Tiempo Teórico (h)',
+                    'Total Piezas', 'Total Metros', 'Tipo', 'Esperado/h'
+                ],
+                [
+                    dateStr,
+                    session.templateName,
+                    session.shiftHours,
+                    session.efficiency + '%',
+                    session.theoreticalTime,
+                    session.totalPieces,
+                    session.totalMeters,
+                    effLabel,
+                    session.expectedEfficiency || '-'
+                ],
+                [],
+                ['Modelo', 'Medida (mm)', 'Palets', 'Piezas', 'Metros Lineales']
+            ];
+
+            (session.entries || []).forEach(e => {
+                const meters = ((e.lengthMm || 0) / 1000) * (e.pieces || 0);
+                wsData.push([
+                    e.modelName,
+                    e.lengthMm,
+                    e.pallets,
+                    e.pieces,
+                    meters.toFixed(2)
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            ws['!cols'] = [
+                { wch: 14 }, { wch: 22 }, { wch: 10 }, { wch: 14 },
+                { wch: 16 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 12 }
+            ];
+
+            const sheetName = `${dateStr} - ${(session.templateName || 'Sin nombre').slice(0, 20)}`;
+            XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0, 31));
+        });
+
+        const filename = `Historial Produccion.xlsx`;
+        XLSX.writeFile(wb, filename);
+    }
+
+    /**
      * Exporta un array de datos completo como archivo JSON (backup).
      * @param {Object} data Objeto con templates y sessions.
      * @param {string} filename Nombre del archivo de backup.

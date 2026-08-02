@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-calc-v16';
+const CACHE_NAME = 'prod-calc-v17';
 const ASSETS = [
     './',
     './index.html',
@@ -12,7 +12,7 @@ const ASSETS = [
     './js/export.js',
     './js/ui-templates.js?v=9',
     './js/ui-production.js?v=11',
-    './js/ui-history.js?v=9'
+    './js/ui-history.js?v=10'
 ];
 
 self.addEventListener('install', event => {

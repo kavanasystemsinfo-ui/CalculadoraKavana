@@ -55,7 +55,6 @@ export class HistoryUI {
                         <span style="color:var(--text-dim); font-size:11px;"> eficiencia</span>
                     </div>
                     <div style="display:flex; gap:8px; flex-shrink:0;">
-                        <button class="btn-icon btn-export-xlsx" data-id="${s.id}" style="color:var(--accent-primary);" title="Exportar Excel">📥</button>
                         <button class="btn-icon btn-delete-session" data-id="${s.id}" title="Eliminar">🗑️</button>
                     </div>
                 </div>
@@ -65,16 +64,15 @@ export class HistoryUI {
         this.container.innerHTML = `
             ${itemsHtml}
             <div style="margin-top:24px; display:flex; gap:8px;">
+                <button class="btn btn-secondary" id="btn-export-all-xlsx" style="flex:1;">📥 Historial Producción</button>
                 <button class="btn btn-secondary" id="btn-export-all" style="flex:1;">📤 Exportar Backup (JSON)</button>
-                <button class="btn btn-secondary" id="btn-import-json" style="flex:1;">📥 Importar Backup</button>
+            </div>
+            <div style="margin-top:8px;">
+                <button class="btn btn-secondary" id="btn-import-json" style="width:100%;">📥 Importar Backup</button>
             </div>
         `;
 
-        // Bind eventos
-        this.container.querySelectorAll('.btn-export-xlsx').forEach(btn => {
-            btn.addEventListener('click', (e) => this.exportSession(e.currentTarget.dataset.id));
-        });
-
+        this.container.querySelector('#btn-export-all-xlsx')?.addEventListener('click', () => this.exportAllToExcel());
         this.container.querySelectorAll('.btn-delete-session').forEach(btn => {
             btn.addEventListener('click', (e) => this.deleteSession(e.currentTarget.dataset.id));
         });
@@ -83,11 +81,13 @@ export class HistoryUI {
         this.container.querySelector('#btn-import-json')?.addEventListener('click', () => this.importBackup());
     }
 
-    exportSession(id) {
-        const session = store.getSessions().find(s => s.id === id);
-        if (session) {
-            Exporter.exportSessionToExcel(session);
+    exportAllToExcel() {
+        const sessions = store.getSessions();
+        if (sessions.length === 0) {
+            alert('No hay sesiones para exportar.');
+            return;
         }
+        Exporter.exportAllSessionsToExcel(sessions);
     }
 
     deleteSession(id) {

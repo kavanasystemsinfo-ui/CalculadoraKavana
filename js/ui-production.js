@@ -183,7 +183,14 @@ export class ProductionUI {
 
         document.getElementById('btn-calc-prod').addEventListener('click', () => this.calculate());
         document.getElementById('btn-save-prod').addEventListener('click', () => this.saveSession(tpl));
-        document.getElementById('btn-target').addEventListener('click', () => this.showTarget(tpl));
+        document.getElementById('btn-target').addEventListener('click', () => {
+            const resultEl = document.getElementById('target-result');
+            if (resultEl.style.display === 'block') {
+                resultEl.style.display = 'none';
+            } else {
+                this.showTarget(tpl);
+            }
+        });
     }
 
     filterPicklist(query) {
@@ -369,59 +376,70 @@ export class ProductionUI {
     showTarget(tpl) {
         if (!tpl || tpl.enableEfficiency === false) return;
 
+        if (this.addedEntries.length === 0) {
+            document.getElementById('target-result').style.display = 'none';
+            return;
+        }
+
         const hours = parseFloat(document.getElementById('prod-hours').value) || 8;
         const minutes = parseFloat(document.getElementById('prod-minutes').value) || 0;
         const shiftHours = hours + minutes;
-        const totalNeeded = Math.round(tpl.expectedEfficiency * shiftHours);
+        const isMeters = tpl.efficiencyType === 'meters_per_hour';
+        const totalProduced = tpl.expectedEfficiency * shiftHours;
 
-        document.getElementById('target-total').textContent = totalNeeded.toLocaleString();
+        const totalDisplay = isMeters
+            ? Math.round(totalProduced / ((this.addedEntries[0]?.lengthMm || 1000) / 1000)).toLocaleString()
+            : Math.round(totalProduced).toLocaleString();
+
+        document.getElementById('target-total').textContent = totalDisplay;
 
         const breakdownEl = document.getElementById('target-breakdown');
         breakdownEl.innerHTML = '';
 
-        if (this.addedEntries.length === 0) {
-            breakdownEl.innerHTML = `<div style="text-align:center; color:var(--text-dim); font-size:13px;">Añade un modelo para ver el desglose</div>`;
-        } else {
-            let html = '';
-            this.addedEntries.forEach(entry => {
-                const ppp = entry.piecesPerPallet || 480;
-                const ppr = entry.piecesPerRow || 24;
-                const ppq = entry.piecesPerPackage || 120;
+        let html = '';
+        this.addedEntries.forEach(entry => {
+            const ppp = entry.piecesPerPallet || 480;
+            const ppr = entry.piecesPerRow || 24;
+            const ppq = entry.piecesPerPackage || 120;
+            const lengthM = (entry.lengthMm || 1000) / 1000;
 
-                const pallets = Math.floor(totalNeeded / ppp);
-                let rem = totalNeeded % ppp;
-                const rows = Math.floor(rem / ppr);
-                rem = rem % ppr;
-                const packages = rem > 0 ? Math.ceil(rem / ppq) : 0;
+            const piecesNeeded = isMeters
+                ? Math.round(totalProduced / lengthM)
+                : Math.round(totalProduced);
 
-                const actualTotal = (pallets * ppp) + (rows * ppr) + (packages * ppq);
+            const pallets = Math.floor(piecesNeeded / ppp);
+            let rem = piecesNeeded % ppp;
+            const rows = Math.floor(rem / ppr);
+            rem = rem % ppr;
+            const packages = rem > 0 ? Math.ceil(rem / ppq) : 0;
 
-                html += `
-                    <div style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border-subtle);">
-                        <div style="font-weight:700; margin-bottom:8px;">${this.escapeHtml(entry.modelName)} · ${entry.lengthMm} mm</div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; text-align:center;">
-                            <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
-                                <div style="font-size:11px; color:var(--text-dim);">PALETS</div>
-                                <div style="font-size:20px; font-weight:900;">${pallets}</div>
-                                <div style="font-size:10px; color:var(--text-dim);">${pallets} × ${ppp} = ${(pallets * ppp).toLocaleString()}</div>
-                            </div>
-                            <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
-                                <div style="font-size:11px; color:var(--text-dim);">FILAS</div>
-                                <div style="font-size:20px; font-weight:900;">${rows}</div>
-                                <div style="font-size:10px; color:var(--text-dim);">${rows} × ${ppr} = ${(rows * ppr).toLocaleString()}</div>
-                            </div>
-                            <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
-                                <div style="font-size:11px; color:var(--text-dim);">PAQUETES</div>
-                                <div style="font-size:20px; font-weight:900;">${packages}</div>
-                                <div style="font-size:10px; color:var(--text-dim);">${packages} × ${ppq} = ${(packages * ppq).toLocaleString()}</div>
-                            </div>
+            const actualTotal = (pallets * ppp) + (rows * ppr) + (packages * ppq);
+
+            html += `
+                <div style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border-subtle);">
+                    <div style="font-weight:700; margin-bottom:8px;">${this.escapeHtml(entry.modelName)} · ${entry.lengthMm} mm</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; text-align:center;">
+                        <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
+                            <div style="font-size:11px; color:var(--text-dim);">PALETS</div>
+                            <div style="font-size:20px; font-weight:900;">${pallets}</div>
+                            <div style="font-size:10px; color:var(--text-dim);">${pallets} × ${ppp} = ${(pallets * ppp).toLocaleString()}</div>
                         </div>
-                        <div style="text-align:right; font-size:11px; color:var(--text-dim); margin-top:6px;">Total: ${actualTotal.toLocaleString()} piezas</div>
+                        <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
+                            <div style="font-size:11px; color:var(--text-dim);">FILAS</div>
+                            <div style="font-size:20px; font-weight:900;">${rows}</div>
+                            <div style="font-size:10px; color:var(--text-dim);">${rows} × ${ppr} = ${(rows * ppr).toLocaleString()}</div>
+                        </div>
+                        <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
+                            <div style="font-size:11px; color:var(--text-dim);">PAQUETES</div>
+                            <div style="font-size:20px; font-weight:900;">${packages}</div>
+                            <div style="font-size:10px; color:var(--text-dim);">${packages} × ${ppq} = ${(packages * ppq).toLocaleString()}</div>
+                        </div>
                     </div>
-                `;
-            });
-            breakdownEl.innerHTML = html;
-        }
+                    <div style="text-align:right; font-size:11px; color:var(--text-dim); margin-top:6px;">Total: ${actualTotal.toLocaleString()} piezas</div>
+                </div>
+            `;
+        });
+        breakdownEl.innerHTML = html;
 
         document.getElementById('target-result').style.display = 'block';
     }
