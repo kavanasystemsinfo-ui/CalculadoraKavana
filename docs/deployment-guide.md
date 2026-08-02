@@ -312,8 +312,7 @@ aws s3 website s3://calculadora-tudominio \
 aws s3 sync . s3://calculadora-tudominio \
     --exclude ".git/*" \
     --exclude "docs/*" \
-    --exclude "tests/*" \
-    --exclude "plans/*"
+    --exclude "tests/*"
 ```
 
 ### 6.4 CloudFront (CDN)

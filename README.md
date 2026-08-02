@@ -234,19 +234,18 @@ CalculadoraKavana/
 │   ├── ui-templates.js         # Controlador pestaña Plantillas (CRUD)
 │   └── ui-history.js           # Controlador pestaña Historial
 ├── docs/
-│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records
+│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records (9)
 │   ├── deployment-guide.md     # Guía de despliegue
 │   ├── developer-guide.md      # Guía para desarrolladores
 │   ├── technical-architecture.md   # Documentación técnica completa
 │   ├── user-manual.md          # Manual de usuario
 │   └── roadmap.md              # Roadmap técnico
-├── plans/                      # Planes de desarrollo
+├── DECISIONS.md                # Consolidación de decisiones (raíz)
 ├── tests/
-│   ├── engine.test.js          # Tests del motor de cálculos
-│   ├── storage.test.js         # Tests del módulo de almacenamiento
-│   └── theme.test.js           # Tests del sistema de temas
+│   ├── engine.test.js          # Tests del motor de cálculos (22)
+│   ├── storage.test.js         # Tests del módulo de almacenamiento (6)
+│   └── theme.test.js           # Tests del sistema de temas (6)
 ├── index.html                  # SPA root (entry point)
-├── index.legacy.html           # Versión legacy (backup)
 ├── manifest.json               # Configuración PWA
 ├── sw.js                       # Service Worker (caché offline)
 ├── CHANGELOG.md                # Registro de cambios
@@ -317,15 +316,15 @@ Ver [docs/deployment-guide.md](docs/deployment-guide.md) para guía completa.
 cd tests && npm test
 
 # Tests específicos
-node --test tests/engine.test.js    # Motor de cálculos (10 tests)
+node --test tests/engine.test.js    # Motor de cálculos (22 tests)
 node --test tests/storage.test.js   # Almacenamiento (6 tests)
-node --test tests/theme.test.js     # Sistema de temas (11 tests)
+node --test tests/theme.test.js     # Sistema de temas (6 tests)
 
 # Resultado esperado:
-# ✓ Calculator Engine: 10/10 passing
+# ✓ Calculator Engine: 22/22 passing
 # ✓ Storage Helper: 6/6 passing
-# ✓ Theme Manager: 11/11 passing
-# Total: 27 tests, 0 failures
+# ✓ Theme Manager: 6/6 passing
+# Total: 34 tests, 0 failures
 ```
 
 ### Cobertura de Tests

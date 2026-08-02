@@ -11,7 +11,7 @@
 
 | ID | Decisión | Estado | Fecha |
 |----|----------|--------|-------|
-| ADR-001 | Arquitectura de Persistencia Offline | ✅ Aceptada | 2026-06-25 |
+| ADR-001 | Arquitectura de Persistencia Offline | 🔄 Superada (ADR-008) | 2026-06-25 |
 | ADR-002 | Modularidad sin Bundlers (Vanilla JS Modules) | ✅ Aceptada | 2026-06-25 |
 | ADR-003 | Motor de Temas y Prevención de FOUC | ✅ Aceptada | 2026-06-25 |
 | ADR-004 | Gestión Reactiva del DOM sin Virtual DOM | ✅ Aceptada | 2026-06-25 |
