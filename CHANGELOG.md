@@ -1,7 +1,35 @@
-# Changelog
+# Changelog — Calculadora Kavana
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
+El versionado sigue [Semantic Versioning](https://semver.org/).
+
+---
+
+## [2.5.0] - 2026-07-05
+
+### Added
+- **Meta 100% Button**: Nuevo botón "🎯 Meta 100%" que muestra la cantidad de piezas necesarias para alcanzar el 100% de eficiencia
+- **Production Target Breakdown**: Desglose del objetivo en PALETS + FILAS + PAQUETES por cada modelo activo
+- **Label Standardization**: Labels de entrada de producción estandarizados en mayúsculas (PALETS, FILAS, PAQUETES)
+- **Professional Documentation**: Documentación técnica completa de nivel consultora IT:
+  - `docs/technical-architecture.md` — Documentación técnica del sistema
+  - `docs/deployment-guide.md` — Guía de despliegue multi-plataforma
+  - `docs/user-manual.md` — Manual de usuario para operarios
+  - `docs/developer-guide.md` — Guía para desarrolladores
+
+### Changed
+- **Input Labels**: Campos de entrada de producción renombrados de "Palets/Filas/Paquetes" a "PALETS/FILAS/PAQUETES" (consistencia visual)
+- **Service Worker**: Versión de caché actualizada a `v15` para bustear caché
+- **README.md**: Reescrito completamente con estructura profesional de consultora IT
+
+### Technical Details
+- **Target Calculation**: `piezasNecesarias = eficienciaEsperada × horasTurno`
+- **Breakdown Algorithm**: Greedy approach (maximiza palets → filas → paquetes)
+- **UI Enhancement**: Botón y panel de resultados añadidos en sección de Horas del Turno
+- **Cache Versioning**: `ui-production.js?v=11`, `prod-calc-v15`
+
+---
 
 ## [2.4.0] - 2026-06-28
 
@@ -132,3 +160,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - **Cambios de Bobina / OCR**: Eliminada toda la funcionalidad de escaneo de tiempos de cambio de bobina (Tesseract.js, `ocr.js`). La app se centra exclusivamente en eficiencia de piezas producidas.
 - **Dependencia Tesseract.js**: Ya no se carga desde CDN.
 - **js/ocr.js**: Eliminado el archivo huérfano para limpiar por completo el código muerto.
+
+---
+
+*Documento mantenido por el equipo de Arquitectura de Sistemas.*

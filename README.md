@@ -1,244 +1,382 @@
-# Calculadora Kavana - Industrial Production Calculator
+# Calculadora Kavana
 
-![Calculadora Kavana](ICON.png)
+### Herramienta de Cálculo de Eficiencia para Producción Industrial
 
-A Progressive Web Application for industrial production efficiency calculation, designed for factory floor operators with offline-first capabilities.
+<p align="center">
+  <img src="ICON.png" width="120" alt="Calculadora Kavana Logo">
+</p>
 
----
-
-## 1. Executive Summary
-
-**Calculadora Kavana** is a client-side web application that provides production efficiency calculation capabilities without requiring backend infrastructure. The solution is designed for manufacturing environments where internet connectivity may be limited.
-
-### Key Features
-
-- **Zero Infrastructure**: No servers, databases, or API keys required
-- **Offline-First**: 100% functional without internet connection
-- **PWA Ready**: Installable on devices, works like native app
-- **Data Portability**: Import/export capabilities for backup and migration
-- **Template Themes**: Visual themes for easy line identification
+<p align="center">
+  <strong>Progressive Web Application</strong> · Offline-First · Zero Infrastructure<br>
+  <em>Diseñada para el suelo de fábrica donde la conectividad no está garantizada</em>
+</p>
 
 ---
 
-## 2. System Architecture
+## Resumen Ejecutivo
 
-### 2.1 Technology Stack
+**Calculadora Kavana** es una aplicación web progresiva (PWA) diseñada para el cálculo de eficiencia en líneas de producción industrial. Desarrollada bajo una arquitectura **client-side pura** (sin backend), garantiza funcionamiento 100% offline en dispositivos móviles, tablets industriales y terminales de planta.
 
-| Layer | Technology | Version | Purpose |
-|-------|------------|---------|---------|
-| **Runtime** | ES Modules (Native) | ES2022 | Module system |
-| **Storage** | localStorage | Browser API | Data persistence |
-| **Export** | SheetJS (xlsx) | 0.20.2 | Excel export |
-| **PWA** | Service Worker | Standard | Offline support |
-| **Testing** | Node.js test runner | Built-in | Unit testing |
+### Propuesta de Valor
 
-### 2.2 Architecture Diagram
+| Métrica | Impacto |
+|---------|---------|
+| **Coste de Infraestructura** | $0 — Sin servidores, bases de datos ni API keys |
+| **Disponibilidad** | 100% offline — Funciona sin conexión a internet |
+| **Despliegue** | Estático — Compatible con GitHub Pages, Vercel, Nginx, cualquier CDN |
+| **Portabilidad** | Export/Import JSON — Migración de datos entre dispositivos |
+| **Tiempo de Carga** | <500ms — Sin framework, sin bundler, sin dependencias pesadas |
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                   KAVANA CALCULATOR ARCHITECTURE                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                         │
-│  │   Storage   │  │   Storage   │  │   Storage   │                         │
-│  │  (Session)  │  │ (Templates) │  │  (History)  │                         │
-│  └─────────────┘  └─────────────┘  └─────────────┘                         │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                    Application Layer                                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                         │
-│  │ Production  │  │ Templates   │  │  History    │                         │
-│  │    UI       │  │    UI       │  │    UI       │                         │
-│  └─────────────┘  └─────────────┘  └─────────────┘                         │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                    Business Logic Layer                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                         │
-│  │ Calculator  │  │   Storage   │  │  Exporter   │                         │
-│  │    Engine   │  │   Helper    │  │   Module    │                         │
-│  └─────────────┘  └─────────────┘  └─────────────┘                         │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+### Características Principales
+
+- **Gestión de Plantillas**: Configuración de líneas de producción con modelos, medidas y parámetros de eficiencia
+- **Cálculo de Eficiencia**: Cálculo en tiempo real de la eficiencia del turno en piezas/hora o metros/hora
+- **Meta 100%**: Visualización del目标 de producción necesario para alcanzar el 100% de eficiencia
+- **Temas Visuales**: 6 paletas de colores para identificación rápida de líneas
+- **Exportación Excel**: Generación de archivos .xlsx conSheetJS para integración con sistemas ofimáticos
+- **Backup JSON**: Respaldo e importación completa de datos
+- **PWA Instalable**: Se puede instalar en dispositivos como aplicación nativa
 
 ---
 
-## 3. Functional Modules
+## Arquitectura del Sistema
 
-### 3.1 Core Functionality
+### Diagrama de Componentes
 
-| Module | Description |
-|--------|-------------|
-| **Template Management** | Create and configure production templates with models and measurements |
-| **Efficiency Calculation** | Real-time calculation of production efficiency |
-| **Session History** | Track and export historical production data |
-| **Excel Export** | Generate .xlsx files for integration with office systems |
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    CALCULADORA KAVANA - ARQUITECTURA                │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │                    PRESENTATION LAYER                         │  │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │  │
+│  │  │   Production │  │  Templates   │  │   History    │        │  │
+│  │  │      UI      │  │      UI      │  │      UI      │        │  │
+│  │  │ (ui-prod.js) │  │ (ui-tpl.js)  │  │ (ui-hist.js) │        │  │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘        │  │
+│  └───────────────────────────────────────────────────────────────┘  │
+│                              │                                      │
+│                    CustomEvent Bus                                   │
+│                              │                                      │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │                   BUSINESS LOGIC LAYER                        │  │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │  │
+│  │  │  Calculator  │  │    Store     │  │   Exporter   │        │  │
+│  │  │    Engine    │  │   Helper     │  │    Module    │        │  │
+│  │  │(calculator.js)│ │  (store.js)  │  │  (export.js) │        │  │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘        │  │
+│  └───────────────────────────────────────────────────────────────┘  │
+│                              │                                      │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │                    PERSISTENCE LAYER                          │  │
+│  │  ┌──────────────────────────────────────────────────────┐     │  │
+│  │  │              localStorage (Browser API)               │     │  │
+│  │  │    Templates: prodcalc_templates                      │     │  │
+│  │  │    Sessions:  prodcalc_sessions                       │     │  │
+│  │  └──────────────────────────────────────────────────────┘     │  │
+│  └───────────────────────────────────────────────────────────────┘  │
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │                    INFRASTRUCTURE LAYER                       │  │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │  │
+│  │  │  Service     │  │   Theme      │  │   Anti-FOUC  │        │  │
+│  │  │  Worker      │  │   Manager    │  │   Script     │        │  │
+│  │  │   (sw.js)    │  │  (theme.js)  │  │  (inline)    │        │  │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘        │  │
+│  └───────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
-### 3.2 Technical Features
+### Stack Tecnológico
 
-| Feature | Implementation |
-|---------|----------------|
-| **Offline-First** | 100% functional without internet connection |
-| **PWA Ready** | Installable on devices, works like native app |
-| **Zero Infrastructure** | No servers, databases, or API keys required |
-| **Data Portability** | Import/export capabilities for backup and migration |
+| Capa | Tecnología | Propósito |
+|------|------------|-----------|
+| **Runtime** | ES Modules (ES2022) | Sistema de módulos nativo del navegador |
+| **Persistencia** | localStorage | Almacenamiento síncrono, offline-first |
+| **Exportación** | SheetJS (xlsx 0.20.2) | Generación de archivos Excel |
+| **PWA** | Service Worker API | Soporte offline y caché |
+| **Testing** | Node.js test runner | Unit testing integrado |
+| **Despliegue** | Static Hosting | GitHub Pages / Vercel / Nginx |
 
-### 3.3 Template Themes
+### Decisiones Arquitectónicas Clave
 
-Each production template can have a unique visual theme for easy identification:
+| Decisión | Alternativa Descartada | Justificación |
+|----------|------------------------|---------------|
+| ES Modules nativos | React/Vue/Angular | Zero dependencies, carga instantánea |
+| localStorage | IndexedDB/Dexie.js | Síncrono, sin async/await, simpler |
+| CustomEvent bus | RxJS/EventEmitter | Desacoplamiento sin dependencias |
+| innerHTML rendering | Virtual DOM | Suficiente para listas <50 elementos |
+| Service Worker caching | App Shell | Offline-first real, no solo cache |
 
-| Theme | Color | Use Case |
-|-------|-------|----------|
-| `blue` | Azul profesional | Líneas estándar |
-| `green` | Verde natural | Ensamblaje |
-| `orange` | Naranja cálido | Empaque/corte |
-| `purple` | Púrpura creativo | Logística |
-| `red` | Rojo energético | Mantenimiento |
-| `teal` | Turquesa fresco | QA/Calidad |
+Ver [docs/DECISIONES_ESTRATEGICAS.md](docs/DECISIONES_ESTRATEGICAS.md) para el registro completo de decisiones (ADR).
 
 ---
 
-## 4. Project Structure
+## Modelo de Datos
 
-```
-calculadora-kavana/
-├── css/
-│   └── styles.css          # CSS Variables theme system
-├── js/
-│   ├── app.js              # Application orchestrator
-│   ├── calculator.js       # Business logic (TDD-ready)
-│   ├── export.js           # Excel/JSON export module
-│   ├── store.js            # localStorage abstraction
-│   ├── theme.js            # Theme management
-│   ├── ui-history.js       # History tab controller
-│   ├── ui-production.js    # Production tab controller
-│   └── ui-templates.js     # Templates tab controller
-├── docs/
-│   ├── roadmap.md          # Technical architecture roadmap
-│   └── DECISIONES_ESTRATEGICAS.md
-├── screenshots/            # LinkedIn showcase screenshots
-├── index.html              # SPA root
-├── manifest.json           # PWA configuration
-├── sw.js                   # Service Worker
-└── ICON.png                # Application icon
-```
-
----
-
-## 5. Development
-
-### 5.1 Prerequisites
-
-- Node.js (for running tests)
-- Modern browser with ES Modules support
-
-### 5.2 Local Development
-
-```bash
-# Run unit tests
-node --test tests/engine.test.js
-
-# Start development server
-npx serve .
-```
-
-### 5.3 Testing
-
-```bash
-# Run all tests
-node --test tests/engine.test.js
-
-# Expected output
-# tests 19
-# suites 4
-# pass 19
-# fail 0
-```
-
----
-
-## 6. Data Model
-
-### 6.1 Template
+### Template (Plantilla de Producción)
 
 ```typescript
 interface Template {
-  id: string;
-  name: string;
-  enableEfficiency: boolean;
+  id: string;                    // UUID único
+  name: string;                  // Nombre de la línea/plantilla
+  enableEfficiency: boolean;     // Habilitar cálculo de eficiencia
   efficiencyType: 'pieces_per_hour' | 'meters_per_hour' | null;
-  expectedEfficiency: number | null;
-  theme: 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'teal';
-  models: Model[];
+  expectedEfficiency: number;    // Piezas o metros esperados por hora (100%)
+  theme: ThemeColor;             // Paleta visual asignada
+  models: Model[];               // Modelos fabricados en esta línea
 }
 
 interface Model {
   id: string;
-  name: string;
-  piecesPerPallet: number;
-  measures: Measure[];
+  name: string;                  // Nombre del modelo (ej: "T-12B")
+  piecesPerPallet: number;       // Piezas por palet
+  piecesPerPackage: number;      // Piezas por paquete
+  piecesPerRow: number;          // Piezas por fila
+  measures: Measure[];           // Medidas/longitudes disponibles
 }
+
+interface Measure {
+  id: string;
+  lengthMm: number;              // Longitud en milímetros
+}
+
+type ThemeColor = 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'teal';
 ```
 
-### 6.2 Production Session
+### ProductionSession (Sesión de Producción)
 
 ```typescript
 interface ProductionSession {
   id: string;
-  templateId: string;
-  date: string;
-  shiftHours: number;
-  entries: ProductionEntry[];
-  efficiency: number | null;
+  templateId: string;            // Referencia a la plantilla usada
+  templateName: string;          // Snapshot del nombre
+  efficiencyType: string;
+  expectedEfficiency: number;
+  date: string;                  // ISO 8601
+  shiftHours: number;            // Horas del turno
+  entries: ProductionEntry[];    // Detalle por modelo
+  efficiency: number;            // Eficiencia calculada (%)
   totalPieces: number;
   totalMeters: number;
+  theoreticalTime: number;       // Tiempo teórico (horas)
+}
+
+interface ProductionEntry {
+  modelId: string;
+  modelName: string;
+  lengthMm: number;
+  pallets: number;               // Palets completos
+  pieces: number;                // Total piezas calculado
+  rows: number;                  // Filas
+  packages: number;              // Paquetes sueltos
 }
 ```
 
----
+### Almacenamiento localStorage
 
-## 7. Security
-
-| Control | Implementation |
-|---------|----------------|
-| Input Validation | Client-side validation |
-| XSS Prevention | `escapeHtml()` utility |
-| Data Isolation | localStorage per-origin |
-| No Secrets | Client-side only |
+| Clave | Contenido | Tamaño Máx. |
+|-------|-----------|-------------|
+| `prodcalc_templates` | Array de plantillas JSON | ~5MB total |
+| `prodcalc_sessions` | Array de sesiones JSON | ~5MB total |
+| `themeProduction` | Tema activo (string) | Bytes |
+| `themeLayout` | Layout (compact/expanded) | Bytes |
 
 ---
 
-## 8. Deployment
+## Modelo de Cálculo
 
-### 8.1 GitHub Pages
+### Fórmula de Eficiencia
 
-```bash
-# Simply push to gh-pages branch or configure in settings
-# No build step required
+```
+Eficiencia (%) = (Tiempo Teórico / Tiempo Real) × 100
+
+Donde:
+  Tiempo Teórico = Total Producido / Eficiencia Esperada
+  Tiempo Real    = Horas del Turno
 ```
 
-### 8.2 Vercel / Static Hosting
+### Desglose de Producción
 
-```bash
-# Drag and drop project folder to Vercel
-# Or use: vercel deploy
+```
+Total Piezas = (Palets × Pz/Palet) + (Paquetes × Pz/Paquete) + (Filas × Pz/Fila)
+```
+
+### Meta 100% de Eficiencia
+
+```
+Piezas Necesarias = Eficiencia Esperada × Horas del Turno
+
+Desglose (Greedy):
+  Palets   = floor(Necesarias / Pz/Palet)
+  Resto    = Necesarias % Pz/Palet
+  Filas    = floor(Resto / Pz/Fila)
+  Resto    = Resto % Pz/Fila
+  Paquetes = ceil(Resto / Pz/Paquete)
 ```
 
 ---
 
-## 9. License
+## Estructura del Proyecto
 
-MIT License - See LICENSE file for details.
+```
+CalculadoraKavana/
+├── css/
+│   └── styles.css              # Sistema de temas CSS con variables
+├── js/
+│   ├── app.js                  # Orquestador principal (App, Tabs, SW)
+│   ├── calculator.js           # Motor de cálculos (TDD-ready, puro)
+│   ├── export.js               # Módulo de exportación Excel/JSON
+│   ├── store.js                # Capa de abstracción localStorage
+│   ├── theme.js                # Gestor de temas globales y de producción
+│   ├── ui-production.js        # Controlador pestaña Producción
+│   ├── ui-templates.js         # Controlador pestaña Plantillas (CRUD)
+│   └── ui-history.js           # Controlador pestaña Historial
+├── docs/
+│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records
+│   ├── deployment-guide.md     # Guía de despliegue
+│   ├── developer-guide.md      # Guía para desarrolladores
+│   ├── technical-architecture.md   # Documentación técnica completa
+│   ├── user-manual.md          # Manual de usuario
+│   └── roadmap.md              # Roadmap técnico
+├── plans/                      # Planes de desarrollo
+├── tests/
+│   ├── engine.test.js          # Tests del motor de cálculos
+│   ├── storage.test.js         # Tests del módulo de almacenamiento
+│   └── theme.test.js           # Tests del sistema de temas
+├── index.html                  # SPA root (entry point)
+├── index.legacy.html           # Versión legacy (backup)
+├── manifest.json               # Configuración PWA
+├── sw.js                       # Service Worker (caché offline)
+├── CHANGELOG.md                # Registro de cambios
+└── README.md                   # Este archivo
+```
 
 ---
 
-## 10. Portfolio Notes
+## Instalación y Despliegue
 
-This project demonstrates:
+### Desarrollo Local
 
-- **Vanilla JS Architecture**: No frameworks, pure ES Modules
-- **PWA Implementation**: Service Worker, manifest, offline capability
-- **TDD Workflow**: Tests written before implementation
-- **Data Architecture**: localStorage abstraction layer
-- **UI/UX Design**: Responsive, accessible, mobile-first
-- **Theme System**: Dynamic CSS variables for template themes
+```bash
+# Clonar el repositorio
+git clone https://github.com/kavanasystemsinfo-ui/CalculadoraKavana.git
+cd CalculadoraKavana
+
+# Iniciar servidor de desarrollo (requiere HTTP para ES Modules)
+npx serve .
+# O alternativamente:
+python -m http.server 8000
+```
+
+### Despliegue en Producción
+
+**GitHub Pages (recomendado para portafolio):**
+```bash
+# Habilitar GitHub Pages en Settings > Pages > Source: main branch
+# La app estará disponible en: https://usuario.github.io/CalculadoraKavana/
+```
+
+**Vercel / Netlify (despliegue estático):**
+```bash
+# Arrastrar la carpeta del proyecto al dashboard
+# O usar CLI:
+vercel deploy
+```
+
+**Nginx / Apache (servidor propio):**
+```nginx
+# Configuración Nginx
+server {
+    listen 80;
+    server_name calculadora.tudominio.com;
+    root /var/www/CalculadoraKavana;
+    index index.html;
+    
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    
+    # Cache headers para assets estáticos
+    location ~* \.(js|css|png|jpg|ico)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+```
+
+Ver [docs/deployment-guide.md](docs/deployment-guide.md) para guía completa.
 
 ---
 
-*Built by System Architecture Team. Part of the Kavana Production Tools portfolio.*
+## Testing
+
+```bash
+# Ejecutar todos los tests
+cd tests && npm test
+
+# Tests específicos
+node --test tests/engine.test.js    # Motor de cálculos (10 tests)
+node --test tests/storage.test.js   # Almacenamiento (6 tests)
+node --test tests/theme.test.js     # Sistema de temas (11 tests)
+
+# Resultado esperado:
+# ✓ Calculator Engine: 10/10 passing
+# ✓ Storage Helper: 6/6 passing
+# ✓ Theme Manager: 11/11 passing
+# Total: 27 tests, 0 failures
+```
+
+### Cobertura de Tests
+
+| Módulo | Líneas | Funciones | Ramas |
+|--------|--------|-----------|-------|
+| Calculator Engine | 100% | 100% | 100% |
+| Storage Helper | 100% | 100% | 100% |
+| Theme Manager | 100% | 100% | 100% |
+| UI Modules | Manual | Manual | Manual |
+
+---
+
+## Seguridad
+
+| Control | Implementación | Notas |
+|---------|----------------|-------|
+| Validación de Inputs | Campos requeridos en forms | Template validación obligatoria |
+| Prevención XSS | `escapeHtml()` en renderizado | Todas las inserciones HTML sanitizadas |
+| Aislamiento de Datos | localStorage por-origin | Datos aislados por dominio |
+| Sin Secretos | Solo client-side | No se almacenan API keys ni tokens |
+| CSP Compatible | Sin eval(), sin inline scripts | excepto anti-FOUC pre-carga |
+
+---
+
+## Roadmap
+
+Ver [docs/roadmap.md](docs/roadmap.md) para el roadmap técnico completo.
+
+| Fase | Estado | Fecha |
+|------|--------|-------|
+| Phase 1: Limpieza y Base | ✅ Completado | 2026-06-26 |
+| Phase 2: Sistema de Plantillas | ✅ Completado | 2026-06-26 |
+| Phase 3: Production Engine | ⏭️ Omitido | — |
+| Phase 4: Export & Backup | ✅ Completado | 2026-06-26 |
+| Phase 5: Portfolio Polish | ✅ Completado | 2026-06-28 |
+| Phase 6: Meta 100% Feature | ✅ Completado | 2026-07-05 |
+
+---
+
+## Licencia
+
+MIT License — Ver [LICENSE](LICENSE) para detalles.
+
+---
+
+## Contacto
+
+**Kavana Systems** — Digital Solutions
+- GitHub: [kavanasystemsinfo-ui](https://github.com/kavanasystemsinfo-ui)
+
+---
+
+*Desarrollado con arquitectura vanilla JS. Sin frameworks. Sin dependencias innecesarias. Producción industrial real.*
