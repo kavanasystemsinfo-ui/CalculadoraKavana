@@ -274,7 +274,7 @@ python -m http.server 8000
 **GitHub Pages (recomendado para portafolio):**
 ```bash
 # Habilitar GitHub Pages en Settings > Pages > Source: main branch
-# La app estará disponible en: https://usuario.github.io/CalculadoraKavana/
+# La app estará disponible en: https://kavanasystemsinfo-ui.github.io/CalculadoraKavana/
 ```
 
 **Vercel / Netlify (despliegue estático):**
