@@ -3,7 +3,7 @@ app = "calculadora-kavana-api"
 primary_region = "cdg"
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "backend/Dockerfile"
 
 [env]
   PYTHONUNBUFFERED = "1"
