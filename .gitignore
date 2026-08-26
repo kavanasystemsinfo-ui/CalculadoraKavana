@@ -9,3 +9,9 @@ tools-ai/
 .clinerules
 .vercel
 .env*
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
