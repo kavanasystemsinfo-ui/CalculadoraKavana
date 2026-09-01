@@ -1,13 +1,14 @@
 # Dockerfile for Kavana Calculadora backend (FastAPI)
+# Build context = raíz del repo (backend/Dockerfile)
 FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Código + corpus (README, SECURITY, docs) para el RAG
-COPY app ./app
+COPY backend/app ./app
 COPY README.md ./README.md
 COPY SECURITY.md ./SECURITY.md
 COPY docs ./docs
