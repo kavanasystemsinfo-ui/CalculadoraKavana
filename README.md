@@ -15,13 +15,13 @@
 
 ## Resumen Ejecutivo
 
-**Calculadora Kavana** es una aplicación web progresiva (PWA) diseñada para el cálculo de eficiencia en líneas de producción industrial. Desarrollada bajo una arquitectura **client-side pura** (sin backend), garantiza funcionamiento 100% offline en dispositivos móviles, tablets industriales y terminales de planta.
+**Calculadora Kavana** es una aplicación web progresiva (PWA) diseñada para el cálculo de eficiencia en líneas de producción industrial. La calculadora es **client-side pura**: todo el cálculo ocurre en el navegador y funciona 100% offline en dispositivos móviles, tablets industriales y terminales de planta. Tiene además un **asistente técnico opcional con backend propio** (FastAPI, en `backend/`), del que la aplicación no depende para funcionar.
 
 ### Propuesta de Valor
 
 | Métrica | Impacto |
 |---------|---------|
-| **Coste de Infraestructura** | $0 — Sin servidores, bases de datos ni API keys |
+| **Coste de Infraestructura** | ~0 € — Cálculo y hosting estático gratuitos; el asistente opcional corre en un contenedor que se apaga solo y con un modelo gratuito |
 | **Disponibilidad** | 100% offline — Funciona sin conexión a internet |
 | **Despliegue** | Estático — Compatible con GitHub Pages, Vercel, Nginx, cualquier CDN |
 | **Portabilidad** | Export/Import JSON — Migración de datos entre dispositivos |
@@ -362,7 +362,7 @@ node --test tests/theme.test.js     # Sistema de temas (6 tests)
 | Validación de Inputs | Campos requeridos en forms | Template validación obligatoria |
 | Prevención XSS | `escapeHtml()` en renderizado | Todas las inserciones HTML sanitizadas |
 | Aislamiento de Datos | localStorage por-origin | Datos aislados por dominio |
-| Sin Secretos | Solo client-side | No se almacenan API keys ni tokens |
+| Sin Secretos en el cliente | Solo client-side | El navegador no guarda ni pide API keys; la clave del asistente vive en el servidor |
 | CSP Compatible | Sin eval(), sin inline scripts | excepto anti-FOUC pre-carga |
 
 ---
