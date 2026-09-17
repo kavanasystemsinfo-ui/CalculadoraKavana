@@ -234,7 +234,7 @@ CalculadoraKavana/
 │   ├── ui-templates.js         # Controlador pestaña Plantillas (CRUD)
 │   └── ui-history.js           # Controlador pestaña Historial
 ├── docs/
-│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records (9)
+│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records (10)
 │   ├── deployment-guide.md     # Guía de despliegue
 │   ├── developer-guide.md      # Guía para desarrolladores
 │   ├── technical-architecture.md   # Documentación técnica completa
@@ -251,6 +251,23 @@ CalculadoraKavana/
 ├── CHANGELOG.md                # Registro de cambios
 └── README.md                   # Este archivo
 ```
+
+---
+
+## 💰 Cómo está construido y cómo lo construiría con presupuesto
+
+Este repositorio es una pieza de portafolio con **un solo usuario real: su autor**, y se ha construido con la restricción explícita de costar ~0 €/mes. Las decisiones de infraestructura que vienen a continuación son decisiones de presupuesto, no de escala: funcionan porque el único usuario, el único dispositivo y el único interesado en los datos son la misma persona. Abajo se separa lo que hay hoy (y por qué) de lo que cambiaría con usuarios reales, presupuesto y un contrato de por medio. El detalle y las alternativas descartadas están en [ADR-010](docs/adr/adr-010-coste-cero-y-decisiones-tomadas-por-presupuesto.md).
+
+- **Hosting y despliegue:** la app se sirve como estático desde GitHub Pages con dominio propio (`CNAME` → `calculadora.kavanasystems.com`): 0 € y cero mantenimiento de servidor. Con usuarios reales: hosting con SLA, entornos de staging y producción separados, y despliegue con control de versiones (el pipeline `deploy.yml` figura como planeado en `docs/roadmap.md`).
+- **Persistencia y copias de seguridad:** `localStorage` (ADR-008), síncrono, sin dependencias y sin coste; el techo es de ~5-10 MB por navegador y los datos viven en un único dispositivo, mitigado con export/import JSON (deuda TD-003). El usuario es su propio backup: no hay copia automática. Con usuarios reales: base de datos compartida con sincronización cloud — prevista en el roadmap con prioridad alta, y el modelo de datos ya reserva `tenantId` (`local_default`) para ese salto — más copias automáticas.
+- **Autenticación y multi-usuario:** no existe. La identidad es el navegador y los datos quedan aislados por origen, así que cualquiera con el dispositivo ve y edita todas las plantillas. Con usuarios reales: login, roles (operario / supervisor) y aislamiento por planta, además del dashboard de supervisores que el roadmap marca como prioridad alta.
+- **Servidor:** la calculadora es client-side pura, sin backend. El único servidor del repo es el asistente técnico RAG de `backend/` (FastAPI sobre Fly.io: una máquina de 256 MB compartida, `auto_stop_machines = "stop"`, `min_machines_running = 0`), dimensionado al mínimo porque sólo se levanta cuando alguien pregunta. Con usuarios reales: dimensionado por carga real y con métricas de uso; este backend es posterior al resto del documento, y su fuente de verdad son `backend/`, `fly.toml` y este ADR.
+- **Modelo del asistente:** LLM free-tier vía OpenRouter (`ASSISTANT_MODEL_FREE` / `ASSISTANT_MODEL_PRO` apuntan al mismo modelo) e índice TF-IDF construido en memoria sobre el propio corpus del repo (README, `SECURITY.md`, ADRs y guías), sin base de datos vectorial ni embeddings. Con usuarios reales: modelo de pago con SLA y recuperación con embeddings; el TF-IDF en memoria cabe porque el corpus es la documentación de este repositorio.
+- **Protección del asistente:** límite de 15 preguntas/día por IP en un diccionario en memoria que se pierde al reiniciar el proceso (decisión de Jorge, 2026-09-01), con la clave del proveedor sólo en el servidor. Con usuarios reales: cuotas por cuenta en Redis o base de datos, y panel de métricas; hoy no hay telemetría ni error tracking (Sentry figura en el roadmap, prioridad media).
+- **Dependencias de runtime:** cero dependencias npm en ejecución (ES Modules nativos, sin bundler). Las dos excepciones externas — SheetJS 0.20.2 y la fuente Inter — se cargan desde CDN, no están en la lista de precaché de `sw.js` y por tanto el export a Excel falla si el primer arranque es offline; el riesgo está asumido en `docs/roadmap.md` con fallback manual. Con usuarios reales: vendorizar o servir esos assets desde el propio dominio.
+- **Calidad:** 34 tests con el runner nativo de Node (`node --test`, sin dependencias) y CI en GitHub Actions sobre Node 20 que ignora `docs/**` y `**.md`; los módulos de UI se prueban a mano (deuda TD-004) y no hay linting (`ESLint + Prettier` está como prioridad alta en el roadmap). Con usuarios reales: tests de UI automatizados (Playwright), gate de CI bloqueante y auditoría de rendimiento en pipeline (Lighthouse CI).
+
+Lo que no cambia entre los dos escenarios es el núcleo técnico: el motor de cálculo puro de `js/calculator.js`, la fórmula de eficiencia y el desglose greedy de la Meta 100% (ADR-009), el modelo de datos (`Template` / `Model` / `Measure` / `ProductionSession`), la arquitectura modular sin framework ni bundler (ADR-002, ADR-004, ADR-005) y la regla de honestidad del asistente (sólo responde con lo que está documentado). Ninguna de esas decisiones se tomó por presupuesto: se tomaron por simplicidad, y con presupuesto seguirían siendo las mismas.
 
 ---
 

@@ -4,12 +4,12 @@ Este documento consolida las decisiones de arquitectura e ingeniería del proyec
 Cada decisión tiene su ADR con contexto, alternativas y consecuencias. Git describe
 qué cambió; este documento explica por qué.
 
-- **ADRs**: [`docs/adr/`](docs/adr/) (9 archivos individuales, formato Michael Nygard)
+- **ADRs**: [`docs/adr/`](docs/adr/) (10 archivos individuales, formato Michael Nygard)
 - **Registro consolidado**: [`docs/DECISIONES_ESTRATEGICAS.md`](docs/DECISIONES_ESTRATEGICAS.md)
 
 ---
 
-## ADRs (9 documentados)
+## ADRs (10 documentados)
 
 | # | Decisión | Estado | Archivo |
 |---|----------|--------|---------|
@@ -22,6 +22,7 @@ qué cambió; este documento explica por qué.
 | 007 | Eliminación de Cambios de Bobina y OCR | ✅ Aceptada | [`docs/adr/adr-007-eliminacion-de-cambios-de-bobina-y-ocr.md`](docs/adr/adr-007-eliminacion-de-cambios-de-bobina-y-ocr.md) |
 | 008 | Migración de IndexedDB a localStorage | ✅ Aceptada | [`docs/adr/adr-008-migracion-de-indexeddb-a-localstorage.md`](docs/adr/adr-008-migracion-de-indexeddb-a-localstorage.md) |
 | 009 | Botón Meta 100% con Desglose Greedy | ✅ Aceptada | [`docs/adr/adr-009-boton-meta-100-con-desglose-greedy.md`](docs/adr/adr-009-boton-meta-100-con-desglose-greedy.md) |
+| 010 | Coste cero y decisiones tomadas por presupuesto | ✅ Aceptada | [`docs/adr/adr-010-coste-cero-y-decisiones-tomadas-por-presupuesto.md`](docs/adr/adr-010-coste-cero-y-decisiones-tomadas-por-presupuesto.md) |
 
 ## Decisiones clave (resumen ejecutivo)
 
