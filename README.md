@@ -31,9 +31,9 @@
 
 - **Gestión de Plantillas**: Configuración de líneas de producción con modelos, medidas y parámetros de eficiencia
 - **Cálculo de Eficiencia**: Cálculo en tiempo real de la eficiencia del turno en piezas/hora o metros/hora
-- **Meta 100%**: Visualización del目标 de producción necesario para alcanzar el 100% de eficiencia
+- **Meta 100%**: Visualización del objetivo de producción necesario para alcanzar el 100% de eficiencia
 - **Temas Visuales**: 6 paletas de colores para identificación rápida de líneas
-- **Exportación Excel**: Generación de archivos .xlsx conSheetJS para integración con sistemas ofimáticos
+- **Exportación Excel**: Generación de archivos .xlsx con SheetJS para integración con sistemas ofimáticos
 - **Backup JSON**: Respaldo e importación completa de datos
 - **PWA Instalable**: Se puede instalar en dispositivos como aplicación nativa
 
@@ -206,9 +206,11 @@ Total Piezas = (Palets × Pz/Palet) + (Paquetes × Pz/Paquete) + (Filas × Pz/Fi
 ### Meta 100% de Eficiencia
 
 ```
-Piezas Necesarias = Eficiencia Esperada × Horas del Turno
+Objetivo = Eficiencia Esperada × Horas del Turno
+  (piezas en plantillas de piezas/hora; metros en las de metros/hora,
+   que se pasan a piezas con el largo de cada modelo)
 
-Desglose (Greedy):
+Desglose (Greedy), para cada modelo por separado:
   Palets   = floor(Necesarias / Pz/Palet)
   Resto    = Necesarias % Pz/Palet
   Filas    = floor(Resto / Pz/Fila)

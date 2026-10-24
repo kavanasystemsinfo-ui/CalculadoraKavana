@@ -295,6 +295,15 @@ resto = resto % piecesPerRow;
 const paquetes = resto > 0 ? Math.ceil(resto / piecesPerPackage) : 0;
 ```
 
+### Nota de revisión (2026-10-24)
+
+Cómo funciona hoy, comprobado en la app publicada y en `js/ui-production.js`:
+
+- El objetivo del turno es `eficienciaEsperada × horasTurno`, en la unidad de la línea: piezas en las plantillas de piezas/hora y metros en las de metros/hora.
+- El botón solo muestra resultado si hay al menos un modelo añadido a la producción del turno.
+- El desglose se calcula para cada modelo por separado, como si todo el turno se dedicara a ese modelo. El objetivo **no se reparte** entre los modelos: cuánto se fabrica de cada uno lo decide la orden de producción, no la app.
+- En las plantillas de metros/hora, la cifra grande convierte los metros a piezas con el largo del **primer** modelo añadido. Si hay modelos de largos distintos, esa cifra solo vale para el primero; el desglose de cada modelo sí usa su propio largo.
+
 ---
 
 ## ADR-010: Coste cero y decisiones tomadas por presupuesto

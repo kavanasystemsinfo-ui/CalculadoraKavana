@@ -49,9 +49,11 @@ CustomEvents, sin estado global compartido. Desacoplamiento sin dependencias
 (ADR-005).
 
 ### 5. Meta 100% con desglose greedy
-El botón "Meta 100%" calcula las piezas necesarias para alcanzar el 100% de
-eficiencia y las desglosa en PALETS + FILAS + PAQUETES por modelo activo, con un
-algoritmo greedy que reparte el déficit entre los modelos (ADR-009).
+El botón "Meta 100%" calcula lo que hay que fabricar en el turno para alcanzar
+el 100% de eficiencia y, para cada modelo activo por separado, lo desglosa en
+PALETS + FILAS + PAQUETES con un algoritmo greedy (máximos palets, luego filas,
+luego paquetes). No reparte el objetivo entre modelos: eso lo decide la orden
+de producción (ADR-009).
 
 ### 6. Modelo de datos con tenantId
 Todos los registros llevan `tenantId` (`local_default`) para permitir una futura
