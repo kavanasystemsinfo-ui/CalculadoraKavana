@@ -158,13 +158,15 @@ En **"Horas del Turno"**, selecciona:
 
 ### 6.2 Paso 2: Calcular Meta
 
+Añade antes los modelos que vas a fabricar con el buscador (pueden quedarse a 0). Sin ningún modelo añadido, el botón no muestra nada.
+
 Toca el botón **"🎯 Meta 100%"**.
 
 ### 6.3 Paso 3: Ver Resultado
 
 Verás:
 - **Total de piezas** necesarias en grande
-- **Desglose por modelo**: Cuántos palets, filas y paquetes necesitas hacer
+- **Desglose por modelo**: Cuántos palets, filas y paquetes necesitas hacer si dedicas todo el turno a ese modelo. Si vas a hacer varios modelos, el reparto entre ellos lo marca tu orden de producción
 
 Ejemplo:
 ```
@@ -269,7 +271,7 @@ Para restaurar un backup:
 ### 10.1 Antes del Turno
 
 1. Abre la app y verifica que tengas la plantilla correcta seleccionada
-2. Toca **"🎯 Meta 100%"** para conocer tu objetivo
+2. Añade los modelos del turno y toca **"🎯 Meta 100%"** para conocer tu objetivo
 3. Apunta cuántos palets, filas y paquetes necesitas
 
 ### 10.2 Durante el Turno
@@ -315,7 +317,7 @@ Para restaurar un backup:
 
 ### ¿Cómo sé cuántas piezas necesito para el 100%?
 
-Toca el botón **"🎯 Meta 100%"** antes de empezar el turno. Te mostrará el total de piezas y el desglose en palets, filas y paquetes.
+Añade los modelos del turno y toca el botón **"🎯 Meta 100%"** antes de empezar. Te mostrará el total y, para cada modelo, el desglose en palets, filas y paquetes.
 
 ---
 
