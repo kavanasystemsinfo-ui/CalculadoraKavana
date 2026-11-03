@@ -1,8 +1,8 @@
 # Registro de Decisiones Arquitectónicas (ADR)
 
 > **Proyecto:** Calculadora Kavana  
-> **Versión:** 2.5.0  
-> **Última Actualización:** 2026-09-17  
+> **Versión:** 3.0.0  
+> **Última Actualización:** 2026-11-03  
 > **Formato:** Basado en [Michael Nygard's ADR](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)
 
 ---
@@ -21,6 +21,7 @@
 | ADR-008 | Migración de IndexedDB a localStorage | ✅ Aceptada | 2026-06-26 |
 | ADR-009 | Botón Meta 100% con Desglose Greedy | ✅ Aceptada | 2026-07-05 |
 | ADR-010 | Coste cero y decisiones tomadas por presupuesto | ✅ Aceptada | 2026-09-17 |
+| ADR-011 | Rediseño de la interfaz como herramienta de operario | ✅ Aceptada | 2026-11-03 |
 
 ---
 
@@ -302,7 +303,11 @@ Cómo funciona hoy, comprobado en la app publicada y en `js/ui-production.js`:
 - El objetivo del turno es `eficienciaEsperada × horasTurno`, en la unidad de la línea: piezas en las plantillas de piezas/hora y metros en las de metros/hora.
 - El botón solo muestra resultado si hay al menos un modelo añadido a la producción del turno.
 - El desglose se calcula para cada modelo por separado, como si todo el turno se dedicara a ese modelo. El objetivo **no se reparte** entre los modelos: cuánto se fabrica de cada uno lo decide la orden de producción, no la app.
-- En las plantillas de metros/hora, la cifra grande convierte los metros a piezas con el largo del **primer** modelo añadido. Si hay modelos de largos distintos, esa cifra solo vale para el primero; el desglose de cada modelo sí usa su propio largo.
+- En las plantillas de metros/hora, la cifra grande convertía los metros a piezas con el largo del **primer** modelo añadido. Si había modelos de largos distintos, esa cifra solo valía para el primero.
+
+> **UPDATE (2026-11-03):** el botón desaparece en ADR-011. El desglose pasa a la
+> tarjeta "Te falta para el 100 %", se recalcula en vivo con cada recuento y cada
+> fila usa el largo de su propio modelo, no el del primero.
 
 ---
 
@@ -385,4 +390,57 @@ Este ADR se revisa cuando ocurra alguno de estos hechos, no por fecha:
 
 ---
 
-*Documento mantenido por el equipo de Arquitectura de Sistemas. Última revisión: 2026-09-17.*
+## ADR-011: Rediseño de la interfaz como herramienta de operario
+
+**Fecha:** 3 de Noviembre de 2026
+**Estado:** Aceptada
+**Decidido por:** Jorge (KAVANA) — criterio de producto y diseño
+
+### Contexto
+
+La interfaz venía del primer prototipo: tarjeta estrecha, cuatro pestañas y tres
+botones para calcular ("Meta 100%", "Calcular Eficiencia", "Guardar Sesión"). Servía
+para uso personal, pero se convirtió en la pieza más visible del portafolio y
+mostraba el producto como un cuadro de mando de oficina. El uso real es el
+contrario: el operario apunta lo que lleva hecho para no hacer cuentas y rellenar
+antes el parte de papel; el histórico y el Excel son para él, no para reporting.
+
+### Decisión
+
+1. Navegación lateral en tablet / barra inferior en móvil, conservando el contrato
+   `.tab-btn` + `data-target` (app.js no cambia).
+2. Pantalla del turno con eficiencia grande, recuento con − / + y tarjeta
+   "Te falta para el 100 %" en palets, filas y paquetes.
+3. Cálculo en vivo: desaparecen los botones de meta y de calcular. Guardar turno
+   se desactiva si no hay nada contado.
+4. Se conservan los seis temas y los formatos compacto/expandido (ADR-003).
+5. Formato numérico español centralizado en `js/format.js`.
+6. Lógica pura nueva con tests contra el módulo real: `targetForShift()` y
+   `remainingForTarget()` (`tests/remaining.test.js`).
+
+### Alternativas descartadas
+
+- Retocar solo colores: el problema era la jerarquía y el flujo en tres pasos.
+- Panel SaaS con KPIs y sparkline: parece software de oficina y añade datos que el
+  operario no usa (se evaluó en maqueta).
+- Estilo editorial claro: bueno en portafolio, deslumbra en planta.
+- Framework JS: contradice ADR-002 y ADR-004 sin aportar nada a este tamaño.
+
+### Consecuencias
+
+- **Positivas:** contar pasa a ser una sola acción; la pantalla responde a
+  "¿cuánto me falta?"; un único `styles.css` sin estilos en línea; se corrige el
+  defecto de ADR-009 con el largo del primer modelo; contraste verificado en las
+  seis paletas.
+- **Negativas:** cualquier personalización local del CSS anterior se pierde; hay
+  que subir los `?v=` y la caché del service worker en cada cambio de assets;
+  siguen sin existir tests automatizados de UI (TD-004).
+
+### Señal de revisión
+
+Un segundo usuario real (por ejemplo un supervisor que quiera ver varias líneas a
+la vez) o una petición de datos que hoy no esté en la pantalla del turno.
+
+---
+
+*Documento mantenido por el equipo de Arquitectura de Sistemas. Última revisión: 2026-11-03.*

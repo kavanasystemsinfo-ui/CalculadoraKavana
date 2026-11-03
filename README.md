@@ -29,11 +29,11 @@
 
 ### Características Principales
 
-- **Gestión de Plantillas**: Configuración de líneas de producción con modelos, medidas y parámetros de eficiencia
-- **Cálculo de Eficiencia**: Cálculo en tiempo real de la eficiencia del turno en piezas/hora o metros/hora
-- **Meta 100%**: Visualización del objetivo de producción necesario para alcanzar el 100% de eficiencia
+- **Gestión de líneas**: Configuración de líneas de producción con modelos, medidas y parámetros de eficiencia
+- **Cálculo en vivo**: La eficiencia se recalcula con cada palet, fila o paquete, sin botones intermedios
+- **Te falta para el 100%**: El objetivo del turno traducido a palets, filas y paquetes que aún hay que contar
 - **Temas Visuales**: 6 paletas de colores para identificación rápida de líneas
-- **Exportación Excel**: Generación de archivos .xlsx con SheetJS para integración con sistemas ofimáticos
+- **Exportación Excel**: Generación de archivos .xlsx con SheetJS para uso personal del operario
 - **Backup JSON**: Respaldo e importación completa de datos
 - **PWA Instalable**: Se puede instalar en dispositivos como aplicación nativa
 
@@ -229,14 +229,15 @@ CalculadoraKavana/
 ├── js/
 │   ├── app.js                  # Orquestador principal (App, Tabs, SW)
 │   ├── calculator.js           # Motor de cálculos (TDD-ready, puro)
+│   ├── format.js               # Formato numérico español (12.415 · 43,5)
 │   ├── export.js               # Módulo de exportación Excel/JSON
 │   ├── store.js                # Capa de abstracción localStorage
 │   ├── theme.js                # Gestor de temas globales y de producción
-│   ├── ui-production.js        # Controlador pestaña Producción
-│   ├── ui-templates.js         # Controlador pestaña Plantillas (CRUD)
-│   └── ui-history.js           # Controlador pestaña Historial
+│   ├── ui-production.js        # Pantalla del turno (recuento + eficiencia en vivo)
+│   ├── ui-templates.js         # Gestión de líneas (CRUD)
+│   └── ui-history.js           # Historial personal del operario
 ├── docs/
-│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records (10)
+│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records (11)
 │   ├── deployment-guide.md     # Guía de despliegue
 │   ├── developer-guide.md      # Guía para desarrolladores
 │   ├── technical-architecture.md   # Documentación técnica completa
@@ -244,9 +245,11 @@ CalculadoraKavana/
 │   └── roadmap.md              # Roadmap técnico
 ├── DECISIONS.md                # Consolidación de decisiones (raíz)
 ├── tests/
-│   ├── engine.test.js          # Tests del motor de cálculos (22)
-│   ├── storage.test.js         # Tests del módulo de almacenamiento (6)
-│   └── theme.test.js           # Tests del sistema de temas (6)
+│   ├── engine.test.js          # Motor de cálculos
+│   ├── remaining.test.js       # Objetivo del turno y "te falta" (módulo real)
+│   ├── format.test.js          # Formato numérico español
+│   ├── storage.test.js         # Almacenamiento
+│   └── theme.test.js           # Temas y formatos
 ├── index.html                  # SPA root (entry point)
 ├── manifest.json               # Configuración PWA
 ├── sw.js                       # Service Worker (caché offline)

@@ -6,6 +6,45 @@ El versionado sigue [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.0] - 2026-11-03
+
+### Added
+- **Pantalla del turno rediseñada**: eficiencia en grande, recuento con botones − / +
+  por modelo y tarjeta **"Te falta para el 100%"** con los palets, filas y paquetes
+  que quedan (ADR-011).
+- **Cálculo en vivo**: eficiencia, metros, piezas y tiempo teórico se recalculan con
+  cada cambio, sin pulsar botones de calcular.
+- **`js/format.js`**: formato numérico español centralizado (12.415 · 43,5), también
+  para cifras de cuatro dígitos.
+- **`Calculator.targetForShift()`** y **`Calculator.remainingForTarget()`** con tests
+  contra el módulo real (`tests/remaining.test.js`).
+- **Navegación lateral** en tablet y barra inferior en móvil.
+
+### Changed
+- Los seis temas y los formatos compacto/expandido se mantienen, con paletas
+  reajustadas y contraste verificado.
+- El historial pasa a "Mi historial" y la gestión de líneas a "Mis líneas"; cada
+  fila muestra piezas, metros y eficiencia en columnas.
+- El manual de usuario se reescribe para la nueva pantalla y el uso real (apuntar
+  lo hecho para el parte de papel).
+
+### Removed
+- Botones **"🎯 Meta 100%"**, **"📐 Calcular Eficiencia"** y **"💾 Guardar Sesión"**:
+  su función queda integrada en el cálculo en vivo y en "Guardar turno".
+- Estilos en línea de los tres renderizadores, sustituidos por clases en `styles.css`.
+
+### Fixed
+- El objetivo en metros se convertía a piezas con el largo del primer modelo; ahora
+  cada modelo usa su propia medida.
+- Los nombres de línea y modelo se escapaban mal al inyectarlos en HTML.
+- La tarjeta de eficiencia se coloreaba con estilos en línea que ignoraban el tema.
+
+### Documentation
+- ADR-011 (rediseño de interfaz) y actualización de ADR-009.
+- `docs/user-manual.md` reescrito.
+
+---
+
 ## [2.5.0] - 2026-07-05
 
 ### Added
