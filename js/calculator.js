@@ -36,6 +36,56 @@ export class Calculator {
     }
 
     /**
+     * Objetivo del turno completo al 100% (lo que pide la tarjeta "Te falta").
+     * @param {Object} template Plantilla con efficiencyType y expectedEfficiency.
+     * @param {number} shiftHours Duración del turno en horas.
+     * @returns {{totalProduced: number, unit: string}} Metros o piezas del turno.
+     */
+    static targetForShift(template, shiftHours) {
+        const expected = template?.expectedEfficiency;
+        if (!expected || !shiftHours) return { totalProduced: 0, unit: 'pz' };
+
+        const isMeters = template.efficiencyType === 'meters_per_hour';
+        return {
+            totalProduced: Math.round(expected * shiftHours),
+            unit: isMeters ? 'm' : 'pz'
+        };
+    }
+
+    /**
+     * Convierte lo que falta para el 100% en lo que el operario cuenta en planta:
+     * palets completos, luego filas, luego paquetes (redondeando el paquete hacia arriba).
+     * @param {number} requiredPieces Piezas necesarias para el 100%.
+     * @param {number} producedPieces Piezas ya contadas.
+     * @param {Object} cfg {piecesPerPallet, piecesPerRow, piecesPerPackage}
+     * @returns {{missingPieces:number, pallets:number, rows:number, packages:number, totalPieces:number}}
+     */
+    static remainingForTarget(requiredPieces, producedPieces, cfg = {}) {
+        const perPallet = cfg.piecesPerPallet || 480;
+        const perRow = cfg.piecesPerRow || 24;
+        const perPackage = cfg.piecesPerPackage || 120;
+        const missingPieces = Math.max(0, Math.round((requiredPieces || 0) - (producedPieces || 0)));
+
+        if (missingPieces === 0) {
+            return { missingPieces: 0, pallets: 0, rows: 0, packages: 0, totalPieces: 0 };
+        }
+
+        const pallets = Math.floor(missingPieces / perPallet);
+        let rest = missingPieces % perPallet;
+        const rows = Math.floor(rest / perRow);
+        rest = rest % perRow;
+        const packages = rest > 0 ? Math.ceil(rest / perPackage) : 0;
+
+        return {
+            missingPieces,
+            pallets,
+            rows,
+            packages,
+            totalPieces: pallets * perPallet + rows * perRow + packages * perPackage
+        };
+    }
+
+    /**
      * Ejecuta el cálculo completo para una sesión de producción.
      * @param {Object} template La plantilla usada.
      * @param {Array} entries Entradas de producción { lengthMm, pieces }.
