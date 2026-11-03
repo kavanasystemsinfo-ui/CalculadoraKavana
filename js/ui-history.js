@@ -1,5 +1,6 @@
 import { store } from './store.js';
 import { Exporter } from './export.js';
+import { formatNumber } from './format.js';
 
 export class HistoryUI {
     constructor() {
@@ -17,7 +18,6 @@ export class HistoryUI {
             }
         });
 
-        // Renderizar al inicio
         this.render();
     }
 
@@ -26,49 +26,54 @@ export class HistoryUI {
 
         if (!sessions || sessions.length === 0) {
             this.container.innerHTML = `
-                <div class="card" style="text-align: center; padding: 40px; color: var(--text-dim);">
-                    <p>No hay sesiones guardadas todavía.</p>
-                    <p style="font-size:12px; margin-top:8px;">Registra producción y guárdala para verla aquí.</p>
+                <div class="empty">
+                    Todavía no hay turnos guardados.<br>
+                    Cuenta lo que lleves hecho y pulsa <b>Guardar turno</b>.
                 </div>
-                <div style="margin-top:16px;">
-                    <button class="btn btn-secondary" id="btn-import-json">📥 Importar Backup (JSON)</button>
+                <div class="hist-foot">
+                    <button class="btn btn-secondary" id="btn-import-json">Importar copia (JSON)</button>
                 </div>
             `;
             this.container.querySelector('#btn-import-json')?.addEventListener('click', () => this.importBackup());
             return;
         }
 
-        const itemsHtml = sessions.map(s => {
-            const dateStr = new Date(s.date).toLocaleDateString('es-ES', {
-                day: '2-digit', month: '2-digit', year: 'numeric'
-            });
-            const effColor = s.efficiency >= 100 ? 'var(--success)' : s.efficiency >= 80 ? 'var(--accent-secondary)' : 'var(--danger)';
+        const rows = sessions.map(s => {
+            const date = new Date(s.date);
+            const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const timeStr = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            const eff = Number(s.efficiency);
+            const level = !isFinite(eff) || eff === 0 ? 'low' : eff >= 100 ? 'good' : eff >= 80 ? 'mid' : 'low';
+            const models = (s.entries || []).length;
 
             return `
-                <div class="list-item" data-id="${s.id}">
-                    <div style="flex:1;">
-                        <h3 style="margin-bottom:4px; font-size:14px;">${this.escapeHtml(s.templateName)}</h3>
-                        <p style="font-size:12px; color:var(--text-dim);">
-                            ${dateStr} · ${s.shiftHours}h · ${(s.entries || []).length} modelo(s)
-                        </p>
-                        <span style="font-weight:900; font-size:18px; color:${effColor};">${s.efficiency}%</span>
-                        <span style="color:var(--text-dim); font-size:11px;"> eficiencia</span>
+                <div class="hist-row" data-id="${s.id}">
+                    <div class="hist-main">
+                        <div class="h-title">${this.escapeHtml(s.templateName || 'Línea')}</div>
+                        <div class="h-date">${dateStr} · ${timeStr} · ${this.fmt(s.shiftHours, 1)} h · ${models} modelo${models === 1 ? '' : 's'}</div>
                     </div>
-                    <div style="display:flex; gap:8px; flex-shrink:0;">
-                        <button class="btn-icon btn-delete-session" data-id="${s.id}" title="Eliminar">🗑️</button>
+                    <div class="hist-num">
+                        <span>Piezas</span>
+                        <b>${this.fmt(s.totalPieces, 0)}</b>
                     </div>
+                    <div class="hist-num">
+                        <span>Metros</span>
+                        <b>${this.fmt(s.totalMeters, 0)}</b>
+                    </div>
+                    ${isFinite(eff) && eff > 0
+                        ? `<span class="eff-badge ${level}">${this.fmt(eff, 1)}%</span>`
+                        : `<span class="eff-badge">—</span>`}
+                    <button class="btn-icon btn-delete-session" data-id="${s.id}" title="Eliminar turno" aria-label="Eliminar turno">✕</button>
                 </div>
             `;
         }).join('');
 
         this.container.innerHTML = `
-            ${itemsHtml}
-            <div style="margin-top:24px; display:flex; gap:8px;">
-                <button class="btn btn-secondary" id="btn-export-all-xlsx" style="flex:1;">📥 Historial Producción</button>
-                <button class="btn btn-secondary" id="btn-export-all" style="flex:1;">📤 Exportar Backup (JSON)</button>
-            </div>
-            <div style="margin-top:8px;">
-                <button class="btn btn-secondary" id="btn-import-json" style="width:100%;">📥 Importar Backup</button>
+            ${rows}
+            <div class="hist-foot">
+                <button class="btn btn-secondary" id="btn-export-all-xlsx">Exportar a Excel</button>
+                <button class="btn btn-secondary" id="btn-export-all">Copia de seguridad (JSON)</button>
+                <button class="btn btn-secondary" id="btn-import-json">Importar copia</button>
             </div>
         `;
 
@@ -84,14 +89,14 @@ export class HistoryUI {
     exportAllToExcel() {
         const sessions = store.getSessions();
         if (sessions.length === 0) {
-            alert('No hay sesiones para exportar.');
+            alert('No hay turnos para exportar.');
             return;
         }
         Exporter.exportAllSessionsToExcel(sessions);
     }
 
     deleteSession(id) {
-        if (confirm('¿Eliminar esta sesión? Esta acción no se puede deshacer.')) {
+        if (confirm('¿Eliminar este turno? Esta acción no se puede deshacer.')) {
             store.deleteSession(id);
             this.render();
         }
@@ -101,7 +106,7 @@ export class HistoryUI {
         const templates = store.getTemplates();
         const sessions = store.getSessions();
         const dateStr = new Date().toISOString().slice(0, 10);
-        Exporter.exportToJSON({ templates, sessions }, `prodcalc_backup_${dateStr}.json`);
+        Exporter.exportToJSON({ templates, sessions }, `calc_kavana_backup_${dateStr}.json`);
     }
 
     importBackup() {
@@ -115,7 +120,6 @@ export class HistoryUI {
 
                 let imported = 0;
 
-                // Importar plantillas
                 if (data.templates && Array.isArray(data.templates)) {
                     for (const tpl of data.templates) {
                         if (tpl.name && tpl.models && tpl.efficiencyType) {
@@ -128,7 +132,6 @@ export class HistoryUI {
                     }
                 }
 
-                // Importar sesiones
                 if (data.sessions && Array.isArray(data.sessions)) {
                     for (const sess of data.sessions) {
                         if (sess.templateName && sess.entries) {
@@ -150,12 +153,17 @@ export class HistoryUI {
         input.click();
     }
 
+    fmt(value, decimals = 0) {
+        return formatNumber(value, 0, decimals);
+    }
+
     escapeHtml(unsafe) {
-        return (unsafe || '').replace(/[&<"']/g, function (m) {
+        return String(unsafe ?? '').replace(/[&<>"']/g, (m) => {
             switch (m) {
-                case '&': return '&';
-                case '<': return '<';
-                case '"': return '"';
+                case '&': return '&amp;';
+                case '<': return '&lt;';
+                case '>': return '&gt;';
+                case '"': return '&quot;';
                 default: return '&#039;';
             }
         });

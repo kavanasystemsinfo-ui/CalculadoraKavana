@@ -1,7 +1,13 @@
 import { store } from './store.js';
 import { Calculator } from './calculator.js';
+import { formatNumber } from './format.js';
 import { ThemeManager } from './theme.js';
 
+/**
+ * Pantalla del turno: el operario cuenta palets, filas y paquetes y ve al
+ * instante su eficiencia y lo que le falta para cerrar el turno al 100%.
+ * Todo se recalcula en el dispositivo, sin botones intermedios.
+ */
 export class ProductionUI {
     constructor() {
         this.container = document.getElementById('tab-produccion');
@@ -10,30 +16,30 @@ export class ProductionUI {
         this.lastSessionState = null;
         this.allOptions = [];
         this.themeManager = new ThemeManager();
-        
+
         this.init();
     }
 
     init() {
         if (!this.container) return;
-        
+
         window.addEventListener('template-selected', (e) => {
             this.activeTemplateId = e.detail.id;
             this.addedEntries = [];
+            this.lastSessionState = null;
             this.themeManager.applyProductionTheme();
             this.render();
         });
     }
 
+    /* ------------------------------------------------------------------ */
+    /* Render                                                              */
+    /* ------------------------------------------------------------------ */
+
     render() {
         if (!this.activeTemplateId) {
             this.themeManager.clearTemplateTheme();
-            this.container.innerHTML = `
-                <h2 class="subtitle" style="margin-bottom: 16px;">Registro Diario</h2>
-                <div class="card" style="text-align: center; padding: 40px; color: var(--text-dim);">
-                    <p>Ve a <strong>Plantillas</strong> y selecciona una para empezar.</p>
-                </div>
-            `;
+            this.renderEmptyState();
             return;
         }
 
@@ -41,15 +47,164 @@ export class ProductionUI {
         if (!tpl) {
             this.activeTemplateId = null;
             this.themeManager.clearTemplateTheme();
-            this.render();
+            this.renderEmptyState();
             return;
         }
-        
-        // Aplicar tema de la plantilla
+
+        // La línea puede tener su propio color
         if (tpl.theme) {
             this.themeManager.applyTemplateTheme(tpl.theme);
         }
 
+        this.buildOptions(tpl);
+
+        const isMeters = tpl.efficiencyType === 'meters_per_hour';
+        const unitLabel = isMeters ? 'm/h' : 'pz/h';
+        const effText = tpl.enableEfficiency === false
+            ? 'Solo recuento de piezas'
+            : `${this.fmt(tpl.expectedEfficiency, 0)} ${unitLabel} al 100%`;
+
+        this.container.innerHTML = `
+            <div class="prod-grid">
+                <div class="prod-main">
+                    <header class="page-head">
+                        <div>
+                            <h1>${this.escapeHtml(tpl.name)}</h1>
+                            <div class="meta">
+                                <span>${effText}</span>
+                                <span class="sep">·</span>
+                                <span>${tpl.models.length} modelo${tpl.models.length === 1 ? '' : 's'} en la línea</span>
+                                <span class="sep">·</span>
+                                <span>turno de <b id="shift-label">8 h</b></span>
+                            </div>
+                        </div>
+                        <button class="btn btn-ghost" id="btn-change-tpl">Cambiar línea</button>
+                    </header>
+
+                    <section class="hero" id="hero" aria-live="polite">
+                        <div class="hero-main">
+                            <span class="hero-lab">Eficiencia</span>
+                            <div class="hero-num"><span id="res-eff">0</span><em>%</em></div>
+                            <p class="hero-sub" id="hero-sub">Aún no has contado nada de este turno.</p>
+                            <div class="hero-bar"><span id="hero-bar-fill"></span><i></i></div>
+                            <div class="hero-bar-l"><span>0%</span><span>100%</span></div>
+                        </div>
+                        <div class="hero-stats">
+                            <div>
+                                <span>Piezas</span>
+                                <b id="res-pieces">0</b>
+                            </div>
+                            <div class="vsep"></div>
+                            <div>
+                                <span>Tiempo teórico</span>
+                                <b id="res-theo">0,00<small>h</small></b>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card entries-card">
+                        <div class="card-h">
+                            <h2>Lo que llevas hecho</h2>
+                            <span class="hint">Toca − / + al terminar cada palet</span>
+                        </div>
+
+                        <div class="search-picklist" id="picklist-container">
+                            <input type="text" id="search-model" placeholder="Buscar modelo o medida..." autocomplete="off" aria-label="Buscar modelo o medida">
+                            <div class="picklist-dropdown" id="picklist-dropdown"></div>
+                        </div>
+
+                        <div id="prod-entries-list"></div>
+                    </section>
+
+                    <div class="shiftbar" id="shift-time-section" ${tpl.enableEfficiency === false ? 'style="display:none"' : ''}>
+                        <div>
+                            <span class="label">Duración del turno</span>
+                            <div class="value"><span id="shift-summary">8 h</span> · objetivo <span id="shift-target">—</span></div>
+                        </div>
+                        <div class="shift-selects">
+                            <div>
+                                <label for="prod-hours">Horas</label>
+                                <select id="prod-hours">
+                                    <option value="1">1 h</option>
+                                    <option value="2">2 h</option>
+                                    <option value="3">3 h</option>
+                                    <option value="4">4 h</option>
+                                    <option value="5">5 h</option>
+                                    <option value="6">6 h</option>
+                                    <option value="7">7 h</option>
+                                    <option value="8" selected>8 h</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="prod-minutes">Minutos</label>
+                                <select id="prod-minutes">
+                                    <option value="0">0 min</option>
+                                    <option value="0.25">+15 min</option>
+                                    <option value="0.5">+30 min</option>
+                                    <option value="0.75">+45 min</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="rail">
+                    <div class="card">
+                        <div class="card-h">
+                            <h2>Te falta para el 100%</h2>
+                            <span class="hint" id="miss-target">—</span>
+                        </div>
+                        <div class="card-body" style="padding: 12px 16px 14px;">
+                            <div id="miss-list"></div>
+                            <details class="target-detail" style="border-top: none; padding: 0; margin-top: 6px;">
+                                <summary class="helper" style="cursor: pointer; color: var(--accent-secondary);">Ver desglose de palets, filas y paquetes</summary>
+                                <div id="target-breakdown" style="margin-top: 10px;"></div>
+                            </details>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body" style="padding: 14px 16px 16px;">
+                            <button class="btn btn-primary" id="btn-save-prod" disabled>Guardar turno</button>
+                            <p class="helper" style="text-align: center; margin-top: 10px;">Se guarda en el historial de este dispositivo.</p>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        `;
+
+        this.bindEvents(tpl);
+        this.renderEntries();
+        this.calculate();
+    }
+
+    renderEmptyState() {
+        this.container.innerHTML = `
+            <header class="page-head">
+                <div>
+                    <h1>Registro del turno</h1>
+                    <div class="meta">Elige una línea en <b>Mis líneas</b> para empezar a contar.</div>
+                </div>
+            </header>
+            <div class="card">
+                <div class="empty">
+                    Todavía no has elegido línea.<br>
+                    <b>Mis líneas</b> → toca el nombre de tu perfiladora.
+                </div>
+                <div class="card-body" style="border-top: 1px solid var(--line);">
+                    <button class="btn btn-secondary" id="btn-go-templates">Ir a Mis líneas</button>
+                </div>
+            </div>
+        `;
+        const btn = document.getElementById('btn-go-templates');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                window.dispatchEvent(new CustomEvent('switch-tab', { detail: { tab: 'tab-plantillas' } }));
+            });
+        }
+    }
+
+    buildOptions(tpl) {
         this.allOptions = [];
         tpl.models.forEach(m => {
             const measures = m.measures || [{ id: crypto.randomUUID(), lengthMm: m.lengthMm }];
@@ -65,101 +220,11 @@ export class ProductionUI {
                 });
             });
         });
-
-        const effTypeStr = tpl.efficiencyType === 'pieces_per_hour' ? 'Piezas/hora' : 'Metros/hora';
-
-        this.container.innerHTML = `
-            <div class="section">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border-subtle);">
-                    <div>
-                        <h2 class="subtitle" style="color:var(--text-main); font-size:16px; margin:0;">${this.escapeHtml(tpl.name)}</h2>
-                        <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">
-                            ${effTypeStr} · Objetivo: ${tpl.expectedEfficiency}
-                        </div>
-                    </div>
-                    <button class="btn-icon" id="btn-change-tpl" style="color:var(--accent-primary);" title="Cambiar Plantilla">🔄</button>
-                </div>
-
-                <span class="section-title">Añadir Modelo a Producción</span>
-                <div class="search-picklist" id="picklist-container">
-                    <input type="text" id="search-model" placeholder="Buscar modelo o medida..." autocomplete="off">
-                    <div class="picklist-dropdown" id="picklist-dropdown"></div>
-                </div>
-
-                <span class="section-title">Producción del Turno (<span id="entries-count">0</span> entradas)</span>
-                <div id="prod-entries-list" style="margin-bottom:24px;">
-                    <div style="text-align:center; padding:16px; color:var(--text-dim); font-size:13px;">
-                        Usa el buscador de arriba para añadir modelos.
-                    </div>
-                </div>
-
-                <div id="shift-time-section" style="${tpl.enableEfficiency !== false ? '' : 'display: none;'}">
-                    <div style="padding-top:16px; border-top:1px solid var(--border-subtle);">
-                        <span class="section-title">Horas del Turno</span>
-                        <div style="display:flex; gap:16px; margin-bottom:12px;">
-                            <div style="flex:1;">
-                                <label style="font-size:12px; color:var(--text-dim); margin-bottom:4px; display:block;">Horas</label>
-                                <select id="prod-hours">
-                                    <option value="1">1 h</option>
-                                    <option value="2">2 h</option>
-                                    <option value="3">3 h</option>
-                                    <option value="4">4 h</option>
-                                    <option value="5">5 h</option>
-                                    <option value="6">6 h</option>
-                                    <option value="7">7 h</option>
-                                    <option value="8" selected>8 h</option>
-                                </select>
-                            </div>
-                            <div style="flex:1;">
-                                <label style="font-size:12px; color:var(--text-dim); margin-bottom:4px; display:block;">Minutos</label>
-                                <select id="prod-minutes">
-                                    <option value="0">0 min</option>
-                                    <option value="0.25">+15 min</option>
-                                    <option value="0.5">+30 min</option>
-                                    <option value="0.75">+45 min</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top:32px;">
-                    <button class="btn btn-primary" id="btn-target" style="width:100%; margin-bottom:12px;">🎯 Meta 100%</button>
-                    <div id="target-result" style="display:none; margin-bottom:24px; background:var(--input-bg); padding:20px; border-radius:var(--border-radius); border:1px solid var(--border-subtle);">
-                        <div style="text-align:center; margin-bottom:16px;">
-                            <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px;">Piezas necesarias para 100%</div>
-                            <div id="target-total" style="font-size:36px; font-weight:900; color:var(--accent-primary);">0</div>
-                        </div>
-                        <div id="target-breakdown" style="border-top:1px solid var(--border-subtle); padding-top:12px;"></div>
-                    </div>
-                    <button class="btn btn-primary" id="btn-calc-prod" style="width:100%; margin-bottom:12px;">📐 Calcular Eficiencia</button>
-                    <button class="btn btn-secondary" id="btn-save-prod" style="width:100%; display:none;">💾 Guardar Sesión</button>
-                </div>
-                
-                <div id="prod-results" style="display:none; margin-top:32px; background:var(--input-bg); padding:20px; border-radius:var(--border-radius); border:1px solid var(--border-subtle);">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                        <span style="color:var(--text-dim); font-weight:700;">Total Piezas:</span>
-                        <span id="res-pieces" style="font-weight:900;">0</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                        <span style="color:var(--text-dim); font-weight:700;">Total Metros:</span>
-                        <span id="res-meters" style="font-weight:900;">0.00</span>
-                    </div>
-                    <div id="res-theo-container" style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                        <span style="color:var(--text-dim); font-weight:700;">Tiempo Teórico:</span>
-                        <span id="res-theo" style="font-weight:900;">0.00 h</span>
-                    </div>
-                    <div id="eff-card" style="margin-top:24px; text-align:center; padding:24px; border-radius:16px; background:var(--card-bg);">
-                        <div style="font-size:14px; font-weight:700; text-transform:uppercase; margin-bottom:8px;">Eficiencia del Turno</div>
-                        <div style="font-size:48px; font-weight:900;"><span id="res-eff">0</span>%</div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        this.bindEvents(tpl);
-        this.renderEntries();
     }
+
+    /* ------------------------------------------------------------------ */
+    /* Eventos                                                             */
+    /* ------------------------------------------------------------------ */
 
     bindEvents(tpl) {
         document.getElementById('btn-change-tpl').addEventListener('click', () => {
@@ -174,28 +239,24 @@ export class ProductionUI {
 
         searchInput.addEventListener('focus', () => this.filterPicklist(''));
         searchInput.addEventListener('input', (e) => this.filterPicklist(e.target.value));
-        
-        document.addEventListener('click', (e) => {
+
+        this._outsideClick = (e) => {
             if (!e.target.closest('#picklist-container')) {
                 dropdown.classList.remove('visible');
             }
-        });
+        };
+        document.addEventListener('click', this._outsideClick);
 
-        document.getElementById('btn-calc-prod').addEventListener('click', () => this.calculate());
-        document.getElementById('btn-save-prod').addEventListener('click', () => this.saveSession(tpl));
-        document.getElementById('btn-target').addEventListener('click', () => {
-            const resultEl = document.getElementById('target-result');
-            if (resultEl.style.display === 'block') {
-                resultEl.style.display = 'none';
-            } else {
-                this.showTarget(tpl);
-            }
-        });
+        document.getElementById('prod-hours').addEventListener('change', () => this.calculate());
+        document.getElementById('prod-minutes').addEventListener('change', () => this.calculate());
+
+        const saveBtn = document.getElementById('btn-save-prod');
+        saveBtn.addEventListener('click', () => this.saveSession(tpl));
     }
 
     filterPicklist(query) {
         const dropdown = document.getElementById('picklist-dropdown');
-        const q = query.toLowerCase().trim();
+        const q = (query || '').toLowerCase().trim();
 
         const filtered = this.allOptions.filter(opt => {
             const text = `${opt.modelName} ${opt.lengthMm}`.toLowerCase();
@@ -203,18 +264,18 @@ export class ProductionUI {
         });
 
         if (filtered.length === 0) {
-            dropdown.innerHTML = `<div style="padding:16px; text-align:center; color:var(--text-dim); font-size:13px;">Sin resultados</div>`;
+            dropdown.innerHTML = `<div style="padding:16px; text-align:center; color:var(--text-dim); font-size:12.5px;">Sin resultados</div>`;
         } else {
             dropdown.innerHTML = filtered.map((opt, i) => `
                 <div class="picklist-option" data-index="${i}">
                     <span class="opt-name">${this.escapeHtml(opt.modelName)}</span>
-                    <span class="opt-measure">${opt.lengthMm} mm · ${opt.piecesPerPallet} pz/palet</span>
+                    <span class="opt-measure">${this.fmt(opt.lengthMm, 0)} mm · ${this.fmt(opt.piecesPerPallet, 0)} pz/palet</span>
                 </div>
             `).join('');
 
             dropdown.querySelectorAll('.picklist-option').forEach(el => {
                 el.addEventListener('click', () => {
-                    const opt = filtered[parseInt(el.dataset.index)];
+                    const opt = filtered[parseInt(el.dataset.index, 10)];
                     this.addEntry(opt);
                     dropdown.classList.remove('visible');
                     document.getElementById('search-model').value = '';
@@ -240,84 +301,150 @@ export class ProductionUI {
             rows: 0
         });
         this.renderEntries();
+        this.calculate();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Recuento en pantalla                                                */
+    /* ------------------------------------------------------------------ */
+
+    entryPieces(entry) {
+        return (entry.pallets * entry.piecesPerPallet)
+            + (entry.pieces * entry.piecesPerPackage)
+            + (entry.rows * entry.piecesPerRow);
     }
 
     renderEntries() {
         const list = document.getElementById('prod-entries-list');
-        const countEl = document.getElementById('entries-count');
-        if (countEl) countEl.textContent = this.addedEntries.length;
+        if (!list) return;
 
         if (this.addedEntries.length === 0) {
             list.innerHTML = `
-                <div style="text-align:center; padding:16px; color:var(--text-dim); font-size:13px;">
-                    Usa el buscador de arriba para añadir modelos.
+                <div class="empty" style="padding: 22px 18px;">
+                    Busca arriba el modelo que estás pasando<br>y añádelo para empezar a contar.
                 </div>`;
             return;
         }
 
-        list.innerHTML = this.addedEntries.map((entry, i) => `
+        list.innerHTML = this.addedEntries.map((entry, i) => {
+            const pieces = this.entryPieces(entry);
+            const meters = (entry.lengthMm / 1000) * pieces;
+            return `
             <div class="prod-entry-card" data-uid="${entry.uid}">
                 <div class="entry-info">
                     <div class="entry-head">
-                        <div class="entry-name">${this.escapeHtml(entry.modelName)}</div>
-                        <div class="entry-measure">${entry.lengthMm} mm</div>
+                        <span class="entry-name">${this.escapeHtml(entry.modelName)}</span>
+                        <span class="entry-measure">${this.fmt(entry.lengthMm, 0)} mm</span>
                     </div>
                     <div class="entry-meta">
-                        <span>${entry.piecesPerPallet} pz/palet</span>
-                        <span>${entry.piecesPerRow} pz/fila</span>
-                        <span>${entry.piecesPerPackage} pz/paq</span>
+                        <span><b data-entry-pieces>${this.fmt(pieces, 0)}</b> pz</span>
+                        <span><b data-entry-meters>${this.fmt(meters, 2)}</b> m</span>
+                        <span>${this.fmt(entry.piecesPerPallet, 0)} pz/palet · ${this.fmt(entry.piecesPerRow, 0)} pz/fila</span>
                     </div>
                 </div>
                 <div class="entry-controls">
                     <div class="entry-field">
-                        <label>PALETS</label>
-                        <input type="number" class="entry-pallets" data-index="${i}" value="${entry.pallets}" min="0" step="1" inputmode="numeric">
+                        <label>Palets</label>
+                        <div class="stepper">
+                            <button type="button" data-step="-1" data-field="pallets" data-index="${i}" aria-label="Un palet menos">−</button>
+                            <input type="number" class="entry-pallets" data-index="${i}" value="${entry.pallets}" min="0" step="1" inputmode="numeric" aria-label="Palets">
+                            <button type="button" data-step="1" data-field="pallets" data-index="${i}" aria-label="Un palet más">+</button>
+                        </div>
                     </div>
                     <div class="entry-field">
-                        <label>FILAS</label>
-                        <input type="number" class="entry-rows" data-index="${i}" value="${entry.rows || 0}" min="0" step="1" inputmode="numeric">
+                        <label>Filas</label>
+                        <div class="stepper">
+                            <button type="button" data-step="-1" data-field="rows" data-index="${i}" aria-label="Una fila menos">−</button>
+                            <input type="number" class="entry-rows" data-index="${i}" value="${entry.rows || 0}" min="0" step="1" inputmode="numeric" aria-label="Filas">
+                            <button type="button" data-step="1" data-field="rows" data-index="${i}" aria-label="Una fila más">+</button>
+                        </div>
                     </div>
                     <div class="entry-field">
-                        <label>PAQUETES</label>
-                        <input type="number" class="entry-pieces" data-index="${i}" value="${entry.pieces || 0}" min="0" step="1" inputmode="numeric">
+                        <label>Paquetes</label>
+                        <div class="stepper">
+                            <button type="button" data-step="-1" data-field="pieces" data-index="${i}" aria-label="Un paquete menos">−</button>
+                            <input type="number" class="entry-pieces" data-index="${i}" value="${entry.pieces || 0}" min="0" step="1" inputmode="numeric" aria-label="Paquetes">
+                            <button type="button" data-step="1" data-field="pieces" data-index="${i}" aria-label="Un paquete más">+</button>
+                        </div>
                     </div>
-                    <button class="btn-icon remove-entry" data-index="${i}" style="font-size:16px;">✕</button>
+                    <button type="button" class="btn-icon remove-entry" data-index="${i}" title="Quitar del turno" aria-label="Quitar ${this.escapeHtml(entry.modelName)} del turno">✕</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
 
-        list.querySelectorAll('.entry-pallets').forEach(input => {
+        // Campos numéricos: escribir a mano también recalcula
+        list.querySelectorAll('.entry-pallets, .entry-rows, .entry-pieces').forEach(input => {
             input.addEventListener('input', (e) => {
-                const idx = parseInt(e.target.dataset.index);
-                this.addedEntries[idx].pallets = parseFloat(e.target.value) || 0;
+                const idx = parseInt(e.target.dataset.index, 10);
+                const value = Math.max(0, parseFloat(e.target.value) || 0);
+                const entry = this.addedEntries[idx];
+                if (!entry) return;
+
+                if (e.target.classList.contains('entry-pallets')) entry.pallets = value;
+                if (e.target.classList.contains('entry-rows')) entry.rows = value;
+                if (e.target.classList.contains('entry-pieces')) entry.pieces = value;
+
+                this.refreshEntryNumbers(idx);
+                this.calculate();
             });
         });
-        list.querySelectorAll('.entry-pieces').forEach(input => {
-            input.addEventListener('input', (e) => {
-                const idx = parseInt(e.target.dataset.index);
-                this.addedEntries[idx].pieces = parseFloat(e.target.value) || 0;
-            });
-        });
-        list.querySelectorAll('.entry-rows').forEach(input => {
-            input.addEventListener('input', (e) => {
-                const idx = parseInt(e.target.dataset.index);
-                this.addedEntries[idx].rows = parseFloat(e.target.value) || 0;
+
+        // Botones − / +
+        list.querySelectorAll('[data-step]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.dataset.index, 10);
+                const field = e.currentTarget.dataset.field;
+                const delta = parseInt(e.currentTarget.dataset.step, 10);
+                const entry = this.addedEntries[idx];
+                if (!entry) return;
+
+                entry[field] = Math.max(0, (entry[field] || 0) + delta);
+                const input = e.currentTarget.parentElement.querySelector('input');
+                if (input) input.value = entry[field];
+                this.refreshEntryNumbers(idx);
+                this.calculate();
             });
         });
 
         list.querySelectorAll('.remove-entry').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.currentTarget.dataset.index);
+                const idx = parseInt(e.currentTarget.dataset.index, 10);
                 this.addedEntries.splice(idx, 1);
                 this.renderEntries();
+                this.calculate();
             });
         });
+    }
+
+    /** Actualiza las cifras de una fila sin volver a pintar todo el listado. */
+    refreshEntryNumbers(idx) {
+        const entry = this.addedEntries[idx];
+        const card = document.querySelector(`.prod-entry-card[data-uid="${entry.uid}"]`);
+        if (!card) return;
+
+        const pieces = this.entryPieces(entry);
+        const piecesEl = card.querySelector('[data-entry-pieces]');
+        const metersEl = card.querySelector('[data-entry-meters]');
+        if (piecesEl) piecesEl.textContent = this.fmt(pieces, 0);
+        if (metersEl) metersEl.textContent = this.fmt((entry.lengthMm / 1000) * pieces, 2);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Cálculo en vivo                                                     */
+    /* ------------------------------------------------------------------ */
+
+    shiftHours() {
+        const hours = parseFloat(document.getElementById('prod-hours')?.value) || 0;
+        const minutes = parseFloat(document.getElementById('prod-minutes')?.value) || 0;
+        return hours + minutes;
     }
 
     calculate() {
         if (!this.activeTemplateId) return;
         const tpl = store.getTemplate(this.activeTemplateId);
+        if (!tpl) return;
 
+        const shiftHours = this.shiftHours();
         const entries = this.addedEntries
             .filter(e => e.pallets > 0 || e.pieces > 0 || e.rows > 0)
             .map(e => ({
@@ -325,130 +452,155 @@ export class ProductionUI {
                 modelName: e.modelName,
                 lengthMm: e.lengthMm,
                 pallets: e.pallets,
-                pieces: (e.pallets * e.piecesPerPallet) + (e.pieces * e.piecesPerPackage) + (e.rows * e.piecesPerRow)
+                pieces: this.entryPieces(e)
             }));
 
-        if (entries.length === 0) {
-            document.getElementById('prod-results').style.display = 'none';
-            document.getElementById('btn-save-prod').style.display = 'none';
-            return;
-        }
+        this.updateShiftLabels(tpl, shiftHours);
 
-        document.getElementById('prod-results').style.display = 'block';
-        document.getElementById('btn-save-prod').style.display = 'block';
-
-        document.getElementById('res-pieces').textContent = entries.reduce((sum, e) => sum + e.pieces, 0).toLocaleString();
-        document.getElementById('res-meters').textContent = entries.reduce((sum, e) => sum + (e.lengthMm * e.pieces / 1000), 0).toFixed(2);
-
-        // Show/hide efficiency fields based on template setting
+        // Hero + resumen
+        const totalPieces = this.addedEntries.reduce((sum, e) => sum + this.entryPieces(e), 0);
+        const totalMeters = this.addedEntries.reduce((sum, e) => sum + (e.lengthMm / 1000) * this.entryPieces(e), 0);
         const enableEff = tpl.enableEfficiency !== false;
-        document.getElementById('res-theo-container').style.display = enableEff ? 'flex' : 'none';
-        document.getElementById('eff-card').style.display = enableEff ? 'block' : 'none';
 
-        let shiftHours = 0;
-        let result;
-        
-        if (enableEff) {
-            const hours = parseFloat(document.getElementById('prod-hours').value) || 8;
-            const minutes = parseFloat(document.getElementById('prod-minutes').value) || 0;
-            shiftHours = hours + minutes;
-            
-            result = Calculator.runSession(tpl, entries, shiftHours);
-            document.getElementById('res-theo').textContent = result.theoreticalTime + ' h';
-            document.getElementById('res-eff').textContent = result.efficiency;
-
-            const effCard = document.getElementById('eff-card');
-            if (result.efficiency >= 100) {
-                effCard.style.backgroundColor = 'var(--success)';
-            } else if (result.efficiency >= 80) {
-                effCard.style.backgroundColor = 'var(--accent-secondary)';
-            } else {
-                effCard.style.backgroundColor = 'var(--danger)';
-            }
-            effCard.style.color = '#fff';
-        } else {
-            result = { totalPieces: entries.reduce((sum, e) => sum + e.pieces, 0) };
+        let eff = 0;
+        let theoretical = 0;
+        if (enableEff && entries.length > 0) {
+            const result = Calculator.runSession(tpl, entries, shiftHours);
+            eff = result.efficiency;
+            theoretical = result.theoreticalTime;
         }
 
-        this.lastSessionState = { result, entries, shiftHours };
+        const effEl = document.getElementById('res-eff');
+        const piecesEl = document.getElementById('res-pieces');
+        const theoEl = document.getElementById('res-theo');
+        const subEl = document.getElementById('hero-sub');
+        const barEl = document.getElementById('hero-bar-fill');
+
+        if (effEl) effEl.textContent = this.fmt(eff, 1, 1);
+        if (piecesEl) piecesEl.textContent = this.fmt(totalPieces, 0);
+        if (theoEl) theoEl.innerHTML = `${this.fmt(theoretical, 2, 2)}<small>h</small>`;
+        if (barEl) barEl.style.width = `${Math.min(100, Math.max(0, eff))}%`;
+
+        if (subEl) {
+            const target = Calculator.targetForShift(tpl, shiftHours);
+            if (!enableEff) {
+                subEl.innerHTML = `Llevas <b>${this.fmt(totalPieces, 0)} pz</b> · ${this.fmt(totalMeters, 2)} m`;
+            } else if (entries.length === 0) {
+                subEl.innerHTML = `Aún no has contado nada · objetivo del turno <b>${this.fmt(target.totalProduced, 0)} ${target.unit}</b>`;
+            } else {
+                const produced = tpl.efficiencyType === 'meters_per_hour' ? totalMeters : totalPieces;
+                subEl.innerHTML = `Llevas <b>${this.fmt(produced, 0)} ${target.unit}</b> de ${this.fmt(target.totalProduced, 0)} ${target.unit} del turno`;
+            }
+        }
+
+        // Columna derecha
+        this.renderMissing(tpl, shiftHours);
+
+        const saveBtn = document.getElementById('btn-save-prod');
+        if (saveBtn) saveBtn.disabled = entries.length === 0;
+
+        this.lastSessionState = {
+            result: enableEff
+                ? Calculator.runSession(tpl, entries, shiftHours)
+                : { totalPieces, totalMeters, efficiency: null, theoreticalTime: null },
+            entries,
+            shiftHours
+        };
     }
 
-    showTarget(tpl) {
-        if (!tpl || tpl.enableEfficiency === false) return;
+    updateShiftLabels(tpl, shiftHours) {
+        const target = Calculator.targetForShift(tpl, shiftHours);
+        const hours = Math.floor(shiftHours);
+        const minutes = Math.round((shiftHours - hours) * 60);
+        const text = minutes > 0 ? `${hours} h ${minutes} min` : `${hours} h`;
+
+        const summary = document.getElementById('shift-summary');
+        const label = document.getElementById('shift-label');
+        const targetEl = document.getElementById('shift-target');
+        if (summary) summary.textContent = text;
+        if (label) label.textContent = text;
+        if (targetEl) targetEl.textContent = `${this.fmt(target.totalProduced, 0)} ${target.unit}`;
+
+        const missTarget = document.getElementById('miss-target');
+        if (missTarget) {
+            const produced = tpl.efficiencyType === 'meters_per_hour'
+                ? this.addedEntries.reduce((sum, e) => sum + (e.lengthMm / 1000) * this.entryPieces(e), 0)
+                : this.addedEntries.reduce((sum, e) => sum + this.entryPieces(e), 0);
+            const remaining = Math.max(0, target.totalProduced - produced);
+            missTarget.innerHTML = `<b style="color: var(--text-main)">${this.fmt(remaining, 0)} ${target.unit}</b> restantes`;
+        }
+    }
+
+    /** "Te falta para el 100%": palets, filas y paquetes que aún hay que contar. */
+    renderMissing(tpl, shiftHours) {
+        const listEl = document.getElementById('miss-list');
+        const breakdownEl = document.getElementById('target-breakdown');
+        if (!listEl) return;
+
+        if (tpl.enableEfficiency === false) {
+            listEl.innerHTML = `<p class="helper" style="margin:0;">Esta línea solo cuenta piezas: no hay objetivo que calcular.</p>`;
+            if (breakdownEl) breakdownEl.innerHTML = '';
+            return;
+        }
 
         if (this.addedEntries.length === 0) {
-            document.getElementById('target-result').style.display = 'none';
+            listEl.innerHTML = `<p class="helper" style="margin:0;">Añade un modelo y empieza a contar: aquí verás lo que te falta palet a palet.</p>`;
+            if (breakdownEl) breakdownEl.innerHTML = '';
             return;
         }
 
-        const hours = parseFloat(document.getElementById('prod-hours').value) || 8;
-        const minutes = parseFloat(document.getElementById('prod-minutes').value) || 0;
-        const shiftHours = hours + minutes;
+        const target = Calculator.targetForShift(tpl, shiftHours);
         const isMeters = tpl.efficiencyType === 'meters_per_hour';
-        const totalProduced = tpl.expectedEfficiency * shiftHours;
 
-        const totalDisplay = isMeters
-            ? Math.round(totalProduced / ((this.addedEntries[0]?.lengthMm || 1000) / 1000)).toLocaleString()
-            : Math.round(totalProduced).toLocaleString();
+        const rows = [];
+        const details = [];
 
-        document.getElementById('target-total').textContent = totalDisplay;
-
-        const breakdownEl = document.getElementById('target-breakdown');
-        breakdownEl.innerHTML = '';
-
-        let html = '';
         this.addedEntries.forEach(entry => {
-            const ppp = entry.piecesPerPallet || 480;
-            const ppr = entry.piecesPerRow || 24;
-            const ppq = entry.piecesPerPackage || 120;
-            const lengthM = (entry.lengthMm || 1000) / 1000;
+            const lengthM = entry.lengthMm / 1000;
+            const required = isMeters
+                ? Math.round(target.totalProduced / lengthM)
+                : Math.round(target.totalProduced);
+            const produced = this.entryPieces(entry);
+            const rem = Calculator.remainingForTarget(required, produced, entry);
 
-            const piecesNeeded = isMeters
-                ? Math.round(totalProduced / lengthM)
-                : Math.round(totalProduced);
+            const zero = (n) => (n === 0 ? 'zero' : '');
+            rows.push(`
+                <div class="miss-row" title="Faltan ${this.fmt(rem.missingPieces, 0)} piezas">
+                    <span class="name">${this.escapeHtml(entry.modelName)} · ${this.fmt(entry.lengthMm, 0)} mm</span>
+                    <span class="qty">
+                        <span class="${zero(rem.pallets)}">${this.fmt(rem.pallets, 0)}<i>pal</i></span>
+                        <span class="${zero(rem.rows)}">${this.fmt(rem.rows, 0)}<i>fil</i></span>
+                        <span class="${zero(rem.packages)}">${this.fmt(rem.packages, 0)}<i>paq</i></span>
+                    </span>
+                </div>`);
 
-            const pallets = Math.floor(piecesNeeded / ppp);
-            let rem = piecesNeeded % ppp;
-            const rows = Math.floor(rem / ppr);
-            rem = rem % ppr;
-            const packages = rem > 0 ? Math.ceil(rem / ppq) : 0;
-
-            const actualTotal = (pallets * ppp) + (rows * ppr) + (packages * ppq);
-
-            html += `
-                <div style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border-subtle);">
-                    <div style="font-weight:700; margin-bottom:8px;">${this.escapeHtml(entry.modelName)} · ${entry.lengthMm} mm</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; text-align:center;">
-                        <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
-                            <div style="font-size:11px; color:var(--text-dim);">PALETS</div>
-                            <div style="font-size:20px; font-weight:900;">${pallets}</div>
-                            <div style="font-size:10px; color:var(--text-dim);">${pallets} × ${ppp} = ${(pallets * ppp).toLocaleString()}</div>
-                        </div>
-                        <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
-                            <div style="font-size:11px; color:var(--text-dim);">FILAS</div>
-                            <div style="font-size:20px; font-weight:900;">${rows}</div>
-                            <div style="font-size:10px; color:var(--text-dim);">${rows} × ${ppr} = ${(rows * ppr).toLocaleString()}</div>
-                        </div>
-                        <div style="background:var(--card-bg); padding:8px; border-radius:8px;">
-                            <div style="font-size:11px; color:var(--text-dim);">PAQUETES</div>
-                            <div style="font-size:20px; font-weight:900;">${packages}</div>
-                            <div style="font-size:10px; color:var(--text-dim);">${packages} × ${ppq} = ${(packages * ppq).toLocaleString()}</div>
-                        </div>
+            details.push(`
+                <div class="model-line">
+                    <div class="m-name">${this.escapeHtml(entry.modelName)} · ${this.fmt(entry.lengthMm, 0)} mm</div>
+                    <div class="m-math">
+                        ${this.fmt(rem.pallets, 0)} × ${this.fmt(entry.piecesPerPallet, 0)} +
+                        ${this.fmt(rem.rows, 0)} × ${this.fmt(entry.piecesPerRow, 0)} +
+                        ${this.fmt(rem.packages, 0)} × ${this.fmt(entry.piecesPerPackage, 0)}
+                        = ${this.fmt(rem.totalPieces, 0)} pz
                     </div>
-                    <div style="text-align:right; font-size:11px; color:var(--text-dim); margin-top:6px;">Total: ${actualTotal.toLocaleString()} piezas</div>
-                </div>
-            `;
+                </div>`);
         });
-        breakdownEl.innerHTML = html;
 
-        document.getElementById('target-result').style.display = 'block';
+        listEl.innerHTML = rows.join('') +
+            `<p class="miss-note">Cada fila es lo que faltaría si el turno fuese solo de ese modelo. El reparto real lo marca el pedido.</p>`;
+
+        if (breakdownEl) breakdownEl.innerHTML = details.join('');
     }
+
+    /* ------------------------------------------------------------------ */
+    /* Guardado                                                            */
+    /* ------------------------------------------------------------------ */
 
     saveSession(tpl) {
         if (!this.lastSessionState || this.lastSessionState.entries.length === 0) {
-            alert('Calcula primero la producción antes de guardar.');
             return;
         }
+
         const session = {
             templateId: tpl.id,
             templateName: tpl.name,
@@ -462,23 +614,36 @@ export class ProductionUI {
             totalPieces: this.lastSessionState.result.totalPieces,
             theoreticalTime: this.lastSessionState.result.theoreticalTime
         };
+
         store.saveSession(session);
+
         const btn = document.getElementById('btn-save-prod');
-        btn.textContent = '✓ Sesión Guardada';
-        btn.style.backgroundColor = 'var(--success)';
-        setTimeout(() => {
-            btn.textContent = '💾 Guardar Sesión';
-            btn.style.backgroundColor = '';
-            window.dispatchEvent(new CustomEvent('switch-tab', { detail: { tab: 'tab-historial' } }));
-        }, 1500);
+        if (btn) {
+            btn.textContent = '✓ Turno guardado';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.textContent = 'Guardar turno';
+                btn.disabled = false;
+                window.dispatchEvent(new CustomEvent('switch-tab', { detail: { tab: 'tab-historial' } }));
+            }, 900);
+        }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Utilidades                                                          */
+    /* ------------------------------------------------------------------ */
+
+    fmt(value, minDecimals = 0, maxDecimals = minDecimals) {
+        return formatNumber(value, minDecimals, maxDecimals);
     }
 
     escapeHtml(unsafe) {
-        return (unsafe || '').replace(/[&<"']/g, m => {
+        return String(unsafe ?? '').replace(/[&<>"']/g, (m) => {
             switch (m) {
-                case '&': return '&';
-                case '<': return '<';
-                case '"': return '"';
+                case '&': return '&amp;';
+                case '<': return '&lt;';
+                case '>': return '&gt;';
+                case '"': return '&quot;';
                 default: return '&#039;';
             }
         });

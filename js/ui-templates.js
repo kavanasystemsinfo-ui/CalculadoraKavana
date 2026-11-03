@@ -1,4 +1,5 @@
 import { store } from './store.js';
+import { formatNumber } from './format.js';
 
 export class TemplatesUI {
     constructor() {
@@ -7,9 +8,10 @@ export class TemplatesUI {
         this.modal = document.getElementById('modal-plantilla');
         this.form = document.getElementById('form-plantilla');
         this.btnCancel = document.getElementById('btn-cancel-tpl');
+        this.btnClose = document.getElementById('btn-close-tpl');
         this.btnAddModel = document.getElementById('btn-add-model');
         this.modelsContainer = document.getElementById('modelos-container');
-        
+
         this.init();
     }
 
@@ -18,41 +20,60 @@ export class TemplatesUI {
 
         this.btnNueva.addEventListener('click', () => this.openModal());
         this.btnCancel.addEventListener('click', () => this.closeModal());
+        if (this.btnClose) this.btnClose.addEventListener('click', () => this.closeModal());
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.btnAddModel.addEventListener('click', () => this.addModelBlock());
+
+        // Cerrar al tocar el fondo y con Escape
+        this.modal.addEventListener('click', (e) => {
+            if (e.target === this.modal) this.closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.modal.style.display === 'flex') this.closeModal();
+        });
 
         this.renderList();
     }
 
     renderList() {
         const templates = store.getTemplates();
-        
+
         if (templates.length === 0) {
             this.listContainer.innerHTML = `
-                <div class="card" style="text-align: center; padding: 32px; color: var(--text-dim);">
-                    <p>No tienes ninguna plantilla configurada.</p>
+                <div class="card">
+                    <div class="empty">
+                        Todavía no tienes ninguna línea.<br>
+                        Crea la primera con <b>+ Nueva línea</b>: nombre, objetivo de la hora y modelos que hace.
+                    </div>
                 </div>`;
             return;
         }
 
-        this.listContainer.innerHTML = templates.map(tpl => {
+        this.listContainer.innerHTML = `<div class="templates-grid">${templates.map(tpl => {
             const totalMeasures = tpl.models.reduce((sum, m) => sum + (m.measures ? m.measures.length : 1), 0);
+            const measureLabel = tpl.efficiencyType === 'pieces_per_hour' ? 'Piezas/h' : 'Metros/h';
+            const effLabel = tpl.enableEfficiency === false
+                ? 'Solo recuento'
+                : `${measureLabel} · ${this.fmt(tpl.expectedEfficiency, 0)} al 100%`;
+
             return `
             <div class="list-item" data-id="${tpl.id}">
-                <div>
-                    <h3 class="tpl-title-btn" style="margin-bottom: 4px; font-size: 16px; cursor: pointer; color: var(--accent-primary);">🚀 ${tpl.name}</h3>
-                    <p style="font-size: 12px; color: var(--text-dim);">
-                        ${tpl.efficiencyType === 'pieces_per_hour' ? '📦 Piezas/h' : '📏 Metros/h'} 
-                        · ${tpl.expectedEfficiency} esperado
-                        · ${tpl.models.length} modelos · ${totalMeasures} medidas
-                    </p>
+                <div style="min-width:0;">
+                    <h3 class="item-title tpl-title-btn" title="Abrir el turno de esta línea">${this.escapeHtml(tpl.name)}</h3>
+                    <div class="item-meta">
+                        <span>${effLabel}</span>
+                        <span>·</span>
+                        <span><b>${tpl.models.length}</b> modelo${tpl.models.length === 1 ? '' : 's'}</span>
+                        <span>·</span>
+                        <span><b>${totalMeasures}</b> medida${totalMeasures === 1 ? '' : 's'}</span>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-icon btn-edit" data-id="${tpl.id}" style="color: var(--accent-primary);" title="Editar">✏️</button>
-                    <button class="btn-icon btn-delete" data-id="${tpl.id}" title="Eliminar">🗑️</button>
+                <div class="list-actions">
+                    <button class="btn-icon btn-edit" data-id="${tpl.id}" title="Editar línea" aria-label="Editar ${this.escapeHtml(tpl.name)}">✎</button>
+                    <button class="btn-icon btn-delete" data-id="${tpl.id}" title="Eliminar línea" aria-label="Eliminar ${this.escapeHtml(tpl.name)}">✕</button>
                 </div>
-            </div>
-        `}).join('');
+            </div>`;
+        }).join('')}</div>`;
 
         this.listContainer.querySelectorAll('.tpl-title-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -65,14 +86,14 @@ export class TemplatesUI {
         this.listContainer.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', (e) => this.openModal(e.currentTarget.dataset.id));
         });
-        
+
         this.listContainer.querySelectorAll('.btn-delete').forEach(btn => {
             btn.addEventListener('click', (e) => this.deleteTemplate(e.currentTarget.dataset.id));
         });
     }
 
     /**
-     * Añade un bloque de modelo completo (nombre + pz/palet + lista de medidas con botón ➕).
+     * Añade un bloque de modelo completo (nombre + pz/palet + lista de medidas).
      */
     addModelBlock(model = null) {
         if (!model) {
@@ -96,28 +117,29 @@ export class TemplatesUI {
 
         block.innerHTML = `
             <div class="model-header">
-                <div style="flex:2;">
-                    <input type="text" class="model-name" placeholder="Nombre del modelo" value="${model.name}" required>
+                <div class="model-field" style="flex:1;">
+                    <label>Modelo</label>
+                    <input type="text" class="model-name" placeholder="Perfil C 200" value="${this.escapeAttr(model.name)}" required aria-label="Nombre del modelo">
                 </div>
-                <div style="flex:1;">
-                    <input type="number" class="model-pallet" placeholder="Pz/Palet" value="${model.piecesPerPallet || ''}" required min="1">
+                <div class="model-field pallet">
+                    <label>Pz/palet</label>
+                    <input type="number" class="model-pallet" placeholder="60" value="${this.escapeAttr(model.piecesPerPallet || '')}" required min="1" aria-label="Piezas por palet">
                 </div>
-                <button type="button" class="btn-icon remove-model" title="Eliminar modelo">✖</button>
+                <button type="button" class="btn-icon remove-model" title="Eliminar modelo" aria-label="Eliminar modelo">✕</button>
             </div>
             <div class="model-subgrid">
                 <div class="subfield">
-                    <label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:2px;">Pz/Paquete</label>
-                    <input type="number" class="model-package" placeholder="Pz/Paq" value="${model.piecesPerPackage || ''}" min="1">
+                    <label>Pz/paquete</label>
+                    <input type="number" class="model-package" placeholder="Pz/paq" value="${this.escapeAttr(model.piecesPerPackage || '')}" min="1">
                 </div>
                 <div class="subfield">
-                    <label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:2px;">Pz/Fila</label>
-                    <input type="number" class="model-row" placeholder="Pz/Fila" value="${model.piecesPerRow || ''}" min="1">
+                    <label>Pz/fila</label>
+                    <input type="number" class="model-row" placeholder="Pz/fila" value="${this.escapeAttr(model.piecesPerRow || '')}" min="1">
                 </div>
             </div>
-            <div class="measures-list">
-                <!-- Medidas dinámicas -->
-            </div>
-            <button type="button" class="btn-add-measure">➕ Añadir Medida</button>
+            <div class="measure-legend">Medidas (largo en mm)</div>
+            <div class="measures-list"></div>
+            <button type="button" class="btn-add-measure">+ Añadir medida</button>
         `;
 
         block.querySelector('.remove-model').addEventListener('click', () => block.remove());
@@ -144,10 +166,10 @@ export class TemplatesUI {
         row.dataset.id = measure.id;
 
         row.innerHTML = `
-            <span class="measure-bullet">📏</span>
-            <input type="number" class="measure-length" placeholder="Largo (mm)" value="${measure.lengthMm}" required min="1" step="any">
-            <span style="font-size:11px; color:var(--text-dim); white-space:nowrap;">mm</span>
-            <button type="button" class="btn-icon remove-measure" style="font-size:14px;">✕</button>
+            <span class="measure-bullet">▸</span>
+            <input type="number" class="measure-length" placeholder="Largo en mm" value="${this.escapeAttr(measure.lengthMm)}" required min="1" step="any" aria-label="Largo en milímetros">
+            <span class="unit">mm</span>
+            <button type="button" class="btn-icon remove-measure" aria-label="Quitar medida">✕</button>
         `;
 
         row.querySelector('.remove-measure').addEventListener('click', () => {
@@ -163,38 +185,43 @@ export class TemplatesUI {
     }
 
     openModal(id = null) {
-            this.form.reset();
-            this.modelsContainer.innerHTML = '';
-            
-            if (id) {
-                const tpl = store.getTemplate(id);
-                if (tpl) {
-                    document.getElementById('tpl-id').value = tpl.id;
-                    document.getElementById('tpl-name').value = tpl.name;
-                    document.getElementById('tpl-enable-eff').checked = tpl.enableEfficiency !== false;
-                    document.getElementById('tpl-eff-type').value = tpl.efficiencyType || 'pieces_per_hour';
-                    document.getElementById('tpl-eff-val').value = tpl.expectedEfficiency || '';
+        this.form.reset();
+        this.modelsContainer.innerHTML = '';
+
+        if (id) {
+            const tpl = store.getTemplate(id);
+            if (tpl) {
+                document.getElementById('tpl-id').value = tpl.id;
+                document.getElementById('tpl-name').value = tpl.name;
+                document.getElementById('tpl-enable-eff').checked = tpl.enableEfficiency !== false;
+                document.getElementById('tpl-eff-type').value = tpl.efficiencyType || 'pieces_per_hour';
+                document.getElementById('tpl-eff-val').value = tpl.expectedEfficiency || '';
                 if (document.getElementById('tpl-theme')) {
                     document.getElementById('tpl-theme').value = tpl.theme || 'blue';
                 }
-                    
-                    tpl.models.forEach(m => this.addModelBlock(m));
-                }
-            } else {
-                document.getElementById('tpl-id').value = '';
-                document.getElementById('tpl-enable-eff').checked = true;
-                this.addModelBlock();
+
+                tpl.models.forEach(m => this.addModelBlock(m));
             }
-    
-            // Toggle efficiency fields
-            const effFields = document.getElementById('eff-fields');
-            const enableEff = document.getElementById('tpl-enable-eff');
-            if (effFields && enableEff) {
-                effFields.style.display = enableEff.checked ? 'block' : 'none';
-            }
-    
-            this.modal.style.display = 'flex';
+        } else {
+            document.getElementById('tpl-id').value = '';
+            document.getElementById('tpl-enable-eff').checked = true;
+            this.addModelBlock();
         }
+
+        this.syncEffFields();
+        document.getElementById('tpl-enable-eff').onchange = () => this.syncEffFields();
+
+        this.modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('tpl-name').focus(), 60);
+    }
+
+    syncEffFields() {
+        const effFields = document.getElementById('eff-fields');
+        const enableEff = document.getElementById('tpl-enable-eff');
+        if (effFields && enableEff) {
+            effFields.style.display = enableEff.checked ? 'block' : 'none';
+        }
+    }
 
     closeModal() {
         this.modal.style.display = 'none';
@@ -243,9 +270,32 @@ export class TemplatesUI {
     }
 
     deleteTemplate(id) {
-        if (confirm('¿Estás seguro de que quieres eliminar esta plantilla?')) {
+        if (confirm('¿Estás seguro de que quieres eliminar esta línea?')) {
             store.deleteTemplate(id);
             this.renderList();
         }
+    }
+
+    /* ---------------------------- utilidades ---------------------------- */
+
+    fmt(value, decimals = 0) {
+        return formatNumber(value, 0, decimals);
+    }
+
+    escapeHtml(unsafe) {
+        return String(unsafe ?? '').replace(/[&<>"']/g, (m) => {
+            switch (m) {
+                case '&': return '&amp;';
+                case '<': return '&lt;';
+                case '>': return '&gt;';
+                case '"': return '&quot;';
+                default: return '&#039;';
+            }
+        });
+    }
+
+    /** Para interpolar dentro de un atributo value="..." */
+    escapeAttr(v) {
+        return String(v ?? '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     }
 }

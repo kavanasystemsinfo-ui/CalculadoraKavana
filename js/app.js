@@ -1,8 +1,8 @@
-import { ThemeManager } from './theme.js?v=12';
-import { store } from './store.js?v=9';
-import { TemplatesUI } from './ui-templates.js?v=10';
-import { ProductionUI } from './ui-production.js?v=10';
-import { HistoryUI } from './ui-history.js?v=10';
+import { ThemeManager } from './theme.js?v=13';
+import { store } from './store.js?v=10';
+import { TemplatesUI } from './ui-templates.js?v=11';
+import { ProductionUI } from './ui-production.js?v=12';
+import { HistoryUI } from './ui-history.js?v=11';
 
 class App {
     constructor() {
@@ -23,7 +23,7 @@ class App {
 
         // Registrar Service Worker (PWA)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js?v=13')
+            navigator.serviceWorker.register('./sw.js?v=14')
                 .then(reg => console.log('[App] SW Registered', reg.scope))
                 .catch(err => console.warn('[App] SW Error', err));
         }

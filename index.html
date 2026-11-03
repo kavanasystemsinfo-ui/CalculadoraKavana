@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Calculadora Kavana | Herramientas de Producción</title>
 
     <!-- PWA & Metas -->
@@ -17,10 +17,10 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
     <!-- Estilos Core -->
-    <link rel="stylesheet" href="./css/styles.css?v=10">
+    <link rel="stylesheet" href="./css/styles.css?v=12">
 
     <!-- Script Anti-FOUC (Flash of Unstyled Content) -->
     <script>
@@ -38,7 +38,7 @@
             document.documentElement.setAttribute('data-theme', theme);
             document.documentElement.setAttribute('data-production-theme', theme);
             document.documentElement.setAttribute('data-layout', layout);
-            
+
             // Actualizar meta theme-color pre-carga
             document.querySelector('meta[name="theme-color"]').setAttribute('content', paletteColors[theme] || paletteColors.blue);
         })();
@@ -49,127 +49,178 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js" defer></script>
 
     <!-- Módulo Principal de la App -->
-    <script type="module" src="./js/app.js?v=13"></script>
+    <script type="module" src="./js/app.js?v=15"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <img src="HEADER.png" alt="Calculadora Kavana" style="height: 40px; margin-bottom: 4px;">
-            <span class="subtitle">Herramientas de Producción</span>
-        </header>
-
-        <!-- Navegación Principal -->
-        <nav class="tab-nav">
-            <button class="tab-btn active" data-target="tab-produccion">Producción</button>
-            <button class="tab-btn" data-target="tab-plantillas">Plantillas</button>
-            <button class="tab-btn" data-target="tab-historial">Historial</button>
-            <button class="tab-btn" data-target="tab-config">⚙️</button>
-        </nav>
-
-        <!-- Pestaña: Producción (Calculadora principal) -->
-        <div id="tab-produccion" class="tab-content active">
-            <h2 class="subtitle" style="margin-bottom: 16px;">Registro Diario</h2>
-            <div class="card" style="text-align: center; padding: 40px; color: var(--text-dim);">
-                <p>Por favor, selecciona o crea una plantilla primero.</p>
-            </div>
-        </div>
-
-        <!-- Pestaña: Plantillas (Gestor) -->
-        <div id="tab-plantillas" class="tab-content">
-            <h2 class="subtitle" style="margin-bottom: 16px;">Mis Plantillas</h2>
-            <button class="btn btn-primary" id="btn-nueva-plantilla">+ Nueva Plantilla</button>
-            <div id="lista-plantillas" style="margin-top: 16px;">
-                <!-- Lista inyectada por JS -->
-            </div>
-        </div>
-
-        <!-- Pestaña: Historial -->
-        <div id="tab-historial" class="tab-content">
-            <h2 class="subtitle" style="margin-bottom: 16px;">Historial de Sesiones</h2>
-            <div id="lista-historial">
-                <!-- Lista inyectada por JS -->
-            </div>
-        </div>
-
-        <!-- Pestaña: Configuración (Temas y Layouts) -->
-        <div id="tab-config" class="tab-content">
-            <h2 class="subtitle" style="margin-bottom: 16px;">Ajustes Visuales</h2>
-            
-            <div class="form-group">
-                <label for="theme-layout-select">Formato de Interfaz</label>
-                <select id="theme-layout-select">
-                    <option value="compact">Compacto (Móvil)</option>
-                    <option value="expanded">Expandido (Tablet / Panel)</option>
-                </select>
+    <div class="app-shell">
+        <!-- Barra lateral (tablet) / barra inferior (móvil) -->
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="HEADER.png" alt="Calculadora Kavana">
             </div>
 
-            <div class="form-group">
-                <label for="theme-production-select">Tema de Producción</label>
-                <select id="theme-production-select">
-                    <option value="blue">Azul (Profesional)</option>
-                    <option value="green">Verde (Natural)</option>
-                    <option value="orange">Naranja (Cálido)</option>
-                    <option value="purple">Púrpura (Creativo)</option>
-                    <option value="red">Rojo (Energético)</option>
-                    <option value="teal">Turquesa (Fresco)</option>
-                </select>
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-target="tab-produccion" type="button">
+                    <span class="ic">▤</span><span>Turno</span>
+                </button>
+                <button class="tab-btn" data-target="tab-plantillas" type="button">
+                    <span class="ic">◫</span><span>Mis líneas</span>
+                </button>
+                <button class="tab-btn" data-target="tab-historial" type="button">
+                    <span class="ic">◷</span><span>Mi historial</span>
+                </button>
+                <button class="tab-btn" data-target="tab-config" type="button">
+                    <span class="ic">⚙</span><span>Ajustes</span>
+                </button>
+            </nav>
+
+            <div class="side-foot">
+                <p><span class="dot"></span>Funciona sin conexión. Tus datos no salen de este dispositivo.</p>
             </div>
-            
-            <div style="margin-top: 32px;">
-                <h2 class="subtitle" style="margin-bottom: 16px; color: var(--danger);">Zona Peligrosa</h2>
-                <button class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger);" id="btn-clear-db">Borrar toda la base de datos</button>
-            </div>
-        </div>
+        </aside>
+
+        <main class="main">
+            <!-- Pestaña: Producción (calculadora del turno) -->
+            <section id="tab-produccion" class="tab-content active">
+                <div class="page-head">
+                    <div>
+                        <h1>Registro del turno</h1>
+                        <div class="meta">Elige una línea en <b>Mis líneas</b> para empezar a contar.</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="empty">
+                        Todavía no has elegido línea.<br>
+                        <b>Mis líneas</b> → toca el nombre de tu perfiladora.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pestaña: Plantillas (mis líneas) -->
+            <section id="tab-plantillas" class="tab-content">
+                <div class="page-head">
+                    <div>
+                        <h1>Mis líneas</h1>
+                        <div class="meta">Cada línea guarda su objetivo y sus modelos con sus medidas.</div>
+                    </div>
+                    <button class="btn btn-primary" id="btn-nueva-plantilla" style="width:auto; padding: 0 18px;">+ Nueva línea</button>
+                </div>
+                <div id="lista-plantillas"></div>
+            </section>
+
+            <!-- Pestaña: Historial -->
+            <section id="tab-historial" class="tab-content">
+                <div class="page-head">
+                    <div>
+                        <h1>Mi historial</h1>
+                        <div class="meta">Tu registro personal. Sirve para responder si te preguntan por un turno.</div>
+                    </div>
+                </div>
+                <div class="card" id="lista-historial"></div>
+            </section>
+
+            <!-- Pestaña: Ajustes -->
+            <section id="tab-config" class="tab-content">
+                <div class="page-head">
+                    <div>
+                        <h1>Ajustes</h1>
+                        <div class="meta">Cómo se ve la calculadora en este dispositivo.</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 14px;">
+                    <div class="card-h"><h2>Formato de interfaz</h2></div>
+                    <div class="card-body">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="theme-layout-select">Formato</label>
+                            <select id="theme-layout-select">
+                                <option value="compact">Compacto (móvil, una columna)</option>
+                                <option value="expanded">Expandido (tablet / panel)</option>
+                            </select>
+                            <p class="helper">El expandido reparte la pantalla en dos columnas y agranda los botones para usar con guantes.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 14px;">
+                    <div class="card-h"><h2>Tema de producción</h2></div>
+                    <div class="card-body">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="theme-production-select">Color</label>
+                            <select id="theme-production-select">
+                                <option value="blue">Azul (Profesional)</option>
+                                <option value="green">Verde (Natural)</option>
+                                <option value="orange">Naranja (Cálido)</option>
+                                <option value="purple">Púrpura (Creativo)</option>
+                                <option value="red">Rojo (Energético)</option>
+                                <option value="teal">Turquesa (Fresco)</option>
+                            </select>
+                            <p class="helper">También puedes tener un color por línea: se aplica al abrir su turno.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-h"><h2 style="color: var(--danger);">Zona peligrosa</h2></div>
+                    <div class="card-body">
+                        <p class="helper" style="margin: 0 0 12px;">Borra las líneas y todo el historial guardado en este dispositivo. No se puede deshacer.</p>
+                        <button class="btn btn-danger" id="btn-clear-db">Borrar todos los datos</button>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Modal: Nueva / Editar Plantilla -->
+    <!-- Modal: Nueva / Editar línea -->
     <div id="modal-plantilla" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h2 class="subtitle" style="margin-bottom: 16px;">Configuración de Plantilla</h2>
-            
-            <form id="form-plantilla">
-                <input type="hidden" id="tpl-id">
-                
-                <div class="form-group">
-                    <label>Nombre de la Línea/Plantilla</label>
-                    <input type="text" id="tpl-name" required placeholder="Ej: Inyección Plásticos A">
-                </div>
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-tpl-title">
+            <div class="modal-head">
+                <h2 id="modal-tpl-title">Configuración de la línea</h2>
+                <button type="button" class="btn-icon" id="btn-close-tpl" aria-label="Cerrar">✕</button>
+            </div>
 
-                <div class="form-group">
-                                    <label>
-                                        <input type="checkbox" id="tpl-enable-eff" checked>
-                                        Habilitar seguimiento de eficiencia
-                                    </label>
-                                    <p style="font-size:11px; color:var(--text-dim); margin-top:4px;">
-                                        Desmarca si solo quieres contar piezas sin calcular eficiencia
-                                    </p>
-                                </div>
-                
-                                <div id="eff-fields" style="display: none;">
-                                    <div class="form-group">
-                                        <label>Tipo de Eficiencia</label>
-                                        <select id="tpl-eff-type">
-                                            <option value="pieces_per_hour">Piezas / Hora</option>
-                                            <option value="meters_per_hour">Metros / Hora</option>
-                                        </select>
-                                    </div>
-                
-                                    <div class="form-group">
-                                        <label>Eficiencia Esperada (100%)</label>
-                                        <input type="number" id="tpl-eff-val" placeholder="Ej: 2500" min="1" step="any">
-                                    </div>
-                                </div>
+            <form id="form-plantilla" style="display: contents;">
+                <div class="modal-body">
+                    <input type="hidden" id="tpl-id">
 
-                <div class="section" style="margin-top: 24px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
-                    <span class="section-title">Modelos Fabricados</span>
-                    <p style="font-size:11px; color:var(--text-dim); margin-bottom:12px;">Cada modelo puede tener múltiples medidas (longitudes). Usa ➕ para añadir más.</p>
-                    <div id="modelos-container">
-                        <!-- Bloques de modelo inyectados por JS -->
+                    <div class="form-group">
+                        <label for="tpl-name">Nombre de la línea</label>
+                        <input type="text" id="tpl-name" required placeholder="Ej: Perfiladora 3">
                     </div>
-                    <button type="button" class="btn btn-secondary" id="btn-add-model" style="margin-top: 12px; font-size: 13px; min-height: 44px;">+ Añadir Modelo</button>
+
+                    <div class="form-group">
+                        <label style="text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--text-main); font-weight: 500;">
+                            <input type="checkbox" id="tpl-enable-eff" checked>
+                            Llevar eficiencia
+                        </label>
+                        <p class="helper">Desmárcalo si solo quieres contar piezas, sin calcular eficiencia.</p>
+                    </div>
+
+                    <div id="eff-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="tpl-eff-type">Se mide en</label>
+                            <select id="tpl-eff-type">
+                                <option value="pieces_per_hour">Piezas / hora</option>
+                                <option value="meters_per_hour">Metros / hora</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tpl-eff-val">Objetivo al 100%</label>
+                            <input type="number" id="tpl-eff-val" placeholder="Ej: 2400" min="1" step="any">
+                            <p class="helper">Lo que la línea puede hacer en una hora a pleno rendimiento.</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line);">
+                        <span class="section-title">Modelos que hace esta línea</span>
+                        <p class="helper" style="margin: 0 0 12px;">Cada modelo puede tener varias medidas (largos). Usa «Añadir medida» si el mismo perfil sale en distintos largos.</p>
+                        <div id="modelos-container"></div>
+                        <button type="button" class="btn btn-secondary" id="btn-add-model" style="margin-top: 4px;">+ Añadir modelo</button>
+                    </div>
                 </div>
 
-                <div style="display: flex; gap: 8px; margin-top: 32px;">
+                <div class="modal-foot">
                     <button type="button" class="btn btn-secondary" id="btn-cancel-tpl">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
