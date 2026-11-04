@@ -133,8 +133,8 @@ export class TemplatesUI {
                     <input type="number" class="model-package" placeholder="Pz/paq" value="${this.escapeAttr(model.piecesPerPackage || '')}" min="1">
                 </div>
                 <div class="subfield">
-                    <label>Pz/fila</label>
-                    <input type="number" class="model-row" placeholder="Pz/fila" value="${this.escapeAttr(model.piecesPerRow || '')}" min="1">
+                    <label>Paq/fila</label>
+                    <input type="number" class="model-row" placeholder="Paq/fila" value="${this.escapeAttr(model.piecesPerRow || '')}" min="1">
                 </div>
             </div>
             <div class="measure-legend">Medidas (largo en mm)</div>
@@ -200,7 +200,11 @@ export class TemplatesUI {
                     document.getElementById('tpl-theme').value = tpl.theme || 'blue';
                 }
 
-                tpl.models.forEach(m => this.addModelBlock(m));
+                tpl.models.forEach(m => {
+                    // Convertir piecesPerRow a paquetes/fila para la UI
+                    const m2 = {...m, piecesPerRow: m.piecesPerPackage ? Math.round(m.piecesPerRow / m.piecesPerPackage) : 0};
+                    this.addModelBlock(m2);
+                });
             }
         } else {
             document.getElementById('tpl-id').value = '';
@@ -238,12 +242,14 @@ export class TemplatesUI {
                 lengthMm: parseFloat(row.querySelector('.measure-length').value)
             })).filter(m => m.lengthMm > 0);
 
+            const piecesPerPackage = parseInt(block.querySelector('.model-package').value, 10) || 1;
+            const paquetesPorFila = parseInt(block.querySelector('.model-row').value, 10) || 0;
             return {
                 id: block.dataset.id,
                 name: block.querySelector('.model-name').value,
                 piecesPerPallet: parseInt(block.querySelector('.model-pallet').value, 10) || null,
-                piecesPerPackage: parseInt(block.querySelector('.model-package').value, 10) || null,
-                piecesPerRow: parseInt(block.querySelector('.model-row').value, 10) || null,
+                piecesPerPackage: piecesPerPackage,
+                piecesPerRow: paquetesPorFila * piecesPerPackage,
                 measures: measures
             };
         }).filter(m => m.name && m.measures.length > 0);
