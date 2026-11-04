@@ -9,7 +9,7 @@
  * Mientras esté vacío, la app funciona igual y el botón "Guardar en Drive"
  * aparece desactivado explicando que falta configurarlo.
  */
-export const GOOGLE_CLIENT_ID = '';
+export const GOOGLE_CLIENT_ID = '1058986405822-sdltg94ovivpjcrru8np72c38llrusvu.apps.googleusercontent.com';
 
 /** Permiso mínimo: solo los archivos que crea esta app. */
 export const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
