@@ -338,7 +338,7 @@ export class ProductionUI {
                     </div>
                     <div class="entry-meta">
                         <span><b data-entry-pieces>${this.fmt(pieces, 0)}</b> pz</span>
-                        <span><b data-entry-meters>${this.fmt(meters, 2)}</b> m</span>
+                        ${Calculator.usesMeters(store.getTemplate(this.activeTemplateId)) ? `<span><b data-entry-meters>${this.fmt(meters, 2)}</b> m</span>` : ''}
                         <span>${this.fmt(entry.piecesPerPallet, 0)} pz/palet · ${this.fmt(entry.piecesPerRow, 0)} pz/fila</span>
                     </div>
                 </div>
@@ -484,7 +484,7 @@ export class ProductionUI {
         if (subEl) {
             const target = Calculator.targetForShift(tpl, shiftHours);
             if (!enableEff) {
-                subEl.innerHTML = `Llevas <b>${this.fmt(totalPieces, 0)} pz</b> · ${this.fmt(totalMeters, 2)} m`;
+                subEl.innerHTML = `Llevas <b>${this.fmt(totalPieces, 0)} pz</b>`;
             } else if (entries.length === 0) {
                 subEl.innerHTML = `Aún no has contado nada · objetivo del turno <b>${this.fmt(target.totalProduced, 0)} ${target.unit}</b>`;
             } else {
@@ -604,6 +604,7 @@ export class ProductionUI {
         const session = {
             templateId: tpl.id,
             templateName: tpl.name,
+            enableEfficiency: tpl.enableEfficiency !== false,
             efficiencyType: tpl.efficiencyType,
             expectedEfficiency: tpl.expectedEfficiency,
             date: new Date().toISOString(),

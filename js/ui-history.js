@@ -1,4 +1,5 @@
 import { store } from './store.js';
+import { Calculator } from './calculator.js';
 import { Exporter } from './export.js';
 import { formatNumber } from './format.js';
 import { driveSync } from './drive.js';
@@ -40,6 +41,7 @@ export class HistoryUI {
             return;
         }
 
+        const templates = store.getTemplates();
         const rows = sessions.map(s => {
             const date = new Date(s.date);
             const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -47,20 +49,17 @@ export class HistoryUI {
             const eff = Number(s.efficiency);
             const level = !isFinite(eff) || eff === 0 ? 'low' : eff >= 100 ? 'good' : eff >= 80 ? 'mid' : 'low';
             const models = (s.entries || []).length;
+            const useM = Calculator.sessionUsesMeters(s, templates.find(t => t.id === s.templateId));
 
             return `
                 <div class="hist-row" data-id="${s.id}">
                     <div class="hist-main">
-                        <div class="h-title">${this.escapeHtml(s.templateName || 'Línea')}</div>
+                        <div class="h-title">${this.escapeHtml(s.templateName || 'Puesto')}</div>
                         <div class="h-date">${dateStr} · ${timeStr} · ${this.fmt(s.shiftHours, 1)} h · ${models} modelo${models === 1 ? '' : 's'}</div>
                     </div>
                     <div class="hist-num">
-                        <span>Piezas</span>
-                        <b>${this.fmt(s.totalPieces, 0)}</b>
-                    </div>
-                    <div class="hist-num">
-                        <span>Metros</span>
-                        <b>${this.fmt(s.totalMeters, 0)}</b>
+                        <span>${useM ? 'Metros' : 'Piezas'}</span>
+                        <b>${useM ? this.fmt(s.totalMeters, 0) : this.fmt(s.totalPieces, 0)}</b>
                     </div>
                     ${isFinite(eff) && eff > 0
                         ? `<span class="eff-badge ${level}">${this.fmt(eff, 1)}%</span>`
@@ -128,7 +127,7 @@ export class HistoryUI {
         if (line) line.textContent = 'Conectando con Google…';
 
         try {
-            const result = await driveSync.sync(store.getSessions());
+            const result = await driveSync.sync(store.getSessions(), store.getTemplates());
             button.textContent = 'Guardado ✓';
             if (line) {
                 const extra = result.appended === 0

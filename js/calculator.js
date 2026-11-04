@@ -41,6 +41,16 @@ export class Calculator {
      * @param {number} shiftHours Duración del turno en horas.
      * @returns {{totalProduced: number, unit: string}} Metros o piezas del turno.
      */
+    /** ¿Esta sesión se mide en metros? Si no trae el dato (turnos antiguos), se mira el puesto. */
+    static sessionUsesMeters(session, template) {
+        const hasOwn = session && session.efficiencyType;
+        return this.usesMeters(hasOwn ? session : template);
+    }
+
+    static usesMeters(source) {
+        return Boolean(source) && source.enableEfficiency !== false && source.efficiencyType === 'meters_per_hour';
+    }
+
     static targetForShift(template, shiftHours) {
         const expected = template?.expectedEfficiency;
         if (!expected || !shiftHours) return { totalProduced: 0, unit: 'pz' };

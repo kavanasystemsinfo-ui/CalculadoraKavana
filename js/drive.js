@@ -12,7 +12,7 @@
 
 import { GOOGLE_CLIENT_ID, GOOGLE_SCOPES } from './config.js';
 import {
-    sessionRow, entryRows, pendingSessions, chunkRows,
+    sessionRow, entryRows, pendingSessions, chunkRows, resolveSession, LAYOUT_VERSION,
     spreadsheetTitle, SHEET_TURNOS, SHEET_DETALLE, HEADERS_TURNOS, HEADERS_DETALLE
 } from './drive-model.js';
 
@@ -23,7 +23,8 @@ const KEYS = {
     spreadsheetId: 'driveSpreadsheetId',
     spreadsheetUrl: 'driveSpreadsheetUrl',
     syncedIds: 'driveSyncedSessionIds',
-    connectedAt: 'driveConnectedAt'
+    connectedAt: 'driveConnectedAt',
+    layout: 'driveLayoutVersion'
 };
 
 function readJson(key, fallback) {
@@ -189,7 +190,7 @@ export class DriveSync {
         const created = await this.api('', {
             method: 'POST',
             body: JSON.stringify({
-                properties: { title: spreadsheetTitle() },
+                properties: { title: spreadsheetTitle(), locale: 'es_ES', timeZone: 'Europe/Madrid' },
                 sheets: [
                     { properties: { title: SHEET_TURNOS } },
                     { properties: { title: SHEET_DETALLE } }
@@ -200,11 +201,42 @@ export class DriveSync {
         localStorage.setItem(KEYS.spreadsheetId, created.spreadsheetId);
         localStorage.setItem(KEYS.spreadsheetUrl, created.spreadsheetUrl || `https://docs.google.com/spreadsheets/d/${created.spreadsheetId}/edit`);
         localStorage.setItem(KEYS.connectedAt, new Date().toISOString());
+        localStorage.setItem(KEYS.layout, String(LAYOUT_VERSION));
+        localStorage.removeItem(KEYS.syncedIds);   // libro nuevo: todo el historial está pendiente
 
         await this.appendValues(SHEET_TURNOS, [HEADERS_TURNOS]);
         await this.appendValues(SHEET_DETALLE, [HEADERS_DETALLE]);
+        await this.formatSheets(created).catch(() => {});   // el formato es estético: si falla, los datos ya están
 
         return created.spreadsheetId;
+    }
+
+    /** Fecha como DD/MM/AA, cabecera en negrita y fila de títulos fija. */
+    async formatSheets(created) {
+        const requests = [];
+        (created.sheets || []).forEach(sheet => {
+            const sheetId = sheet.properties.sheetId;
+            requests.push(
+                { repeatCell: {
+                    range: { sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 1 },
+                    cell: { userEnteredFormat: { numberFormat: { type: 'DATE', pattern: 'dd/mm/yy' } } },
+                    fields: 'userEnteredFormat.numberFormat'
+                } },
+                { repeatCell: {
+                    range: { sheetId, startRowIndex: 0, endRowIndex: 1 },
+                    cell: { userEnteredFormat: { textFormat: { bold: true } } },
+                    fields: 'userEnteredFormat.textFormat.bold'
+                } },
+                { updateSheetProperties: {
+                    properties: { sheetId, gridProperties: { frozenRowCount: 1 } },
+                    fields: 'gridProperties.frozenRowCount'
+                } }
+            );
+        });
+        await this.api(`/${created.spreadsheetId}:batchUpdate`, {
+            method: 'POST',
+            body: JSON.stringify({ requests })
+        });
     }
 
     /** Comprueba que el libro guardado sigue existiendo y es accesible. */
@@ -220,11 +252,13 @@ export class DriveSync {
     }
 
     async ensureSpreadsheet() {
-        if (this.isConnected() && await this.spreadsheetExists()) {
+        const layoutOk = localStorage.getItem(KEYS.layout) === String(LAYOUT_VERSION);
+        if (this.isConnected() && layoutOk && await this.spreadsheetExists()) {
             return localStorage.getItem(KEYS.spreadsheetId);
         }
 
-        // Libre borrado o cuenta distinta: se empieza de cero sin perder el historial local.
+        // Libro borrado, cuenta distinta o formato antiguo: se crea uno nuevo y se sube todo el historial local.
+        // Un libro antiguo no se toca: se queda en el Drive del usuario.
         localStorage.removeItem(KEYS.spreadsheetId);
         localStorage.removeItem(KEYS.spreadsheetUrl);
         return this.createSpreadsheet();
@@ -255,9 +289,10 @@ export class DriveSync {
     /**
      * Sube los turnos que aún no están en la hoja.
      * @param {Array} sessions Historias completas del dispositivo.
+     * @param {Array} templates Puestos configurados (para completar turnos antiguos).
      * @returns {Promise<{appended:number, total:number, url:string, spreadsheetId:string}>}
      */
-    async sync(sessions) {
+    async sync(sessions, templates = []) {
         if (!this.isConfigured()) {
             throw new Error('Falta configurar el ID de cliente de Google (ver docs/drive-setup.md).');
         }
@@ -267,8 +302,9 @@ export class DriveSync {
 
         const pending = pendingSessions(sessions, this.syncedIds());
         if (pending.length > 0) {
-            await this.appendValues(SHEET_TURNOS, pending.map(sessionRow));
-            await this.appendValues(SHEET_DETALLE, pending.flatMap(entryRows));
+            const full = pending.map(s => resolveSession(s, templates));
+            await this.appendValues(SHEET_TURNOS, full.map(sessionRow));
+            await this.appendValues(SHEET_DETALLE, full.flatMap(entryRows));
 
             const synced = new Set(this.syncedIds());
             pending.forEach(s => synced.add(s.id));
@@ -290,6 +326,7 @@ export class DriveSync {
         localStorage.removeItem(KEYS.spreadsheetUrl);
         localStorage.removeItem(KEYS.syncedIds);
         localStorage.removeItem(KEYS.connectedAt);
+        localStorage.removeItem(KEYS.layout);
     }
 }
 

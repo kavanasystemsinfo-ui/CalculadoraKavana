@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-calc-v21';
+const CACHE_NAME = 'prod-calc-v22';
 const ASSETS = [
     './',
     './index.html',
@@ -11,14 +11,14 @@ const ASSETS = [
     './icons/favicon-48.png',
     './css/styles.css?v=13',
     './js/app.js?v=16',
-    './js/store.js?v=10',
+    './js/store.js?v=11',
     './js/theme.js?v=13',
     './js/calculator.js',
     './js/export.js',
     './js/format.js',
     './js/ui-templates.js?v=11',
-    './js/ui-production.js?v=12',
-    './js/ui-history.js?v=12',
+    './js/ui-production.js?v=13',
+    './js/ui-history.js?v=13',
     './js/ui-drive.js?v=1',
     './js/config.js',
     './js/drive.js',
