@@ -231,7 +231,7 @@ CalculadoraKavana/
 │   ├── app.js                  # Orquestador principal (App, Tabs, SW)
 │   ├── calculator.js           # Motor de cálculos (TDD-ready, puro)
 │   ├── format.js               # Formato numérico español (12.415 · 43,5)
-│   ├── export.js               # Módulo de exportación Excel/JSON
+│   ├── export.js               # Módulo de exportación Excel/JSON (SheetJS local)
 │   ├── store.js                # Capa de abstracción localStorage
 │   ├── theme.js                # Gestor de temas globales y de producción
 │   ├── ui-production.js        # Pantalla del turno (recuento + eficiencia en vivo)

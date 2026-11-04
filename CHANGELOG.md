@@ -26,6 +26,8 @@ El versionado sigue [Semantic Versioning](https://semver.org/).
 ### Changed
 - En el historial, "Exportar a Excel" pasa a **"Guardar en Drive"** como acción
   principal y "Descargar Excel" queda como respaldo.
+- **SheetJS se empaqueta en `vendor/`** y entra en el precaché del service worker:
+  el Excel funciona sin conexión. Ya no depende del CDN.
 
 ---
 

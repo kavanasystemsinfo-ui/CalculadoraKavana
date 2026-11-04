@@ -350,6 +350,11 @@ Mantener el coste de operación en ~0 €/mes mientras el único usuario real se
 | Límites de uso | Contador por IP en memoria (15/día), se pierde al reiniciar | `backend/app/assistant.py` | Cuotas por cuenta en Redis/base de datos y panel de uso |
 | Observabilidad | Sin telemetría ni error tracking | `docs/roadmap.md` (Sentry, Lighthouse CI: pendientes) | Trazas, errores y rendimiento monitorizados |
 | Assets externos | SheetJS e Inter por CDN, fuera del precaché de `sw.js` | `index.html`, `sw.js`, riesgo asumido en `docs/roadmap.md` | Assets servidos desde el propio dominio |
+
+> **UPDATE (2026-11-03):** SheetJS deja de venir del CDN. Se empaqueta en
+> `vendor/xlsx.full.min.js` y entra en el precaché del service worker, porque la
+> app promete funcionar sin conexión y la exportación a Excel fallaba offline
+> (ADR-012). La fuente Inter sigue por CDN, con *fallback* del sistema.
 | Calidad de UI | Tests de UI manuales; CI que ignora `docs/**` y `**.md` | `.github/workflows/ci.yml`, TD-004 | Tests de UI automatizados y gate de CI bloqueante |
 
 ### Alternativas evaluadas

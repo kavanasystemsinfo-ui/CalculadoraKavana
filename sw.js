@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-calc-v19';
+const CACHE_NAME = 'prod-calc-v20';
 const ASSETS = [
     './',
     './index.html',
@@ -18,7 +18,8 @@ const ASSETS = [
     './js/config.js',
     './js/drive.js',
     './js/drive-model.js',
-    './js/sheet-utils.js'
+    './js/sheet-utils.js',
+    './vendor/xlsx.full.min.js?v=1'
 ];
 
 self.addEventListener('install', event => {
