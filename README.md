@@ -33,7 +33,8 @@
 - **Cálculo en vivo**: La eficiencia se recalcula con cada palet, fila o paquete, sin botones intermedios
 - **Te falta para el 100%**: El objetivo del turno traducido a palets, filas y paquetes que aún hay que contar
 - **Temas Visuales**: 6 paletas de colores para identificación rápida de líneas
-- **Exportación Excel**: Generación de archivos .xlsx con SheetJS para uso personal del operario
+- **Guardar en Drive**: El historial se vuelca en una hoja de Google Sheets del propio usuario y se actualiza con cada turno (permiso `drive.file`, sin servidores)
+- **Exportación Excel**: Descarga .xlsx con SheetJS como respaldo offline
 - **Backup JSON**: Respaldo e importación completa de datos
 - **PWA Instalable**: Se puede instalar en dispositivos como aplicación nativa
 
@@ -237,7 +238,7 @@ CalculadoraKavana/
 │   ├── ui-templates.js         # Gestión de líneas (CRUD)
 │   └── ui-history.js           # Historial personal del operario
 ├── docs/
-│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records (11)
+│   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records (12)
 │   ├── deployment-guide.md     # Guía de despliegue
 │   ├── developer-guide.md      # Guía para desarrolladores
 │   ├── technical-architecture.md   # Documentación técnica completa
@@ -248,6 +249,8 @@ CalculadoraKavana/
 │   ├── engine.test.js          # Motor de cálculos
 │   ├── remaining.test.js       # Objetivo del turno y "te falta" (módulo real)
 │   ├── format.test.js          # Formato numérico español
+│   ├── drive-model.test.js     # Filas de la hoja y pendientes de subir
+│   ├── sheet-utils.test.js     # Nombres de hoja (fallo del Excel)
 │   ├── storage.test.js         # Almacenamiento
 │   └── theme.test.js           # Temas y formatos
 ├── index.html                  # SPA root (entry point)

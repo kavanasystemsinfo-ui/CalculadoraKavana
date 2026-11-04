@@ -6,6 +6,29 @@ El versionado sigue [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.0] - 2026-11-03
+
+### Added
+- **Guardar en Drive**: conexión con Google (Identity Services + Sheets API v4) y
+  volcado incremental del historial en una hoja del Drive del usuario, con hojas
+  **Turnos** y **Detalle** (ADR-012).
+- **`js/config.js`** para el Client ID público y **`js/drive-model.js`** con la
+  lógica pura de filas y pendientes, con tests.
+- Tarjeta **Google Drive** en Ajustes: conectar, desconectar y abrir la hoja.
+- `docs/drive-setup.md` con los pasos para crear el Client ID.
+
+### Fixed
+- **La exportación a Excel no funcionaba**: el nombre de hoja incluía la fecha con
+  barras y SheetJS lanzaba `Sheet name cannot contain : \ / ? * [ ]` antes de
+  escribir el archivo. Ahora los nombres se sanean y se hacen únicos.
+- El historial no se refrescaba al entrar en la pestaña; solo al guardar un turno.
+
+### Changed
+- En el historial, "Exportar a Excel" pasa a **"Guardar en Drive"** como acción
+  principal y "Descargar Excel" queda como respaldo.
+
+---
+
 ## [3.0.0] - 2026-11-03
 
 ### Added

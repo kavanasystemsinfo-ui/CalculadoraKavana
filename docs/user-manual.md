@@ -102,7 +102,11 @@ las piezas y metros producidos. Si no has contado nada, el botón está desactiv
 
 En **Mi historial** ves tus turnos, con la eficiencia de cada uno. Desde ahí:
 
-- **Exportar a Excel**: un `.xlsx` con el detalle, por si lo necesitas.
+- **Guardar en Drive**: vuelca en tu hoja de Google Sheets los turnos que aún no
+  estaban. La primera vez hay que conectar Drive en **Ajustes → Google Drive**.
+  Cada pulsación añade solo lo nuevo, no duplica.
+- **Descargar Excel**: un `.xlsx` con el detalle, para cuando no tengas conexión
+  o quieras el archivo suelto.
 - **Copia de seguridad (JSON)**: guarda todos tus datos en un archivo.
 - **Importar copia**: los recupera en este u otro dispositivo.
 - **✕** en una fila: borra ese turno (no se puede deshacer).

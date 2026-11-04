@@ -1,7 +1,7 @@
 # Registro de Decisiones Arquitectónicas (ADR)
 
 > **Proyecto:** Calculadora Kavana  
-> **Versión:** 3.0.0  
+> **Versión:** 3.1.0  
 > **Última Actualización:** 2026-11-03  
 > **Formato:** Basado en [Michael Nygard's ADR](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)
 
@@ -22,6 +22,7 @@
 | ADR-009 | Botón Meta 100% con Desglose Greedy | ✅ Aceptada | 2026-07-05 |
 | ADR-010 | Coste cero y decisiones tomadas por presupuesto | ✅ Aceptada | 2026-09-17 |
 | ADR-011 | Rediseño de la interfaz como herramienta de operario | ✅ Aceptada | 2026-11-03 |
+| ADR-012 | Guardar el historial en Google Drive | ✅ Aceptada (pendiente Client ID) | 2026-11-03 |
 
 ---
 
@@ -440,6 +441,56 @@ antes el parte de papel; el histórico y el Excel son para él, no para reportin
 
 Un segundo usuario real (por ejemplo un supervisor que quiera ver varias líneas a
 la vez) o una petición de datos que hoy no esté en la pantalla del turno.
+
+---
+
+## ADR-012: Guardar el historial en Google Drive
+
+**Fecha:** 3 de Noviembre de 2026
+**Estado:** Aceptada — implementada; pendiente el Client ID para uso real
+**Decidido por:** Jorge (KAVANA)
+
+### Contexto
+
+La exportación a Excel estaba rota: el nombre de hoja se montaba como
+`03/11/2026 - Perfiladora 3` y SheetJS lanza `Sheet name cannot contain : \ / ? * [ ]`
+antes de escribir el fichero. Además, un `.xlsx` descargado en el móvil es un
+archivo suelto que no se actualiza. Jorge pide vincular el Drive del usuario y
+generar una hoja que se vaya actualizando.
+
+### Decisión
+
+1. Sanear el nombre de hoja (`js/sheet-utils.js`, con tests) y dejar el Excel como
+   respaldo secundario.
+2. Google Drive sin backend: Google Identity Services (token en memoria) + Sheets
+   API v4, con el permiso mínimo `drive.file` (solo archivos creados por la app).
+3. Un libro por usuario con dos hojas: **Turnos** (una fila por turno) y **Detalle**
+   (una fila por modelo).
+4. Sincronización incremental: se guardan en `localStorage` el ID del libro y los
+   IDs de sesiones ya subidas; pulsar dos veces no duplica.
+5. Client ID en `js/config.js` (público). Sin él, el botón aparece desactivado
+   explicando el motivo y la app sigue funcionando.
+
+### Alternativas descartadas
+
+- Solo descarga `.xlsx`: archivo huérfano que no se actualiza.
+- CSV para importar a mano en Sheets: pasos manuales en cada uso.
+- Backend con refresh token: rompe el coste cero (ADR-010).
+- Permiso `drive` completo: acceso innecesario a todo el Drive.
+
+### Consecuencias
+
+- **Positivas:** el historial vive en una hoja que se actualiza, sin servidores ni
+  coste; permiso mínimo publicable sin revisión de Google; el Excel vuelve a
+  funcionar como respaldo offline.
+- **Negativas:** hace falta crear el Client ID en Google Cloud; en un dispositivo
+  nuevo hay que reconectar; sin tests de la capa de red real; el token no
+  sobrevive a recargas.
+
+### Señal de revisión
+
+Necesidad de compartir la hoja con otra persona, sincronización sin conexión
+(exigiría backend) o cambios de Google en `drive.file`.
 
 ---
 
