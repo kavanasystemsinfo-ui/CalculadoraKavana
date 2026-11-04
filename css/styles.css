@@ -1276,6 +1276,38 @@ input[type="checkbox"] {
     font-size: 12px;
 }
 
+/* Estado de la conexión (Google Drive) */
+.badge-on,
+.badge-off {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 99px;
+}
+
+.badge-on {
+    color: var(--success);
+    background: rgba(52, 211, 153, 0.12);
+}
+
+.badge-off {
+    color: var(--text-dim);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+}
+
+code {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    background: var(--input-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+
 /* ===== 12. Bloques de modelo (modal de plantilla) ====================== */
 .model-block {
     background: var(--panel-2);

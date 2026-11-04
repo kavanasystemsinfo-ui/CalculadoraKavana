@@ -2,7 +2,8 @@ import { ThemeManager } from './theme.js?v=13';
 import { store } from './store.js?v=10';
 import { TemplatesUI } from './ui-templates.js?v=11';
 import { ProductionUI } from './ui-production.js?v=12';
-import { HistoryUI } from './ui-history.js?v=11';
+import { HistoryUI } from './ui-history.js?v=12';
+import { DriveUI } from './ui-drive.js?v=1';
 
 class App {
     constructor() {
@@ -10,6 +11,7 @@ class App {
         this.templatesUI = null;
         this.productionUI = null;
         this.historyUI = null;
+        this.driveUI = null;
         this.init();
     }
 
@@ -20,6 +22,7 @@ class App {
         this.templatesUI = new TemplatesUI();
         this.productionUI = new ProductionUI();
         this.historyUI = new HistoryUI();
+        this.driveUI = new DriveUI();
 
         // Registrar Service Worker (PWA)
         if ('serviceWorker' in navigator) {
@@ -90,6 +93,10 @@ class App {
         
         const targetContent = document.getElementById(targetId);
         if (targetContent) targetContent.classList.add('active');
+
+        // Aviso a las pantallas que se pintan al entrar (historial, ajustes).
+        // Nombre distinto de 'switch-tab' para no provocar un bucle con este mismo método.
+        window.dispatchEvent(new CustomEvent('tab-activated', { detail: { tab: targetId } }));
     }
 }
 

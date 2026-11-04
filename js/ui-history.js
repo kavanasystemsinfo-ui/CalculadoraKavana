@@ -1,6 +1,7 @@
 import { store } from './store.js';
 import { Exporter } from './export.js';
 import { formatNumber } from './format.js';
+import { driveSync } from './drive.js';
 
 export class HistoryUI {
     constructor() {
@@ -12,11 +13,12 @@ export class HistoryUI {
         if (!this.container) return;
 
         // Re-renderizar cuando cambiamos a la pestaña de historial
-        window.addEventListener('switch-tab', (e) => {
-            if (e.detail.tab === 'tab-historial') {
-                this.render();
-            }
-        });
+        const refresh = (e) => {
+            if (e?.detail?.tab === 'tab-historial') this.render();
+        };
+        window.addEventListener('switch-tab', refresh);
+        window.addEventListener('tab-activated', refresh);
+        window.addEventListener('drive-changed', () => this.render());
 
         this.render();
     }
@@ -71,11 +73,16 @@ export class HistoryUI {
         this.container.innerHTML = `
             ${rows}
             <div class="hist-foot">
-                <button class="btn btn-secondary" id="btn-export-all-xlsx">Exportar a Excel</button>
+                <button class="btn btn-primary" id="btn-sync-drive">Guardar en Drive</button>
+                <button class="btn btn-secondary" id="btn-export-all-xlsx">Descargar Excel</button>
                 <button class="btn btn-secondary" id="btn-export-all">Copia de seguridad (JSON)</button>
                 <button class="btn btn-secondary" id="btn-import-json">Importar copia</button>
             </div>
+            <p class="helper" id="drive-line" style="padding: 0 16px 14px; margin: 0;"></p>
         `;
+
+        this.renderDriveLine();
+        this.container.querySelector('#btn-sync-drive')?.addEventListener('click', (e) => this.syncToDrive(e.currentTarget));
 
         this.container.querySelector('#btn-export-all-xlsx')?.addEventListener('click', () => this.exportAllToExcel());
         this.container.querySelectorAll('.btn-delete-session').forEach(btn => {
@@ -84,6 +91,58 @@ export class HistoryUI {
 
         this.container.querySelector('#btn-export-all')?.addEventListener('click', () => this.exportFullBackup());
         this.container.querySelector('#btn-import-json')?.addEventListener('click', () => this.importBackup());
+    }
+
+    /** Texto de estado de Drive bajo los botones. */
+    renderDriveLine() {
+        const el = this.container.querySelector('#drive-line');
+        if (!el) return;
+
+        const sessions = store.getSessions();
+
+        if (!driveSync.isConfigured()) {
+            el.innerHTML = 'Drive sin configurar todavía: puedes descargar el Excel.';
+            const btn = this.container.querySelector('#btn-sync-drive');
+            if (btn) { btn.disabled = true; btn.title = 'Falta el ID de cliente de Google (docs/drive-setup.md)'; }
+            return;
+        }
+
+        if (!driveSync.isConnected()) {
+            el.innerHTML = 'Conecta tu Drive en <b>Ajustes</b> para mantener una hoja actualizada.';
+            return;
+        }
+
+        const pending = driveSync.pendingCount(sessions);
+        const url = driveSync.spreadsheetUrl();
+        el.innerHTML = pending === 0
+            ? `La hoja está al día. <a href="${url}" target="_blank" rel="noopener">Abrir en Drive</a>`
+            : `${pending} turno${pending === 1 ? '' : 's'} sin subir. <a href="${url}" target="_blank" rel="noopener">Abrir en Drive</a>`;
+    }
+
+    /** Sube a la hoja los turnos que aún no estaban. */
+    async syncToDrive(button) {
+        const line = this.container.querySelector('#drive-line');
+        const original = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Guardando…';
+        if (line) line.textContent = 'Conectando con Google…';
+
+        try {
+            const result = await driveSync.sync(store.getSessions());
+            button.textContent = 'Guardado ✓';
+            if (line) {
+                const extra = result.appended === 0
+                    ? 'La hoja ya estaba al día.'
+                    : `${result.appended} turno${result.appended === 1 ? '' : 's'} añadido${result.appended === 1 ? '' : 's'} a la hoja.`;
+                line.innerHTML = `${extra} <a href="${result.url}" target="_blank" rel="noopener">Abrir en Drive</a>`;
+            }
+        } catch (error) {
+            button.textContent = original;
+            if (line) line.textContent = error.message;
+        } finally {
+            button.disabled = false;
+            setTimeout(() => { button.textContent = original; }, 1800);
+        }
     }
 
     exportAllToExcel() {

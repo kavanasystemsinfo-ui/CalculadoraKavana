@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
     <!-- Estilos Core -->
-    <link rel="stylesheet" href="./css/styles.css?v=12">
+    <link rel="stylesheet" href="./css/styles.css?v=13">
 
     <!-- Script Anti-FOUC (Flash of Unstyled Content) -->
     <script>
@@ -49,7 +49,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js" defer></script>
 
     <!-- Módulo Principal de la App -->
-    <script type="module" src="./js/app.js?v=15"></script>
+    <script type="module" src="./js/app.js?v=16"></script>
 </head>
 <body>
     <div class="app-shell">
@@ -157,6 +157,21 @@
                             </select>
                             <p class="helper">También puedes tener un color por línea: se aplica al abrir su turno.</p>
                         </div>
+                    </div>
+                </div>
+
+                <div class="card" id="card-drive" style="margin-bottom: 14px;">
+                    <div class="card-h">
+                        <h2>Google Drive</h2>
+                        <span id="drive-status"><span class="badge-off">Sin conectar</span></span>
+                    </div>
+                    <div class="card-body">
+                        <p class="helper" style="margin: 0 0 12px;">
+                            Guarda el historial en una hoja de cálculo de tu Drive y actualízala cuando quieras.
+                            La hoja es tuya: solo esta app puede verla.
+                        </p>
+                        <div id="drive-actions" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+                        <p class="helper" id="drive-hint" style="margin-top: 10px;"></p>
                     </div>
                 </div>
 
