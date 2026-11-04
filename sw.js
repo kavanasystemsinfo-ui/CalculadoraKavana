@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-calc-v24';
+const CACHE_NAME = 'prod-calc-v25';
 const ASSETS = [
     './',
     './index.html',
@@ -19,7 +19,7 @@ const ASSETS = [
     './js/ui-templates.js?v=12',
     './js/ui-production.js?v=14',
     './js/ui-history.js?v=14',
-    './js/ui-drive.js?v=1',
+    './js/ui-drive.js?v=2',
     './js/config.js',
     './js/drive.js',
     './js/drive-model.js',

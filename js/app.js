@@ -4,7 +4,7 @@ import { TemplatesUI } from './ui-templates.js?v=12';
 import { ProductionUI } from './ui-production.js?v=14';
 import { HistoryUI } from './ui-history.js?v=14';
 import { SEED_TEMPLATES, SEED_SESSIONS } from './seed-data.js';
-import { DriveUI } from './ui-drive.js?v=1';
+import { DriveUI } from './ui-drive.js?v=2';
 
 class App {
     constructor() {
