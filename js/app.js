@@ -19,11 +19,9 @@ class App {
     async init() {
         this.setupTabs();
 
-        // Inicializar controladores de UI que dependan del DOM cargado
-        this.templatesUI = new TemplatesUI();
-        this.productionUI = new ProductionUI();
-        this.historyUI = new HistoryUI();
-        this.driveUI = new DriveUI();
+        // Sembrar datos de ejemplo ANTES de crear los componentes UI
+        // para que lean los datos ya sembrados
+        this.seedIfEmpty();
 
         // Registrar Service Worker (PWA)
         if ('serviceWorker' in navigator) {
@@ -43,8 +41,11 @@ class App {
             });
         }
 
-        // Sembrar datos de ejemplo si está vacío
-        this.seedIfEmpty();
+        // Inicializar controladores de UI que dependan del DOM cargado
+        this.templatesUI = new TemplatesUI();
+        this.productionUI = new ProductionUI();
+        this.historyUI = new HistoryUI();
+        this.driveUI = new DriveUI();
 
         // Carga inicial de datos para verificar que localStorage funciona
         try {
