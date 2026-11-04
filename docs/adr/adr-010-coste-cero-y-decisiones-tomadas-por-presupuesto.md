@@ -31,8 +31,8 @@ Mantener el coste de operación en ~0 €/mes mientras el único usuario real se
 | Partida | Hoy, y por qué | Evidencia en el repo | Con usuarios reales |
 |---------|----------------|----------------------|---------------------|
 | Hosting | GitHub Pages estático con dominio propio: 0 € y cero mantenimiento | `CNAME`, `docs/deployment-guide.md` | Hosting con SLA y entornos separados de staging/producción |
-| Persistencia | `localStorage` síncrono, sin dependencias; techo ~5-10 MB y datos en un solo dispositivo | `js/store.js`, ADR-008, TD-003 | Base de datos compartida con sincronización cloud y copias automáticas |
-| Identidad | Sin autenticación: la identidad es el navegador | `js/app.js`, ausencia de módulo de auth | Login, roles operario/supervisor y aislamiento por planta |
+| Persistencia | `localStorage` síncrono, sin dependencias; techo ~5-10 MB y datos en un solo dispositivo | `js/store.js`, ADR-008, TD-003 | Sin cambios: es una herramienta personal; la copia propia en Drive ya existe (ADR-012, ADR-013) |
+| Identidad | Sin autenticación: la identidad es el navegador | `js/app.js`, ausencia de módulo de auth | Sin cambios: una herramienta personal no tiene usuarios que gestionar (ADR-013) |
 | Backup | Export/import JSON manual: el usuario es su propio backup | `js/export.js`, registro de riesgos de `docs/roadmap.md` | Copias automáticas y restauración verificada |
 | Servidor | Un único backend, dimensionado al mínimo, que se para cuando no se usa | `fly.toml`, `backend/fly.toml`, `backend/Dockerfile` | Dimensionado por carga medida, con métricas y alertas |
 | LLM | Modelo free-tier de OpenRouter, el mismo para los dos alias de entorno | `backend/app/assistant.py` | Modelo de pago con SLA y presupuesto de tokens |
@@ -46,7 +46,7 @@ Mantener el coste de operación en ~0 €/mes mientras el único usuario real se
 
 | Alternativa | Estado | Motivo |
 |-------------|--------|--------|
-| Supabase / Postgres gestionado para sincronizar datos | No implementada (prioridad alta en el roadmap) | Exige plan de pago y login; con un solo usuario no hay nada que compartir |
+| Supabase / Postgres gestionado para sincronizar datos | Descartada (ADR-013) | Contradice el uso personal: los datos no viajan a la oficina; con un solo usuario no hay nada que compartir |
 | Servidor propio (Nginx/Apache) sirviendo el estático | Documentada en `docs/deployment-guide.md`, no usada | GitHub Pages sirve lo mismo sin coste ni mantenimiento |
 | Autenticación con cuentas de usuario | No existe | Sin segundo usuario no hay datos que proteger de terceros |
 | Modelo LLM de pago con SLA | No usado | El free-tier cubre el tráfico real del asistente (uso esporádico de un visitante) |
@@ -73,11 +73,11 @@ Mantener el coste de operación en ~0 €/mes mientras el único usuario real se
 
 Este ADR se revisa cuando ocurra alguno de estos hechos, no por fecha:
 
-1. Aparece un **segundo usuario real** (otra persona con sus propios datos) o alguien necesita ver los mismos datos desde dos dispositivos.
+1. Alguien necesita ver los mismos datos desde dos dispositivos (por ejemplo, el operario con móvil y tablet distintos).
 2. Los datos se acercan al límite de `localStorage` o el export manual deja de ser una copia de seguridad suficiente.
-3. Se pide trazabilidad o permisos diferenciados (operario vs supervisor) o un informe que hoy no se pueda producir.
+3. Se pide que los datos lleguen a otra persona (oficina o supervisor): sería otro producto, no una evolución de esta herramienta (ADR-013).
 4. El asistente supera el límite de 15 preguntas/día por IP o el free tier empieza a rechazar peticiones.
-5. Entra un cliente o presupuesto: entonces se reevalúan hosting, persistencia e identidad en ese orden, por ser las partidas que bloquean el uso multiusuario.
+5. Entra presupuesto para otro tipo de uso: se evalúa como proyecto nuevo (hosting, persistencia e identidad en ese orden), no como cambio de esta calculadora.
 
 ---
 

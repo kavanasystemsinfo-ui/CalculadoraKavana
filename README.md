@@ -1,6 +1,6 @@
 # Calculadora Kavana
 
-### Herramienta de Cálculo de Eficiencia para Producción Industrial
+### La ayuda personal del operario para rellenar el parte de producción
 
 <p align="center">
   <img src="ICON.png" width="120" alt="Calculadora Kavana Logo">
@@ -13,9 +13,33 @@
 
 ---
 
-## Resumen Ejecutivo
+## Qué es y qué no es
 
-**Calculadora Kavana** es una aplicación web progresiva (PWA) diseñada para el cálculo de eficiencia en líneas de producción industrial. La calculadora es **client-side pura**: todo el cálculo ocurre en el navegador y funciona 100% offline en dispositivos móviles, tablets industriales y terminales de planta. Tiene además un **asistente técnico opcional con backend propio** (FastAPI, en `backend/`), del que la aplicación no depende para funcionar.
+**Calculadora Kavana** es una herramienta de **uso personal para el operario**. Sirve para no hacer cuentas de cabeza o con la calculadora mientras apunta la producción en el parte de papel, que sigue siendo el método de registro de muchas empresas: el operario cuenta palets, filas y paquetes y la app le da al momento la eficiencia y lo que le falta para el 100 %.
+
+- **No sustituye al parte en papel** ni envía datos a la empresa.
+- **El Excel y la hoja de Drive son para su control propio:** llevar un registro de su producción y tenerlo a mano si le preguntan por un turno concreto.
+- **No hay panel de supervisor, cuentas ni sincronización entre personas** (ADR-013).
+
+## La app en un turno
+
+Capturas de la app publicada con una línea de ejemplo (datos inventados): una perfiladora que mide en metros, con dos modelos de perfil.
+
+<p align="center">
+  <img src="docs/capturas/1-puesto.webp" width="23%" alt="El operario configura su línea: unidad de medida, objetivo por hora y modelos">
+  <img src="docs/capturas/2-turno.webp" width="23%" alt="Producción del turno en palets, filas y paquetes, con la eficiencia en vivo">
+  <img src="docs/capturas/3-te-falta.webp" width="23%" alt="Lo que falta para el 100 % del turno, en palets, filas y paquetes">
+  <img src="docs/capturas/4-historial.webp" width="23%" alt="Historial personal de turnos, con guardado en Drive y Excel propios">
+</p>
+
+1. El operario configura su línea una sola vez.
+2. Durante el turno apunta lo que lleva y ve la eficiencia al momento.
+3. «Te falta para el 100 %» le dice lo que queda por contar.
+4. Su historial queda en su dispositivo y, si quiere, en su propio Excel o Drive.
+
+## Resumen técnico
+
+Es una aplicación web progresiva (PWA) para el cálculo de eficiencia en líneas de producción. La calculadora es **client-side pura**: todo el cálculo ocurre en el navegador y funciona 100% offline en dispositivos móviles, tablets industriales y terminales de planta. Tiene además un **asistente técnico opcional con backend propio** (FastAPI, en `backend/`), del que la aplicación no depende para funcionar.
 
 ### Propuesta de Valor
 
@@ -33,8 +57,8 @@
 - **Cálculo en vivo**: La eficiencia se recalcula con cada palet, fila o paquete, sin botones intermedios
 - **Te falta para el 100%**: El objetivo del turno traducido a palets, filas y paquetes que aún hay que contar
 - **Temas Visuales**: 6 paletas de colores para identificación rápida de líneas
-- **Guardar en Drive**: El historial se vuelca en una hoja de Google Sheets del propio usuario y se actualiza con cada turno (permiso `drive.file`, sin servidores)
-- **Exportación Excel**: Descarga .xlsx con SheetJS como respaldo offline
+- **Guardar en Drive**: El historial se vuelca en una hoja de Google Sheets del propio operario y se actualiza con cada turno (permiso `drive.file`, sin servidores). Es para su control personal: la app no envía nada a la empresa
+- **Exportación Excel**: Descarga .xlsx con SheetJS como respaldo y control personal del operario
 - **Backup JSON**: Respaldo e importación completa de datos
 - **PWA Instalable**: Se puede instalar en dispositivos como aplicación nativa
 
@@ -236,7 +260,13 @@ CalculadoraKavana/
 │   ├── theme.js                # Gestor de temas globales y de producción
 │   ├── ui-production.js        # Pantalla del turno (recuento + eficiencia en vivo)
 │   ├── ui-templates.js         # Gestión de líneas (CRUD)
-│   └── ui-history.js           # Historial personal del operario
+│   ├── ui-history.js           # Historial personal del operario
+│   ├── ui-drive.js             # Tarjeta de Google Drive en Ajustes
+│   ├── drive.js                # OAuth y Hojas de cálculo (sin servidor)
+│   ├── drive-model.js          # Filas de la hoja (lógica pura)
+│   ├── sheet-utils.js          # Nombres de hoja del Excel
+│   ├── config.js               # Client ID de Google (público)
+│   └── seed-data.js            # Datos de ejemplo del primer arranque
 ├── docs/
 │   ├── DECISIONES_ESTRATEGICAS.md  # Architecture Decision Records (12)
 │   ├── deployment-guide.md     # Guía de despliegue
@@ -267,13 +297,13 @@ CalculadoraKavana/
 Este repositorio es una pieza de portafolio con **un solo usuario real: su autor**, y se ha construido con la restricción explícita de costar ~0 €/mes. Las decisiones de infraestructura que vienen a continuación son decisiones de presupuesto, no de escala: funcionan porque el único usuario, el único dispositivo y el único interesado en los datos son la misma persona. Abajo se separa lo que hay hoy (y por qué) de lo que cambiaría con usuarios reales, presupuesto y un contrato de por medio. El detalle y las alternativas descartadas están en [ADR-010](docs/adr/adr-010-coste-cero-y-decisiones-tomadas-por-presupuesto.md).
 
 - **Hosting y despliegue:** la app se sirve como estático desde GitHub Pages con dominio propio (`CNAME` → `calculadora.kavanasystems.com`): 0 € y cero mantenimiento de servidor. Con usuarios reales: hosting con SLA, entornos de staging y producción separados, y despliegue con control de versiones (el pipeline `deploy.yml` figura como planeado en `docs/roadmap.md`).
-- **Persistencia y copias de seguridad:** `localStorage` (ADR-008), síncrono, sin dependencias y sin coste; el techo es de ~5-10 MB por navegador y los datos viven en un único dispositivo, mitigado con export/import JSON (deuda TD-003). El usuario es su propio backup: no hay copia automática. Con usuarios reales: base de datos compartida con sincronización cloud — prevista en el roadmap con prioridad alta, y el modelo de datos ya reserva `tenantId` (`local_default`) para ese salto — más copias automáticas.
-- **Autenticación y multi-usuario:** no existe. La identidad es el navegador y los datos quedan aislados por origen, así que cualquiera con el dispositivo ve y edita todas las plantillas. Con usuarios reales: login, roles (operario / supervisor) y aislamiento por planta, además del dashboard de supervisores que el roadmap marca como prioridad alta.
+- **Persistencia y copias de seguridad:** `localStorage` (ADR-008), síncrono, sin dependencias y sin coste; el techo es de ~5-10 MB por navegador y los datos viven en un único dispositivo, mitigado con export/import JSON (deuda TD-003). El usuario es su propio backup: no hay copia automática. Alcance: al ser una herramienta personal no se plantea una base de datos compartida; la copia del historial en el Drive del propio operario (ADR-012) cubre su control propio. El modelo de datos reserva `tenantId` (`local_default`), pero no hay planes de sincronización multiusuario (ADR-013).
+- **Autenticación y multi-usuario:** no existe. La identidad es el navegador y los datos quedan aislados por origen, así que cualquiera con el dispositivo ve y edita todas las plantillas. Al ser personal no necesita cuentas. Un uso con roles (operario / supervisor) y datos compartidos sería otro producto (por ejemplo Kavana Manufacturing), no una evolución de esta herramienta (ADR-013).
 - **Servidor:** la calculadora es client-side pura, sin backend. El único servidor del repo es el asistente técnico RAG de `backend/` (FastAPI sobre Fly.io: una máquina de 256 MB compartida, `auto_stop_machines = "stop"`, `min_machines_running = 0`), dimensionado al mínimo porque sólo se levanta cuando alguien pregunta. Con usuarios reales: dimensionado por carga real y con métricas de uso; este backend es posterior al resto del documento, y su fuente de verdad son `backend/`, `fly.toml` y este ADR.
 - **Modelo del asistente:** LLM free-tier vía OpenRouter (`ASSISTANT_MODEL_FREE` / `ASSISTANT_MODEL_PRO` apuntan al mismo modelo) e índice TF-IDF construido en memoria sobre el propio corpus del repo (README, `SECURITY.md`, ADRs y guías), sin base de datos vectorial ni embeddings. Con usuarios reales: modelo de pago con SLA y recuperación con embeddings; el TF-IDF en memoria cabe porque el corpus es la documentación de este repositorio.
 - **Protección del asistente:** límite de 15 preguntas/día por IP en un diccionario en memoria que se pierde al reiniciar el proceso (decisión de Jorge, 2026-09-01), con la clave del proveedor sólo en el servidor. Con usuarios reales: cuotas por cuenta en Redis o base de datos, y panel de métricas; hoy no hay telemetría ni error tracking (Sentry figura en el roadmap, prioridad media).
 - **Dependencias de runtime:** cero dependencias npm en ejecución (ES Modules nativos, sin bundler). Las dos excepciones externas — SheetJS 0.20.2 y la fuente Inter — se cargan desde CDN, no están en la lista de precaché de `sw.js` y por tanto el export a Excel falla si el primer arranque es offline; el riesgo está asumido en `docs/roadmap.md` con fallback manual. Con usuarios reales: vendorizar o servir esos assets desde el propio dominio.
-- **Calidad:** 34 tests con el runner nativo de Node (`node --test`, sin dependencias) y CI en GitHub Actions sobre Node 20 que ignora `docs/**` y `**.md`; los módulos de UI se prueban a mano (deuda TD-004) y no hay linting (`ESLint + Prettier` está como prioridad alta en el roadmap). Con usuarios reales: tests de UI automatizados (Playwright), gate de CI bloqueante y auditoría de rendimiento en pipeline (Lighthouse CI).
+- **Calidad:** 73 tests con el runner nativo de Node (`node --test`, sin dependencias) y CI en GitHub Actions sobre Node 20 que ignora `docs/**` y `**.md`; los módulos de UI se prueban a mano (deuda TD-004) y no hay linting (`ESLint + Prettier` está como prioridad alta en el roadmap). Con usuarios reales: tests de UI automatizados (Playwright), gate de CI bloqueante y auditoría de rendimiento en pipeline (Lighthouse CI).
 
 Lo que no cambia entre los dos escenarios es el núcleo técnico: el motor de cálculo puro de `js/calculator.js`, la fórmula de eficiencia y el desglose greedy de la Meta 100% (ADR-009), el modelo de datos (`Template` / `Model` / `Measure` / `ProductionSession`), la arquitectura modular sin framework ni bundler (ADR-002, ADR-004, ADR-005) y la regla de honestidad del asistente (sólo responde con lo que está documentado). Ninguna de esas decisiones se tomó por presupuesto: se tomaron por simplicidad, y con presupuesto seguirían siendo las mismas.
 
@@ -341,15 +371,12 @@ Ver [docs/deployment-guide.md](docs/deployment-guide.md) para guía completa.
 cd tests && npm test
 
 # Tests específicos
-node --test tests/engine.test.js    # Motor de cálculos (22 tests)
-node --test tests/storage.test.js   # Almacenamiento (6 tests)
-node --test tests/theme.test.js     # Sistema de temas (6 tests)
+node --test tests/engine.test.js    # Motor de cálculos
+node --test tests/drive-model.test.js  # Filas de la hoja de Drive
+node --test tests/storage.test.js   # Almacenamiento
 
 # Resultado esperado:
-# ✓ Calculator Engine: 22/22 passing
-# ✓ Storage Helper: 6/6 passing
-# ✓ Theme Manager: 6/6 passing
-# Total: 34 tests, 0 failures
+# Total: 73 tests, 0 failures
 ```
 
 ### Cobertura de Tests
@@ -387,6 +414,7 @@ Ver [docs/roadmap.md](docs/roadmap.md) para el roadmap técnico completo.
 | Phase 4: Export & Backup | ✅ Completado | 2026-06-26 |
 | Phase 5: Portfolio Polish | ✅ Completado | 2026-06-28 |
 | Phase 6: Meta 100% Feature | ✅ Completado | 2026-07-05 |
+| Phase 7: Interfaz de operario y guardado en Drive propio | ✅ Completado | 2026-11-04 |
 
 ---
 
@@ -403,4 +431,4 @@ MIT License — Ver [LICENSE](LICENSE) para detalles.
 
 ---
 
-*Desarrollado con arquitectura vanilla JS. Sin frameworks. Sin dependencias innecesarias. Producción industrial real.*
+*Desarrollado con arquitectura vanilla JS. Sin frameworks. Sin dependencias innecesarias. Hecha por un operario para su propio uso.*

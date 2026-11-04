@@ -448,7 +448,7 @@ Ver `docs/roadmap.md` para el roadmap técnico completo.
 | Modo oscuro/claro | Media | 2 días |
 | Gráficos de eficiencia | Media | 3 días |
 | Múltiples idiomas | Baja | 2 días |
-| Sincronización cloud | Alta | 1 semana |
+| Sincronización cloud | Descartada (ADR-013) | — |
 | Modo offline avanzado | Media | 2 días |
 
 ---
