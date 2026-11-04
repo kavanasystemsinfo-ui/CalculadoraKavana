@@ -51,10 +51,18 @@ export class DriveUI {
         `;
         this.hintEl.textContent = 'Cada vez que pulses «Guardar en Drive» se añaden a la hoja los turnos que aún no estaban.';
 
-        document.getElementById('btn-drive-disconnect')?.addEventListener('click', async () => {
-            if (!confirm('¿Desconectar Google Drive en este dispositivo? El archivo de tu Drive no se borra.')) return;
-            await driveSync.disconnect();
-            window.dispatchEvent(new CustomEvent('drive-changed'));
+        // Confirmación dentro de la pantalla: confirm() no funciona en navegadores embebidos ni en algunas PWA.
+        document.getElementById('btn-drive-disconnect')?.addEventListener('click', () => {
+            this.actionsEl.innerHTML = `
+                <button class="btn btn-secondary" id="btn-drive-disconnect-yes">Sí, desconectar</button>
+                <button class="btn btn-secondary" id="btn-drive-disconnect-no">Cancelar</button>
+            `;
+            this.hintEl.textContent = 'Se desconecta solo en este dispositivo. La hoja de tu Drive no se borra. Para quitar también el permiso en Google: myaccount.google.com/permissions.';
+            document.getElementById('btn-drive-disconnect-no')?.addEventListener('click', () => this.refresh());
+            document.getElementById('btn-drive-disconnect-yes')?.addEventListener('click', async () => {
+                await driveSync.disconnect();
+                window.dispatchEvent(new CustomEvent('drive-changed'));
+            });
         });
     }
 
