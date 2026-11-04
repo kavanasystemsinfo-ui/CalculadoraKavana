@@ -1,9 +1,14 @@
-const CACHE_NAME = 'prod-calc-v20';
+const CACHE_NAME = 'prod-calc-v21';
 const ASSETS = [
     './',
     './index.html',
-    './manifest.json?v=3',
+    './manifest.json?v=4',
     './ICON.png?v=2',
+    './icons/icon-192.png',
+    './icons/icon-512.png',
+    './icons/icon-maskable-1024.png',
+    './icons/apple-touch-icon.png',
+    './icons/favicon-48.png',
     './css/styles.css?v=13',
     './js/app.js?v=16',
     './js/store.js?v=10',
