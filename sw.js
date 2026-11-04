@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-calc-v23';
+const CACHE_NAME = 'prod-calc-v24';
 const ASSETS = [
     './',
     './index.html',
@@ -31,7 +31,8 @@ const ASSETS = [
 self.addEventListener('install', event => {
     self.skipWaiting();
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+        // cache: 'reload' evita copiar a la caché del SW una versión antigua que aún esté en la caché HTTP del navegador.
+        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS.map(url => new Request(url, { cache: 'reload' }))))
     );
 });
 
