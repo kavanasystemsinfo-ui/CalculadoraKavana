@@ -264,6 +264,32 @@ export class DriveSync {
         return this.createSpreadsheet();
     }
 
+    /**
+     * Fecha como DD/MM/AA y columnas con el ancho justo. Se aplica después de cada subida porque
+     * las filas nuevas se insertan por debajo y no heredan el formato de la columna.
+     */
+    async formatSheetsAfterSync(spreadsheetId) {
+        const meta = await this.api(`/${spreadsheetId}?fields=sheets.properties.sheetId`, { method: 'GET' });
+        const requests = [];
+        (meta.sheets || []).forEach(sheet => {
+            const sheetId = sheet.properties.sheetId;
+            requests.push(
+                { repeatCell: {
+                    range: { sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 1 },
+                    cell: { userEnteredFormat: { numberFormat: { type: 'DATE', pattern: 'dd/mm/yy' } } },
+                    fields: 'userEnteredFormat.numberFormat'
+                } },
+                { autoResizeDimensions: {
+                    dimensions: { sheetId, dimension: 'COLUMNS', startIndex: 0, endIndex: HEADERS_TURNOS.length }
+                } }
+            );
+        });
+        await this.api(`/${spreadsheetId}:batchUpdate`, {
+            method: 'POST',
+            body: JSON.stringify({ requests })
+        });
+    }
+
     async appendValues(sheet, rows) {
         const id = localStorage.getItem(KEYS.spreadsheetId);
         const range = `'${sheet}'!A1`;
@@ -310,6 +336,8 @@ export class DriveSync {
             pending.forEach(s => synced.add(s.id));
             localStorage.setItem(KEYS.syncedIds, JSON.stringify([...synced]));
         }
+
+        await this.formatSheetsAfterSync(spreadsheetId).catch(() => {});   // estético: si falla, los datos ya están
 
         return {
             appended: pending.length,
