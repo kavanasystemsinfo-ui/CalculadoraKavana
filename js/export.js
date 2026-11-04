@@ -2,6 +2,8 @@
  * Módulo de exportación a Excel (.xlsx) y backup JSON usando SheetJS.
  */
 
+import { sanitizeSheetName, uniqueSheetName } from './sheet-utils.js';
+
 export class Exporter {
     /**
      * Exporta una sesión de producción individual a un archivo .xlsx.
@@ -59,7 +61,7 @@ export class Exporter {
             { wch: 16 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 12 }
         ];
 
-        XLSX.utils.book_append_sheet(wb, ws, 'Producción');
+        XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName('Producción'));
 
         const safeName = (session.templateName || 'sesion').replace(/\s+/g, '_');
         const filename = `produccion_${safeName}_${dateStr.replace(/\//g, '-')}.xlsx`;
@@ -121,8 +123,8 @@ export class Exporter {
                 { wch: 16 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 12 }
             ];
 
-            const sheetName = `${dateStr} - ${(session.templateName || 'Sin nombre').slice(0, 20)}`;
-            XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0, 31));
+            const sheetName = uniqueSheetName(`${dateStr} - ${session.templateName || 'Sin nombre'}`, wb.SheetNames);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
         });
 
         const filename = `Historial Produccion.xlsx`;
