@@ -58,9 +58,9 @@
 | Gráficos de eficiencia histórica | Media | 3 días | Planeado |
 | Modo oscuro/claro | Media | 2 días | Planeado |
 | Múltiples idiomas (i18n) | Baja | 2 días | Planeado |
-| Sincronización cloud (Supabase) | Alta | 1 semana | Investigación |
+| Sincronización cloud (Supabase) | — | — | Descartado: herramienta personal (ADR-013) |
 | Modo offline avanzado | Media | 2 días | Planeado |
-| Dashboard de supervisores | Alta | 1 semana | Planeado |
+| Dashboard de supervisores | — | — | Descartado: los datos no viajan a la oficina (ADR-013) |
 | Exportación a PDF | Baja | 1 día | Planeado |
 | Notificaciones push | Baja | 2 días | Planeado |
 

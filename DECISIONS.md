@@ -63,10 +63,16 @@ sincronización multi-tenant con backend (MERN/Supabase) sin migración de datos
 
 ## Verificación (2026-08-02)
 
-- **34 tests, todos verdes** (22 engine + 6 storage + 6 theme) con `node --test`
-  nativo, sin dependencias: `cd tests && npm test`
+- **73 tests, todos verdes** con `node --test` nativo, sin dependencias:
+  `cd tests && npm test`
 - App desplegada y funcionando: `https://kavanasystemsinfo-ui.github.io/CalculadoraKavana/`
 - PWA instalable verificada: `sw.js` + `manifest.json` presentes y correctos
+
+## Alcance
+
+La Calculadora es una herramienta de **uso personal del operario**: no sustituye al
+parte en papel, no envía datos a la empresa, y el Excel y la hoja de Drive son para
+su control propio (ADR-013).
 
 ## Por qué este documento existe
 

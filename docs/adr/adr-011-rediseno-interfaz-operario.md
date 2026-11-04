@@ -80,6 +80,5 @@ Sustituir el sistema visual completo por uno pensado para ese uso:
 
 ## Señal de revisión
 
-Se revisa si aparece un segundo usuario real con necesidades distintas (por
-ejemplo, un supervisor que quiera ver varias líneas a la vez) o si el operario
-pide datos que la pantalla del turno no muestra hoy.
+Se revisa si el operario pide datos que la pantalla del turno no muestra hoy. Si
+alguien quisiera que los datos lleguen a la oficina, sería otro producto (ADR-013).
