@@ -72,3 +72,30 @@ def test_rate_limit_diario():
     with pytest.raises(assistant.RateLimitExceeded):
         assistant.enforce_rate_limit("5.6.7.8")
     assistant._preguntas_dia = 0
+
+
+def test_modelos_gratis_descarta_los_de_pago(monkeypatch):
+    monkeypatch.setenv("ASSISTANT_MODEL_FREE", "deepseek/deepseek-chat")
+    monkeypatch.setenv("ASSISTANT_MODEL_PRO", "openai/gpt-4o-mini")
+    modelos = assistant.modelos_gratis()
+    assert modelos == list(assistant.MODELOS_GRATIS_POR_DEFECTO)
+    assert all(m.endswith(":free") for m in modelos)
+
+
+def test_responder_prueba_el_siguiente_modelo_gratis(monkeypatch):
+    import asyncio
+
+    usados = []
+
+    async def _llm(api_key, model, system, user):
+        usados.append(model)
+        if len(usados) == 1:
+            raise RuntimeError("LLM 429")
+        return "respuesta"
+
+    monkeypatch.setattr(assistant, "llamar_openrouter", _llm)
+    monkeypatch.setattr(assistant, "_leer_contexto_base", lambda: "contexto")
+    monkeypatch.setattr(assistant, "buscar", lambda *a, **k: [{"fuente": "README.md", "texto": "x" * 200, "score": 1}])
+    r = asyncio.run(assistant.responder("k", "que es esto"))
+    assert r["respuesta"] == "respuesta"
+    assert len(usados) == 2 and all(m.endswith(":free") for m in usados)
