@@ -22,8 +22,29 @@ logger = logging.getLogger(__name__)
 # Local: raíz del repo. Producción: /app (el Dockerfile copia README/docs allí).
 REPO_ROOT = Path(os.getenv("CALCULADORA_DOCS_ROOT") or Path(__file__).resolve().parents[2])
 
-MODELO_FREE = os.getenv("ASSISTANT_MODEL_FREE", "nvidia/nemotron-3-super-120b-a12b:free")
-MODELO_PRO = os.getenv("ASSISTANT_MODEL_PRO", "nvidia/nemotron-3-super-120b-a12b:free")
+# Política Kavana (T-061): solo modelos gratuitos de OpenRouter (sufijo ":free"),
+# con hasta 3 de respaldo. Misma lista que el panel de ODOO_CRM.
+MODELOS_GRATIS_POR_DEFECTO = (
+    "cohere/north-mini-code:free",
+    "google/gemma-4-31b-it:free",
+    "google/gemma-4-26b-a4b-it:free",
+)
+MAX_MODELOS_POR_PREGUNTA = 3
+
+
+def modelos_gratis() -> list[str]:
+    """Modelos configurados (si son :free) seguidos de los de por defecto; nunca de pago."""
+    candidatos = [
+        os.getenv("ASSISTANT_MODEL_FREE", ""),
+        os.getenv("ASSISTANT_MODEL_PRO", ""),
+        *MODELOS_GRATIS_POR_DEFECTO,
+    ]
+    lista: list[str] = []
+    for m in candidatos:
+        m = m.strip()
+        if m.endswith(":free") and m not in lista:
+            lista.append(m)
+    return lista[:MAX_MODELOS_POR_PREGUNTA]
 
 # Protección del asistente público (decisión Jorge 2026-09-01, DeepSeek):
 # - por IP: 15 preguntas / día
@@ -248,11 +269,20 @@ async def responder(api_key: str, pregunta: str) -> dict:
     )
     user_prompt = f"PREGUNTA:\n{pregunta}\n\nCONTEXTO (documentación del proyecto):\n{contexto}"
 
-    model = MODELO_PRO
-    try:
-        respuesta = await llamar_openrouter(api_key, model, system_prompt, user_prompt)
-    except RuntimeError:
-        respuesta = await llamar_openrouter(api_key, MODELO_PRO, system_prompt, user_prompt)
+    model = ""
+    respuesta = ""
+    ultimo_error: Exception | None = None
+    for candidato in modelos_gratis():
+        try:
+            respuesta = await llamar_openrouter(api_key, candidato, system_prompt, user_prompt)
+        except RuntimeError as exc:
+            ultimo_error = exc
+            continue
+        if respuesta:
+            model = candidato
+            break
+    if not respuesta:
+        raise RuntimeError(str(ultimo_error) if ultimo_error else "LLM sin respuesta")
 
     fuentes = sorted({d["fuente"] for d in docs})
     if contexto_base:
