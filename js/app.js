@@ -5,6 +5,7 @@ import { ProductionUI } from './ui-production.js?v=14';
 import { HistoryUI } from './ui-history.js?v=14';
 import { SEED_TEMPLATES, SEED_SESSIONS } from './seed-data.js';
 import { DriveUI } from './ui-drive.js?v=2';
+import { initTour } from './tour.js';
 
 class App {
     constructor() {
@@ -46,6 +47,7 @@ class App {
         this.productionUI = new ProductionUI();
         this.historyUI = new HistoryUI();
         this.driveUI = new DriveUI();
+        initTour();
 
         // Carga inicial de datos para verificar que localStorage funciona
         try {
