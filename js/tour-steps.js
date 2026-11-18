@@ -19,8 +19,8 @@ export const STEPS = [
     },
     {
         id: 'pestanas', tab: 'tab-plantillas', sel: '.tab-nav',
-        title: 'Cuatro pestañas',
-        text: 'Turno es donde cuentas, Mis líneas guarda tus perfiladoras, Mi historial los turnos ya guardados y Ajustes el aspecto.'
+        title: 'Cuatro pestañas y la guía',
+        text: 'Turno es donde cuentas, Mis líneas guarda tus perfiladoras, Mi historial los turnos ya guardados y Ajustes el aspecto. Con Guía puedes volver a ver este recorrido.'
     },
     {
         id: 'lineas', tab: 'tab-plantillas', sel: '#lista-plantillas',
