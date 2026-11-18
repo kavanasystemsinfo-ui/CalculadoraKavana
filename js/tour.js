@@ -192,16 +192,10 @@ export function empezarTour() {
     pintarPaso(1);
 }
 
-/** Pone el botón "?" y abre el recorrido solo la primera vez. */
+/** Engancha el botón «Guía» de la barra y abre el recorrido solo la primera vez. */
 export function initTour() {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'tour-ayuda';
-    b.setAttribute('aria-label', 'Recorrido guiado');
-    b.title = 'Recorrido guiado';
-    b.textContent = '?';
-    b.addEventListener('click', empezarTour);
-    document.body.appendChild(b);
+    const b = document.getElementById('btn-tour');
+    if (b) b.addEventListener('click', empezarTour);
 
     if (!leerVisto()) {
         setTimeout(() => { if (!activo && !modalAbierto()) empezarTour(); }, 1200);

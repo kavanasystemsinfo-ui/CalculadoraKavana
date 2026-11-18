@@ -1782,28 +1782,6 @@ code {
 }
 
 /* ===== 16. Recorrido guiado ============================================ */
-.tour-ayuda {
-    position: fixed;
-    right: 16px;
-    bottom: 18px;
-    z-index: 40;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1px solid var(--line-2);
-    background: var(--card-bg);
-    color: var(--accent-secondary);
-    font: inherit;
-    font-size: 20px;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.6);
-}
-.tour-ayuda:hover { border-color: var(--accent-primary); }
-.tour-ayuda:focus-visible { outline: 3px solid var(--accent-primary); outline-offset: 2px; }
-@media (max-width: 900px) {
-    .tour-ayuda { bottom: 100px; right: 12px; }
-}
 .tour-capa { position: fixed; inset: 0; z-index: 2000; background: transparent; }
 .tour-capa.tour-oscura { background: rgba(2, 6, 14, 0.66); }
 .tour-foco {
