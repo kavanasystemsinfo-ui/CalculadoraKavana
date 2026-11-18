@@ -6,6 +6,16 @@ El versionado sigue [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [Sin publicar]
+
+### Added
+- **Recorrido guiado** de 14 pasos por las cuatro pestañas (Mis líneas, Turno,
+  Mi historial y Ajustes). Se abre solo la primera vez y se repite con el botón «?».
+  Si no hay líneas, se salta la parte del turno. Motor propio en `js/tour.js` y
+  pasos en `js/tour-steps.js`, con tests.
+
+---
+
 ## [3.1.0] - 2026-11-03
 
 ### Added

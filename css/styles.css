@@ -1780,3 +1780,84 @@ code {
     background: var(--line-2);
     border-radius: 99px;
 }
+
+/* ===== 16. Recorrido guiado ============================================ */
+.tour-ayuda {
+    position: fixed;
+    right: 16px;
+    bottom: 18px;
+    z-index: 40;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line-2);
+    background: var(--card-bg);
+    color: var(--accent-secondary);
+    font: inherit;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.6);
+}
+.tour-ayuda:hover { border-color: var(--accent-primary); }
+.tour-ayuda:focus-visible { outline: 3px solid var(--accent-primary); outline-offset: 2px; }
+@media (max-width: 900px) {
+    .tour-ayuda { bottom: 100px; right: 12px; }
+}
+.tour-capa { position: fixed; inset: 0; z-index: 2000; background: transparent; }
+.tour-capa.tour-oscura { background: rgba(2, 6, 14, 0.66); }
+.tour-foco {
+    position: fixed;
+    z-index: 2001;
+    pointer-events: none;
+    border-radius: 12px;
+    box-shadow: 0 0 0 3px var(--accent-primary), 0 0 0 9999px rgba(2, 6, 14, 0.66);
+    transition: top 0.2s, left 0.2s, width 0.2s, height 0.2s;
+}
+.tour-tarjeta {
+    position: fixed;
+    z-index: 2002;
+    width: min(400px, calc(100vw - 16px));
+    background: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--line-2);
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+    padding: 16px 18px;
+}
+.tour-tarjeta .tour-cont {
+    margin: 0 0 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-secondary);
+}
+.tour-tarjeta h3 { margin: 0 0 6px; font-size: 18px; }
+.tour-tarjeta .tour-txt { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--text-dim); }
+.tour-botones { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+.tour-botones .tour-saltar {
+    margin-right: auto;
+    background: none;
+    border: 0;
+    padding: 8px 4px;
+    color: var(--text-dim);
+    font: inherit;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.tour-botones .tour-sec,
+.tour-botones .tour-sig {
+    min-height: 42px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.tour-botones .tour-sec { border: 1px solid var(--line-2); background: transparent; color: var(--text-main); }
+.tour-botones .tour-sig { border: 0; background: var(--accent-primary); color: #fff; }
+.tour-botones button:disabled { opacity: 0.4; cursor: default; }
+.tour-botones button:focus-visible { outline: 3px solid var(--accent-secondary); outline-offset: 2px; }

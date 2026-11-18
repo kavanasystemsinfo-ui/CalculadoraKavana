@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prod-calc-v25';
+const CACHE_NAME = 'prod-calc-v26';
 const ASSETS = [
     './',
     './index.html',
@@ -9,8 +9,8 @@ const ASSETS = [
     './icons/icon-maskable-1024.png',
     './icons/apple-touch-icon.png',
     './icons/favicon-48.png',
-    './css/styles.css?v=13',
-    './js/app.js?v=18',
+    './css/styles.css?v=14',
+    './js/app.js?v=19',
     './js/store.js?v=11',
     './js/theme.js?v=13',
     './js/calculator.js',
@@ -24,6 +24,8 @@ const ASSETS = [
     './js/drive.js',
     './js/drive-model.js',
     './js/sheet-utils.js',
+    './js/tour.js',
+    './js/tour-steps.js',
     './js/seed-data.js',
     './vendor/xlsx.full.min.js?v=1'
 ];
